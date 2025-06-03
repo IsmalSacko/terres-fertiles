@@ -1,0 +1,169 @@
+.dashboard-container {
+  padding: 2rem;
+  min-height: calc(100vh - 64px); /* Ajuster selon la hauteur de votre header */
+  background-color: var(--background-color);
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: slideIn 0.5s ease-out;
+}
+
+.dashboard-header h2 {
+  color: var(--primary-color);
+  font-size: 2rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.dashboard-header mat-icon {
+  color: var(--primary-color);
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+}
+
+.dashboard-items-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.dashboard-card {
+  background: var(--surface-color);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all var(--transition-speed);
+  cursor: pointer;
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--hover-shadow);
+  border-color: var(--primary-light);
+}
+
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  opacity: 0;
+  transition: opacity var(--transition-speed);
+}
+
+.dashboard-card:hover::before {
+  opacity: 1;
+}
+
+.dashboard-card-content {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.dashboard-icon {
+  font-size: 3rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  padding: 0.50rem;
+  border-radius: 50%;
+  background-color: var(--background-color);
+  color: var(--primary-color);
+  transition: all var(--transition-speed);
+}
+
+.dashboard-card:hover .dashboard-icon {
+  background-color: var(--primary-light);
+  color: white;
+  transform: scale(1.1);
+}
+
+.dashboard-card h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Catégories spécifiques pour les icônes */
+.dashboard-card[data-category="chantiers"] .dashboard-icon { color: var(--primary-color); }
+.dashboard-card[data-category="analyses"] .dashboard-icon { color: var(--accent-color); }
+.dashboard-card[data-category="vente"] .dashboard-icon { color: var(--secondary-color); }
+.dashboard-card[data-category="gisements"] .dashboard-icon { color: var(--primary-dark); }
+.dashboard-card[data-category="composts"] .dashboard-icon { color: var(--success-color); }
+.dashboard-card[data-category="melanges"] .dashboard-icon { color: var(--secondary-dark); }
+.dashboard-card[data-category="documents"] .dashboard-icon { color: var(--text-secondary); }
+.dashboard-card[data-category="admin"] .dashboard-icon { color: var(--danger-color); }
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+
+  .dashboard-header {
+    margin-bottom: 2rem;
+  }
+
+  .dashboard-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-items-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .dashboard-card-content {
+    padding: 1.5rem;
+  }
+
+  .dashboard-icon {
+    font-size: 3rem;
+    width: 4rem;
+    height: 4rem;
+    padding: 0rem;
+  }
+}
+
+/* Animation pour l'apparition des cartes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dashboard-card {
+  animation: fadeInUp 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.dashboard-card:nth-child(1) { animation-delay: 0.1s; }
+.dashboard-card:nth-child(2) { animation-delay: 0.2s; }
+.dashboard-card:nth-child(3) { animation-delay: 0.3s; }
+.dashboard-card:nth-child(4) { animation-delay: 0.4s; }
+.dashboard-card:nth-child(5) { animation-delay: 0.5s; }
+.dashboard-card:nth-child(6) { animation-delay: 0.6s; }
+.dashboard-card:nth-child(7) { animation-delay: 0.7s; }
+.dashboard-card:nth-child(8) { animation-delay: 0.8s; }

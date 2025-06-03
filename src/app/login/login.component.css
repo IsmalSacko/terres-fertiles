@@ -1,0 +1,55 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #71b7e6, #9b59b6); /* Exemple de dégradé moderne */
+  padding: 20px;
+}
+
+mat-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+mat-card-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.full-width-field {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.full-width-button {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 16px;
+}
+
+.error-message {
+  color: #f44336;
+  margin: 15px 0;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  text-align: center;
+  opacity: 0;
+  animation: slideDown 0.3s ease-in-out forwards;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

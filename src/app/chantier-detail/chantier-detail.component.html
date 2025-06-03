@@ -1,0 +1,112 @@
+<div class="container">
+  <mat-card>
+    <mat-card-title>
+      {{ isEditMode ? 'Modifier le chantier' : (isViewOnly ? 'Détails du chantier' : 'Ajouter un chantier') }}
+    </mat-card-title>
+
+    <div *ngIf="loading" class="loading">
+      <mat-spinner></mat-spinner>
+    </div>
+
+    <div *ngIf="errorMsg" class="error-message">
+      {{ errorMsg }}
+    </div>
+
+    <!-- Mode vue seule -->
+    <div *ngIf="isViewOnly && !loading">
+      <div class="detail-row"><strong>Nom du chantier :</strong> {{ chantier.nom }}</div>
+      <div class="detail-row"><strong>Maître d'ouvrage :</strong> {{ chantier.maitre_ouvrage }}</div>
+      <div class="detail-row"><strong>Entreprise terrassement :</strong> {{ chantier.entreprise_terrassement }}</div>
+      <div class="detail-row"><strong>Localisation :</strong> {{ chantier.localisation }}</div>
+
+      <div class="form-row map-row">
+        <label>Localisation sur la carte</label>
+        <div style="height: 600px;"
+             leaflet
+             [leafletOptions]="mapOptions"
+             [leafletLayers]="mapLayers"
+             [leafletLayersControl]="leafletLayersControl"
+             (leafletMapReady)="onMapReady($event)"
+             (leafletClick)="onMapClick($event)">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button mat-button type="button" (click)="cancel()">Retour à la liste</button>
+      </div>
+    </div>
+
+    <!-- Mode édition ou création -->
+    <form (ngSubmit)="saveChantier()" #chantierForm="ngForm" *ngIf="!isViewOnly && !loading">
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Nom du chantier</mat-label>
+          <input matInput name="nom" [(ngModel)]="chantier.nom" required>
+          <mat-error *ngIf="chantierForm.form.get('nom')?.hasError('required')">Le nom est requis</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Maître d'ouvrage</mat-label>
+          <input matInput name="maitre_ouvrage" [(ngModel)]="chantier.maitre_ouvrage" required>
+          <mat-error *ngIf="chantierForm.form.get('maitre_ouvrage')?.hasError('required')">Le maître d'ouvrage est requis</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Entreprise terrassement</mat-label>
+          <input matInput name="entreprise_terrassement" [(ngModel)]="chantier.entreprise_terrassement" required>
+          <mat-error *ngIf="chantierForm.form.get('entreprise_terrassement')?.hasError('required')">L'entreprise terrassement est requise</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Localisation</mat-label>
+          <input matInput name="localisation" [(ngModel)]="chantier.localisation" required>
+          <mat-error *ngIf="chantierForm.form.get('localisation')?.hasError('required')">La localisation est requise</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Carte interactive -->
+      <div class="form-row map-row">
+        <label>Localisation sur la carte</label>
+        <div style="height: 300px;"
+             leaflet
+             [leafletOptions]="mapOptions"
+             [leafletLayers]="mapLayers"
+             [leafletLayersControl]="leafletLayersControl"
+             (leafletMapReady)="onMapReady($event)"
+             (leafletClick)="onMapClick($event)">
+        </div>
+      </div>
+
+      <!-- Champs latitude / longitude synchronisés -->
+      <div class="form-row coord-row">
+        <mat-form-field appearance="fill" class="half-width">
+          <mat-label>Latitude</mat-label>
+          <input matInput type="number" [(ngModel)]="chantier.latitude" name="latitude" step="any">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="half-width">
+          <mat-label>Longitude</mat-label>
+          <input matInput type="number" [(ngModel)]="chantier.longitude" name="longitude" step="any">
+        </mat-form-field>
+      </div>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="loading || !chantierForm.form.valid">
+          {{ loading ? (isEditMode ? 'Enregistrement...' : 'Création...') : (isEditMode ? 'Enregistrer' : 'Créer') }}
+        </button>
+
+        <button mat-raised-button color="warn" type="button" (click)="deleteChantier()" *ngIf="isEditMode && chantier.id" [disabled]="loading">
+          Supprimer
+        </button>
+
+        <button mat-button type="button" (click)="cancel()" [disabled]="loading">Annuler</button>
+      </div>
+    </form>
+  </mat-card>
+</div>

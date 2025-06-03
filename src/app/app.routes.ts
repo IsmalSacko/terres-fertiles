@@ -1,3 +1,50 @@
 import { Routes } from '@angular/router';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { EtapesComponent } from './pages/etapes/etapes.component';
+import { DocumentGisementComponent } from './document-gisement/document-gisement.component';
+import { ProduitsComponent } from './pages/produits/produits.component';
+import { AdminUsersComponent } from './pages/admin-users/admin-users.component';
+import { WorkflowOverviewComponent } from './workflow-overview/workflow-overview.component';
+import { GisementListComponent } from './gisement-list/gisement-list.component';
+import { GisementDetailComponent } from './gisement-detail/gisement-detail.component';
+import { CompostListComponent } from './compost-list/compost-list.component';
+import { CompostDetailComponent } from './compost-detail/compost-detail.component';
+import { MelangeListComponent } from './melange-list/melange-list.component';
+import { MelangeDetailComponent } from './melange-detail/melange-detail.component';
+import { ProduitVenteListComponent } from './produit-vente-list/produit-vente-list.component';
+import { ProduitVenteDetailComponent } from './produit-vente-detail/produit-vente-detail.component';
+import { DocumentTechniqueListComponent } from './document-technique-list/document-technique-list.component';
+import { DocumentTechniqueDetailComponent } from './document-technique-detail/document-technique-detail.component';
+import { AnalyseLaboratoireListComponent } from './analyse-laboratoire-list/analyse-laboratoire-list.component';
+import { AnalyseLaboratoireDetailComponent } from './analyse-laboratoire-detail/analyse-laboratoire-detail.component';
+import { LoginComponent } from './login/login.component';
+import { GisementCreateComponent } from './gisement-create/gisement-create.component';
+import { ChantierListComponent } from './chantier-list/chantier-list.component';
+import { ChantierDetailComponent } from './chantier-detail/chantier-detail.component';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  { path: 'dashboard', component: DashboardComponent },
+  { path: 'etapes', component: EtapesComponent },
+  { path: 'documents-gisement', component: DocumentGisementComponent },
+  { path: 'produits', component: ProduitsComponent },
+  { path: 'users', component: AdminUsersComponent },
+  { path: 'workflow', component: WorkflowOverviewComponent },
+  { path: 'chantiers', component: ChantierListComponent },
+  { path: 'chantiers/new', component: ChantierDetailComponent },
+  { path: 'chantiers/:id', component: ChantierDetailComponent },
+  { path: 'gisements', component: GisementListComponent },
+  { path: 'gisements/new', component: GisementCreateComponent },
+  { path: 'gisements/:id', component: GisementDetailComponent },
+  { path: 'composts', component: CompostListComponent },
+  { path: 'composts/:id', component: CompostDetailComponent },
+  { path: 'melanges', component: MelangeListComponent },
+  { path: 'melanges/:id', component: MelangeDetailComponent },
+  { path: 'produits-vente', component: ProduitVenteListComponent },
+  { path: 'produits-vente/:id', component: ProduitVenteDetailComponent },
+  { path: 'documents-techniques', component: DocumentTechniqueListComponent },
+  { path: 'documents-techniques/:id', component: DocumentTechniqueDetailComponent },
+  { path: 'analyses-laboratoire', component: AnalyseLaboratoireListComponent },
+  { path: 'analyses-laboratoire/:id', component: AnalyseLaboratoireDetailComponent },
+];

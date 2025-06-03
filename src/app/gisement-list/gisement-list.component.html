@@ -1,0 +1,61 @@
+<div class="container">
+  <div class="header-actions">
+    <h2>
+      <mat-icon>landscape</mat-icon>
+      Liste des gisements
+    </h2>
+    <button mat-raised-button (click)="addGisement()">
+      <mat-icon>add</mat-icon>
+      Ajouter un gisement
+    </button>
+  </div>
+
+  <div class="gisements-grid" *ngIf="gisements.length; else emptyList">
+    <mat-card class="gisement-card" *ngFor="let g of gisements">
+      <div class="gisement-content">
+        <button class="folder-button" (click)="goToDetail(g.id, 'view')">
+          <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png" class="folder-icon" alt="Gisement" />
+        </button>
+        <h3 class="gisement-name">{{ g.commune }}</h3>
+        
+        <div class="gisement-info">
+          <span>
+            <mat-icon>calendar_today</mat-icon>
+            {{ g.periode_terrassement }}
+          </span>
+          <span>
+            <mat-icon>straighten</mat-icon>
+            {{ g.volume_terrasse }} m³
+          </span>
+          <span>
+            <mat-icon>category</mat-icon>
+            {{ g.materiau }}
+          </span>
+          <span *ngIf="g.localisation">
+            <mat-icon>location_on</mat-icon>
+            {{ g.localisation }}
+          </span>
+        </div>
+      </div>
+
+      <mat-card-actions>
+        <button mat-icon-button color="primary" (click)="goToDetail(g.id, 'view')" title="Voir">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button (click)="goToDetail(g.id, 'edit')" title="Modifier">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteGisement(g.id)" title="Supprimer">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <ng-template #emptyList>
+    <div class="empty-list">
+      <mat-icon>landscape</mat-icon>
+      <p>Aucun gisement trouvé.</p>
+    </div>
+  </ng-template>
+</div>

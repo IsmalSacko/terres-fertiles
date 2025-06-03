@@ -1,0 +1,210 @@
+.container {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin: 0;
+  color: #333;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.error-message {
+  color: #f44336;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 4px;
+}
+
+.chantier-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+}
+
+.card-content-wrapper {
+  flex-grow: 1;
+  padding: 16px;
+}
+
+.chantier-card mat-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.chantier-card mat-card-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e3f2fd;
+  color: #1565c0;
+  margin-right: 16px;
+}
+
+.chantier-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+mat-card-title {
+  font-size: 1.1em;
+  margin-bottom: 2px;
+  color: #333;
+}
+
+mat-card-subtitle {
+  font-size: 0.9em;
+  color: #555;
+}
+
+mat-card-actions {
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: auto;
+  border-top: 1px solid #eee;
+}
+
+.no-data {
+  text-align: center;
+  margin: 20px 0;
+  color: #666;
+  font-style: italic;
+}
+
+/* Responsive grid */
+/* These styles are now controlled by BreakpointObserver in the component TS */
+/*
+@media (max-width: 1200px) {
+  :host ::ng-deep mat-grid-list {
+    --mat-grid-list-cols: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  :host ::ng-deep mat-grid-list {
+    --mat-grid-list-cols: 1;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+}
+*/
+
+@media (max-width: 600px) {
+   /* Keep header responsive styles */
+  .header {
+    margin-bottom: 40px;
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  /* Existing mobile card styles */
+  .chantier-card {
+    height: auto; 
+    min-height: 180px;
+  }
+
+  .card-content-wrapper {
+    padding: 12px;
+  }
+  
+  .chantier-card mat-card-header {
+    padding: 0;
+    margin-bottom: 8px;
+  }
+
+  mat-card-title {
+    font-size: 1em;
+  }
+
+  mat-card-subtitle {
+    font-size: 0.8em;
+  }
+
+  mat-card-actions {
+    padding: 8px 12px 8px 12px;
+    justify-content: center;
+    gap: 16px;
+  }
+}
+
+table {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.chantier-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mat-column-nom {
+  min-width: 250px;
+}
+
+.mat-column-maitre_ouvrage {
+  min-width: 200px;
+}
+
+.mat-column-entreprise_terrassement {
+  min-width: 150px;
+}
+
+.mat-column-localisation {
+  min-width: 150px;
+}
+
+.mat-column-latitude,
+.mat-column-longitude {
+  min-width: 100px;
+  text-align: right;
+}
+
+.mat-column-actions {
+  width: 120px;
+  text-align: center;
+}
+
+button[mat-raised-button] {
+  margin-bottom: 20px;
+}
+
+/* Style pour les cellules du tableau */
+.mat-mdc-cell {
+  padding: 0 8px;
+}
+
+/* Style pour les en-têtes du tableau */
+.mat-mdc-header-cell {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  background-color: #fafafa;
+} 
