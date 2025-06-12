@@ -3,16 +3,16 @@
     <mat-card-header>
       <mat-card-title>
         <mat-icon class="icon-location">location_on</mat-icon>
-        {{ mode === 'edit' ? 'Modifier' : 'Gisement de' }} {{ gisement.commune }}
+        {{ isEditMode ? 'Modifier' : (isViewOnly ? 'Gisement de' : 'Ajouter un gisement') }} {{ gisement.commune || '' }}
       </mat-card-title>
       <mat-card-subtitle>
         <mat-icon class="icon-action icon-small">tag</mat-icon>
-        ID: {{ gisement.id }}
+        ID: {{ gisement.id || 'Nouveau' }}
       </mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
-      <div class="info-section" *ngIf="mode === 'view'">
+      <div class="info-section" *ngIf="isViewOnly">
         <div class="info-group">
           <h3>
             <mat-icon class="icon-action">info</mat-icon>
@@ -24,35 +24,35 @@
                 <mat-icon class="icon-calendar icon-small">calendar_today</mat-icon>
                 Période de terrassement
               </span>
-              <span class="value">{{ gisement.periode_terrassement }}</span>
+              <span class="value">{{ gisement.periode_terrassement || 'Non définie' }}</span>
             </div>
             <div class="info-item">
               <span class="label">
                 <mat-icon class="icon-measurement icon-large">straighten</mat-icon>
                 Volume terrassé
               </span>
-              <span class="value">{{ gisement.volume_terrasse }} m³</span>
+              <span class="value">{{ gisement.volume_terrasse || 0 }} m³</span>
             </div>
             <div class="info-item">
               <span class="label">
                 <mat-icon class="icon-material icon-small">category</mat-icon>
                 Matériau
               </span>
-              <span class="value">{{ gisement.materiau }}</span>
+              <span class="value">{{ gisement.materiau || 'Non défini' }}</span>
             </div>
             <div class="info-item">
               <span class="label">
                 <mat-icon class="icon-location icon-small">place</mat-icon>
                 Localisation
               </span>
-              <span class="value">{{ gisement.localisation }}</span>
+              <span class="value">{{ gisement.localisation || 'Non définie' }}</span>
             </div>
             <div class="info-item">
               <span class="label">
                 <mat-icon class="icon-material icon-small">terrain</mat-icon>
                 Type de sol
               </span>
-              <span class="value">{{ getSolTypeName(gisement.type_de_sol) }}</span>
+              <span class="value">{{ getSolTypeName(gisement.type_de_sol || 'limon') }}</span>
             </div>
             <div class="info-item" *ngIf="gisement.latitude && gisement.longitude">
               <span class="label">
@@ -61,6 +61,40 @@
               </span>
               <span class="value">{{ gisement.latitude }}, {{ gisement.longitude }}</span>
             </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Section carte en mode vue -->
+        <div class="info-group" *ngIf="gisement.latitude && gisement.longitude">
+          <h3>
+            <mat-icon class="icon-location">map</mat-icon>
+            Localisation sur la carte
+          </h3>
+          <div class="map-container">
+            <google-map
+              height="400px"
+              width="100%"
+              [center]="mapCenter"
+              [zoom]="mapZoom">
+              <map-marker
+                [position]="markerPosition!"
+                [label]="gisement.nom || gisement.commune || 'Gisement'"
+                [options]="{ 
+                  icon: { 
+                    url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                  }
+                }"
+                (mapClick)="openGoogleMaps()">
+              </map-marker>
+            </google-map>
+          </div>
+          <div class="map-actions">
+            <button mat-raised-button color="primary" (click)="openGoogleMaps()">
+              <mat-icon>directions</mat-icon>
+              Obtenir l'itinéraire
+            </button>
           </div>
         </div>
 
@@ -97,7 +131,7 @@
         </div>
       </div>
 
-      <form *ngIf="mode === 'edit'" (ngSubmit)="saveGisement()" class="edit-form">
+      <form *ngIf="isEditMode" (ngSubmit)="saveGisement()" class="edit-form">
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>Chantier</mat-label>
@@ -163,19 +197,46 @@
             <mat-icon matSuffix>gps_fixed</mat-icon>
           </mat-form-field>
         </div>
+
+        <!-- Carte interactive en mode édition -->
+        <div class="map-section">
+          <div class="section-title">
+            <mat-icon class="icon-location">map</mat-icon>
+            Localisation sur la carte
+          </div>
+          <div class="map-container">
+            <google-map
+              height="300px"
+              width="100%"
+              [center]="mapCenter"
+              [zoom]="mapZoom"
+              (mapClick)="updatePosition($event)">
+              <map-marker
+                *ngIf="markerPosition"
+                [position]="markerPosition"
+                [options]="markerOptions"
+                (mapDragend)="onMarkerDragEnd($event)">
+              </map-marker>
+            </google-map>
+          </div>
+          <div class="map-instructions">
+            <mat-icon class="icon-action">info</mat-icon>
+            Cliquez sur la carte ou déplacez le marqueur pour définir la position
+          </div>
+        </div>
       </form>
     </mat-card-content>
 
     <mat-card-actions>
-      <button mat-button (click)="goBack()" *ngIf="mode === 'view'" class="back-button">
+      <button mat-button (click)="goBack()" *ngIf="isViewOnly" class="back-button">
         <mat-icon class="icon-action">arrow_back</mat-icon>
         Retour
       </button>
-      <button mat-raised-button color="primary" (click)="editGisement()" *ngIf="mode === 'view'" class="edit-button">
+      <button mat-raised-button color="primary" (click)="editGisement()" *ngIf="isViewOnly" class="edit-button">
         <mat-icon class="icon-action">edit</mat-icon>
         Modifier
       </button>
-      <ng-container *ngIf="mode === 'edit'">
+      <ng-container *ngIf="isEditMode">
         <button mat-button (click)="cancelEdit()" class="cancel-button">
           <mat-icon class="icon-warning">cancel</mat-icon>
           Annuler

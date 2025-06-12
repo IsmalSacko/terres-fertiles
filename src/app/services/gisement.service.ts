@@ -21,6 +21,8 @@ export interface Gisement {
   id: number;
   chantier: number;
   documents: DocumentGisement[];
+  nom: string;
+  date_creation: string;
   commune: string;
   periode_terrassement: string;
   volume_terrasse: number;
@@ -52,7 +54,21 @@ export class GisementService {
       this.apiUrl,
       this.getHeaders()
     );
-    return response.data;
+    return response.data.map(gisement => ({
+      ...gisement,
+      volume_terrasse: Number(gisement.volume_terrasse)
+    }));
+  }
+
+  async getByChantierId(chantierId: number): Promise<Gisement[]> {
+    const response = await axios.get<Gisement[]>(
+      `${this.apiUrl}?chantier=${chantierId}`,
+      this.getHeaders()
+    );
+    return response.data.map(gisement => ({
+      ...gisement,
+      volume_terrasse: Number(gisement.volume_terrasse)
+    }));
   }
 
   async getById(id: number): Promise<Gisement> {
@@ -60,9 +76,11 @@ export class GisementService {
       `${this.apiUrl}${id}/`,
       this.getHeaders()
     );
-    return response.data;
+    return {
+      ...response.data,
+      volume_terrasse: Number(response.data.volume_terrasse)
+    };
   }
-
 
   async create(gisement: PartialGisement): Promise<Gisement> {
     const response = await axios.post<Gisement>(
@@ -89,11 +107,8 @@ export class GisementService {
     );
   }
 
-
-
   // Method to get documents for a specific gisement
   async getDocumentsByGisementId(gisementId: number): Promise<DocumentGisement[]> {
- 
     const response = await axios.get<DocumentGisement[]>(
       `${this.documentGisementApiUrl}?gisement=${gisementId}`, 
       this.getHeaders());

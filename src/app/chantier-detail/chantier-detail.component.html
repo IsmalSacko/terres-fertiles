@@ -1,111 +1,311 @@
-<div class="container">
-  <mat-card>
-    <mat-card-title>
-      {{ isEditMode ? 'Modifier le chantier' : (isViewOnly ? 'Détails du chantier' : 'Ajouter un chantier') }}
-    </mat-card-title>
+<div class="container fade-in">
+  <mat-card class="chantier-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="icon-location">location_city</mat-icon>
+        {{ isEditMode ? 'Modifier le chantier' : (isViewOnly ? 'Détails du chantier' : 'Ajouter un chantier') }}
+      </mat-card-title>
+    </mat-card-header>
 
     <div *ngIf="loading" class="loading">
       <mat-spinner></mat-spinner>
+      <p>Chargement en cours...</p>
     </div>
 
     <div *ngIf="errorMsg" class="error-message">
+      <mat-icon>error</mat-icon>
       {{ errorMsg }}
     </div>
 
-    <!-- Mode vue seule -->
-    <div *ngIf="isViewOnly && !loading">
-      <div class="detail-row"><strong>Nom du chantier :</strong> {{ chantier.nom }}</div>
-      <div class="detail-row"><strong>Maître d'ouvrage :</strong> {{ chantier.maitre_ouvrage }}</div>
-      <div class="detail-row"><strong>Entreprise terrassement :</strong> {{ chantier.entreprise_terrassement }}</div>
-      <div class="detail-row"><strong>Localisation :</strong> {{ chantier.localisation }}</div>
+    <div *ngIf="successMsg" class="success-message">
+      <mat-icon>check_circle</mat-icon>
+      {{ successMsg }}
+    </div>
 
-      <div class="form-row map-row">
-        <label>Localisation sur la carte</label>
-        <div style="height: 600px;"
-             leaflet
-             [leafletOptions]="mapOptions"
-             [leafletLayers]="mapLayers"
-             [leafletLayersControl]="leafletLayersControl"
-             (leafletMapReady)="onMapReady($event)"
-             (leafletClick)="onMapClick($event)">
+    <!-- Mode vue seule -->
+    <div *ngIf="isViewOnly && !loading" class="view-mode slide-in">
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="label">
+            <mat-icon class="icon-location">warehouse</mat-icon>
+            Nom du chantier
+          </div>
+          <div class="value">{{ chantier.nom }}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="label">
+            <mat-icon class="icon-action">person</mat-icon>
+            Maître d'ouvrage
+          </div>
+          <div class="value">{{ chantier.maitre_ouvrage }}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="label">
+            <mat-icon class="icon-action">groups</mat-icon>
+            Entreprise terrassement
+          </div>
+          <div class="value">{{ chantier.entreprise_terrassement }}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="label">
+            <mat-icon class="icon-location">place</mat-icon>
+            Localisation
+          </div>
+          <div class="value">{{ chantier.localisation }}</div>
+        </div>
+        
+        <div class="info-item" *ngIf="gisements.length > 0">
+          <div class="label">
+            <mat-icon class="icon-material">landscape</mat-icon>
+            Gisements
+          </div>
+          <div class="value">
+            {{ getGisementsCount() }} gisement{{ getGisementsCount() > 1 ? 's' : '' }} 
+            ({{ getTotalVolume() | number:'1.0-0' }} m³ total)
+          </div>
+        </div>
+      </div>
+
+      <div class="map-section">
+        <div class="section-title">
+          <mat-icon class="icon-location">map</mat-icon>
+          Localisation sur la carte
+          <span class="gisements-info" *ngIf="gisements.length > 0">
+            ({{ getGisementsCount() }} gisement{{ getGisementsCount() > 1 ? 's' : '' }} - {{ getTotalVolume() }} m³)
+          </span>
+        </div>
+        <div class="map-container">
+          <mat-tab-group animationDuration="0ms" (selectedTabChange)="onTabChange($event)">
+            <mat-tab label="Plan">
+              <google-map
+                height="300px"
+                width="100%"
+                [center]="mapCenter"
+                [zoom]="mapZoom"
+                [mapTypeId]="mapTypeId"
+                [options]="mapOptions">
+                <!-- Marqueur du chantier principal -->
+                <map-marker
+                  #mainChantierMarker="mapMarker"
+                  [position]="mapCenter"
+                  [options]="viewModeMarkerOptions"
+                  (mapClick)="chantierInfoWindow.open(mainChantierMarker)">
+                  <map-info-window #chantierInfoWindow="mapInfoWindow">
+                    <div>
+                      <strong>Chantier:</strong> {{ chantier.nom }}
+                    </div>
+                  </map-info-window>
+                </map-marker>
+                
+                <!-- Marqueurs des gisements -->
+                <map-marker
+                  *ngFor="let gisement of gisements"
+                  #gisementMarker="mapMarker"
+                  [position]="{ lat: gisement.latitude!, lng: gisement.longitude! }"
+                  [options]="{ icon: gisementMarkerIcon, title: gisement.nom }"
+                  (mapClick)="gisementInfoWindow.open(gisementMarker)">
+                  <map-info-window #gisementInfoWindow="mapInfoWindow">
+                    <div>
+                      <strong>Gisement:</strong> {{ gisement.nom }}
+                      <br>
+                      Volume: {{ gisement.volume_terrasse | number:'1.0-0' }} m³
+                      <br>
+                      <a href="javascript:void(0);" (click)="openGisementDetails(gisement)">Voir détails</a>
+                    </div>
+                  </map-info-window>
+                </map-marker>
+              </google-map>
+            </mat-tab>
+            <mat-tab label="Satellite">
+              <google-map
+                height="600px"
+                width="100%"
+                [center]="mapCenter"
+                [zoom]="mapZoom"
+                [mapTypeId]="mapTypeId"
+                [options]="mapOptions">
+                <!-- Marqueur du chantier principal -->
+                <map-marker
+                  #mainChantierMarkerSatellite="mapMarker"
+                  [position]="mapCenter"
+                  [options]="viewModeMarkerOptions"
+                  (mapClick)="chantierInfoWindowSatellite.open(mainChantierMarkerSatellite)">
+                  <map-info-window #chantierInfoWindowSatellite="mapInfoWindow">
+                    <div>
+                      <strong>Chantier:</strong> {{ chantier.nom }}
+                    </div>
+                  </map-info-window>
+                </map-marker>
+                
+                <!-- Marqueurs des gisements -->
+                <map-marker
+                  *ngFor="let gisement of gisements"
+                  #gisementMarkerSatellite="mapMarker"
+                  [position]="{ lat: gisement.latitude!, lng: gisement.longitude! }"
+                  [options]="{ icon: gisementMarkerIcon, title: gisement.nom }"
+                  (mapClick)="gisementInfoWindowSatellite.open(gisementMarkerSatellite)">
+                  <map-info-window #gisementInfoWindowSatellite="mapInfoWindow">
+                    <div>
+                      <strong>Gisement:</strong> {{ gisement.nom }}
+                      <br>
+                      Volume: {{ gisement.volume_terrasse | number:'1.0-0' }} m³
+                      <br>
+                      <a href="javascript:void(0);" (click)="openGisementDetails(gisement)">Voir détails</a>
+                    </div>
+                  </map-info-window>
+                </map-marker>
+              </google-map>
+            </mat-tab>
+          </mat-tab-group>
+          <button mat-icon-button class="fullscreen-button" (click)="toggleFullscreen()">
+            <mat-icon>fullscreen</mat-icon>
+          </button>
+        </div>
+        
+        <!-- Légende de la carte -->
+        <div class="map-legend" *ngIf="gisements.length > 0">
+          <div class="legend-item">
+            <div class="legend-marker blue"></div>
+            <span>Chantier principal</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-marker red"></div>
+            <span>Gisements ({{ getGisementsCount() }})</span>
+          </div>
         </div>
       </div>
 
       <div class="actions">
-        <button mat-button type="button" (click)="cancel()">Retour à la liste</button>
+        <button mat-raised-button color="primary" (click)="openGoogleMaps()" *ngIf="chantier.latitude && chantier.longitude">
+          <mat-icon>directions</mat-icon>
+          Obtenir l'itinéraire
+        </button>
+        <button mat-button type="button" (click)="cancel()">
+          <mat-icon>arrow_back</mat-icon>
+          Retour à la liste
+        </button>
       </div>
     </div>
 
     <!-- Mode édition ou création -->
-    <form (ngSubmit)="saveChantier()" #chantierForm="ngForm" *ngIf="!isViewOnly && !loading">
-      <div class="form-row">
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Nom du chantier</mat-label>
+    <form (ngSubmit)="saveChantier()" #chantierForm="ngForm" *ngIf="!isViewOnly && !loading" class="edit-mode slide-in">
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="icon-location">warehouse</mat-icon>
+            Nom du chantier
+          </mat-label>
           <input matInput name="nom" [(ngModel)]="chantier.nom" required>
-          <mat-error *ngIf="chantierForm.form.get('nom')?.hasError('required')">Le nom est requis</mat-error>
+          <mat-error *ngIf="chantierForm.form.get('nom')?.hasError('required')">
+            <mat-icon>error</mat-icon>
+            Le nom est requis
+          </mat-error>
         </mat-form-field>
-      </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Maître d'ouvrage</mat-label>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="icon-action">person</mat-icon>
+            Maître d'ouvrage
+          </mat-label>
           <input matInput name="maitre_ouvrage" [(ngModel)]="chantier.maitre_ouvrage" required>
-          <mat-error *ngIf="chantierForm.form.get('maitre_ouvrage')?.hasError('required')">Le maître d'ouvrage est requis</mat-error>
+          <mat-error *ngIf="chantierForm.form.get('maitre_ouvrage')?.hasError('required')">
+            <mat-icon>error</mat-icon>
+            Le maître d'ouvrage est requis
+          </mat-error>
         </mat-form-field>
-      </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Entreprise terrassement</mat-label>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="icon-action">groups</mat-icon>
+            Entreprise terrassement
+          </mat-label>
           <input matInput name="entreprise_terrassement" [(ngModel)]="chantier.entreprise_terrassement" required>
-          <mat-error *ngIf="chantierForm.form.get('entreprise_terrassement')?.hasError('required')">L'entreprise terrassement est requise</mat-error>
+          <mat-error *ngIf="chantierForm.form.get('entreprise_terrassement')?.hasError('required')">
+            <mat-icon>error</mat-icon>
+            L'entreprise terrassement est requise
+          </mat-error>
         </mat-form-field>
-      </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Localisation</mat-label>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="icon-location">place</mat-icon>
+            Localisation
+          </mat-label>
           <input matInput name="localisation" [(ngModel)]="chantier.localisation" required>
-          <mat-error *ngIf="chantierForm.form.get('localisation')?.hasError('required')">La localisation est requise</mat-error>
+          <mat-error *ngIf="chantierForm.form.get('localisation')?.hasError('required')">
+            <mat-icon>error</mat-icon>
+            La localisation est requise
+          </mat-error>
         </mat-form-field>
       </div>
 
       <!-- Carte interactive -->
-      <div class="form-row map-row">
-        <label>Localisation sur la carte</label>
-        <div style="height: 300px;"
-             leaflet
-             [leafletOptions]="mapOptions"
-             [leafletLayers]="mapLayers"
-             [leafletLayersControl]="leafletLayersControl"
-             (leafletMapReady)="onMapReady($event)"
-             (leafletClick)="onMapClick($event)">
+      <div class="map-section">
+        <div class="section-title">
+          <mat-icon class="icon-location">map</mat-icon>
+          Localisation sur la carte
+        </div>
+        <div class="map-container">
+          <google-map
+            height="300px"
+            width="100%"
+            [center]="mapCenter"
+            [zoom]="mapZoom"
+            [options]="mapOptions"
+            (mapClick)="updatePosition($event)">
+            <map-marker
+              *ngIf="markerPosition"
+              [position]="markerPosition!"
+              [options]="editModeMarkerOptions"
+              (mapDragend)="onMarkerDragEnd($event)">
+            </map-marker>
+          </google-map>
+        </div>
+        <div class="map-instructions">
+          <mat-icon class="icon-action">info</mat-icon>
+          Cliquez sur la carte ou déplacez le marqueur pour définir la position
         </div>
       </div>
 
       <!-- Champs latitude / longitude synchronisés -->
-      <div class="form-row coord-row">
-        <mat-form-field appearance="fill" class="half-width">
-          <mat-label>Latitude</mat-label>
-          <input matInput type="number" [(ngModel)]="chantier.latitude" name="latitude" step="any">
-        </mat-form-field>
+      <div class="coordinates-section">
+        <div class="section-title">
+          <mat-icon class="icon-measurement">gps_fixed</mat-icon>
+          Coordonnées GPS
+        </div>
+        <div class="coord-grid">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Latitude</mat-label>
+            <input matInput type="number" [(ngModel)]="chantier.latitude" name="latitude" step="any">
+            <mat-icon matSuffix class="icon-measurement">north</mat-icon>
+          </mat-form-field>
 
-        <mat-form-field appearance="fill" class="half-width">
-          <mat-label>Longitude</mat-label>
-          <input matInput type="number" [(ngModel)]="chantier.longitude" name="longitude" step="any">
-        </mat-form-field>
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Longitude</mat-label>
+            <input matInput type="number" [(ngModel)]="chantier.longitude" name="longitude" step="any">
+            <mat-icon matSuffix class="icon-measurement">east</mat-icon>
+          </mat-form-field>
+        </div>
       </div>
 
       <div class="actions">
-        <button mat-raised-button color="primary" type="submit" [disabled]="loading || !chantierForm.form.valid">
+        <button mat-raised-button color="primary" type="submit" [disabled]="loading || !chantierForm.form.valid" class="primary">
+          <mat-icon>{{ loading ? 'hourglass_empty' : (isEditMode ? 'save' : 'add') }}</mat-icon>
           {{ loading ? (isEditMode ? 'Enregistrement...' : 'Création...') : (isEditMode ? 'Enregistrer' : 'Créer') }}
         </button>
 
-        <button mat-raised-button color="warn" type="button" (click)="deleteChantier()" *ngIf="isEditMode && chantier.id" [disabled]="loading">
+        <button mat-raised-button color="warn" type="button" (click)="deleteChantier()" *ngIf="isEditMode && chantier.id" [disabled]="loading" class="warn">
+          <mat-icon>delete</mat-icon>
           Supprimer
         </button>
 
-        <button mat-button type="button" (click)="cancel()" [disabled]="loading">Annuler</button>
+        <button mat-button type="button" (click)="cancel()" [disabled]="loading">
+          <mat-icon>cancel</mat-icon>
+          Annuler
+        </button>
       </div>
     </form>
   </mat-card>

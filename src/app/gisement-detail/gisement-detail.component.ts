@@ -14,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { ChantierService, Chantier } from '../services/chantier.service';
+import { GoogleMapsModule } from '@angular/google-maps';
 
 @Component({
   selector: 'app-gisement-detail',
@@ -30,31 +31,26 @@ import { ChantierService, Chantier } from '../services/chantier.service';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    RouterModule
+    RouterModule,
+    GoogleMapsModule
   ],
   templateUrl: './gisement-detail.component.html',
   styleUrls: ['./gisement-detail.component.css']
 })
 export class GisementDetailComponent implements OnInit {
-  gisement: Gisement = {
-    id: 0,
-    chantier: 0,
-    documents: [],
-    commune: '',
-    periode_terrassement: '',
-    volume_terrasse: 0,
-    materiau: '',
-    localisation: '',
-    latitude: null,
-    longitude: null,
-    type_de_sol: 'limon'
-  };
+  gisement: Partial<Gisement> = {};
   loading = false;
   errorMsg = '';
-  mode: 'view' | 'edit' = 'view';
+  isEditMode = false;
+  isViewOnly = false;
   chantiers: Chantier[] = [];
   originalGisement: Gisement | null = null;
   documents: DocumentGisement[] = [];
+
+  mapCenter: google.maps.LatLngLiteral = { lat: 48.8566, lng: 2.3522 };
+  mapZoom = 14;
+  markerOptions: google.maps.MarkerOptions = { draggable: true };
+  markerPosition?: google.maps.LatLngLiteral;
 
   typeSolOptions = [
     { value: 'limon', viewValue: 'Limon' },
@@ -69,32 +65,54 @@ export class GisementDetailComponent implements OnInit {
     private router: Router,
     private gisementService: GisementService,
     private chantierService: ChantierService
-  ) {}
+  ) {
+    const state = this.router.getCurrentNavigation()?.extras.state;
+    if (state?.['viewOnly']) this.isViewOnly = true;
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    const mode = this.route.snapshot.paramMap.get('mode');
-    
-    if (mode === 'edit' || mode === 'view') {
-      this.mode = mode;
-    }
-    
     if (id && id !== 'new') {
       this.loadGisement(Number(id));
+      this.isEditMode = !this.isViewOnly;
+    } else {
+      this.gisement = {
+        nom: '',
+        commune: '',
+        periode_terrassement: '',
+        volume_terrasse: 0,
+        materiau: '',
+        localisation: '',
+        latitude: 48.8566,
+        longitude: 2.3522,
+        type_de_sol: 'limon'
+      };
+      this.mapCenter = {
+        lat: this.gisement.latitude!,
+        lng: this.gisement.longitude!,
+      };
+      this.markerPosition = { ...this.mapCenter };
     }
   }
 
-  private async loadGisement(id: number): Promise<void> {
+  async loadGisement(id: number): Promise<void> {
     this.loading = true;
-    this.errorMsg = '';
     try {
       const loadedGisement = await this.gisementService.getById(id);
       this.gisement = loadedGisement;
       this.originalGisement = { ...loadedGisement };
       this.documents = loadedGisement.documents || [];
 
+      if (this.gisement.latitude && this.gisement.longitude) {
+        this.mapCenter = {
+          lat: this.gisement.latitude,
+          lng: this.gisement.longitude,
+        };
+        this.markerPosition = { ...this.mapCenter };
+      }
+
       // Charger les chantiers si on est en mode édition
-      if (this.mode === 'edit') {
+      if (this.isEditMode) {
         await this.loadChantiers();
       }
     } catch (err) {
@@ -119,11 +137,9 @@ export class GisementDetailComponent implements OnInit {
   }
 
   previewDocument(doc: DocumentGisement): void {
-    // Pour les PDF, on peut utiliser un viewer intégré ou ouvrir dans un nouvel onglet
     if (doc.fichier.toLowerCase().endsWith('.pdf')) {
       window.open(doc.fichier, '_blank');
     } else {
-      // Pour les autres types de fichiers, on peut afficher un message
       this.errorMsg = 'L\'aperçu n\'est disponible que pour les fichiers PDF.';
     }
   }
@@ -133,9 +149,11 @@ export class GisementDetailComponent implements OnInit {
   }
 
   editGisement() {
-    this.router.navigate(['/gisements', this.gisement.id, { mode: 'edit' }]).then(() => {
-      window.location.reload();
-    });
+    if (this.gisement.id) {
+      this.router.navigate(['/gisements', this.gisement.id, { mode: 'edit' }]).then(() => {
+        window.location.reload();
+      });
+    }
   }
   
 
@@ -148,7 +166,7 @@ export class GisementDetailComponent implements OnInit {
     this.loading = true;
     this.errorMsg = '';
     try {
-      if (this.mode === 'edit' && this.gisement.id !== null) {
+      if (this.isEditMode && this.gisement.id) {
         await this.gisementService.update(this.gisement.id, this.gisement);
       } else if (this.gisement) {
         await this.gisementService.create(this.gisement);
@@ -162,7 +180,7 @@ export class GisementDetailComponent implements OnInit {
   }
 
   cancelEdit(): void {
-    if (this.mode === 'edit' && this.originalGisement) {
+    if (this.isEditMode && this.originalGisement) {
       this.gisement = { ...this.originalGisement };
     }
     if (this.gisement && this.gisement.id) {
@@ -173,7 +191,7 @@ export class GisementDetailComponent implements OnInit {
   }
 
   async deleteGisement(): Promise<void> {
-    if (this.mode === 'edit' && this.gisement && this.gisement.id !== null && confirm('Confirmer la suppression de ce gisement ?')) {
+    if (this.isEditMode && this.gisement && this.gisement.id && confirm('Confirmer la suppression de ce gisement ?')) {
       this.loading = true;
       try {
         await this.gisementService.delete(this.gisement.id);
@@ -196,5 +214,31 @@ export class GisementDetailComponent implements OnInit {
   getSolTypeName(typeDeSolValue: string): string {
     const option = this.typeSolOptions.find(opt => opt.value === typeDeSolValue);
     return option ? option.viewValue : typeDeSolValue;
+  }
+
+  // Méthodes pour la carte Google Maps
+  updatePosition(event: google.maps.MapMouseEvent): void {
+    if (this.isViewOnly || !event.latLng) return;
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
+    this.gisement.latitude = lat;
+    this.gisement.longitude = lng;
+    this.markerPosition = { lat, lng };
+  }
+
+  onMarkerDragEnd(event: google.maps.MapMouseEvent): void {
+    if (!event.latLng) return;
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
+    this.gisement.latitude = lat;
+    this.gisement.longitude = lng;
+    this.markerPosition = { lat, lng };
+  }
+
+  openGoogleMaps(): void {
+    if (this.gisement.latitude && this.gisement.longitude) {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${this.gisement.latitude},${this.gisement.longitude}`;
+      window.open(url, '_blank');
+    }
   }
 }

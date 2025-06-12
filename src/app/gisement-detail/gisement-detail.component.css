@@ -541,6 +541,7 @@ mat-divider {
   transition: all var(--transition-speed);
   border: 1px solid var(--background-color);
   box-shadow: var(--card-shadow);
+  margin-bottom: 16px;
 }
 
 .document-card:hover {
@@ -627,6 +628,70 @@ mat-divider {
 
   .document-card {
     margin: 0 8px;
+  }
+}
+
+/* Styles pour la carte Google Maps */
+.map-section {
+  margin: 24px 0;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  color: var(--primary-color);
+  margin-bottom: 16px;
+  font-size: 1.2em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.map-container {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}
+
+.map-instructions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.map-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.map-actions button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive pour la carte */
+@media (max-width: 768px) {
+  .map-container {
+    height: 250px;
+  }
+  
+  .map-actions {
+    flex-direction: column;
+  }
+  
+  .map-actions button {
+    width: 100%;
   }
 }
 

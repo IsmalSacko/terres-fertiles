@@ -1,104 +1,94 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { GoogleMapsModule, MapInfoWindow, MapMarker } from '@angular/google-maps';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ChantierService, Chantier } from '../services/chantier.service';
-import {
-  MapOptions,
-  tileLayer,
-  LatLngExpression,
-  marker,
-  latLngBounds,
-  LatLngBounds,
-  Map,
-  LeafletMouseEvent
-} from 'leaflet';
-import * as L from 'leaflet';
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
-import { Subject } from 'rxjs';
-
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-
-L.Icon.Default.mergeOptions({
-  iconUrl: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png',
-  iconRetinaUrl: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png',
-  shadowUrl: '', // Pas d’ombre disponible sur CDN Google Maps
-});
-
+import { GisementService, Gisement } from '../services/gisement.service';
 
 @Component({
   selector: 'app-chantier-detail',
-  standalone: true,
+  templateUrl: './chantier-detail.component.html',
+  styleUrls: ['./chantier-detail.component.css'],
   imports: [
     CommonModule,
     FormsModule,
     MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    LeafletModule
+    GoogleMapsModule,
+    MatTabsModule
   ],
-  templateUrl: './chantier-detail.component.html',
-  styleUrl: './chantier-detail.component.css'
+  standalone: true
 })
-export class ChantierDetailComponent implements OnInit, OnDestroy {
+export class ChantierDetailComponent implements OnInit {
   chantier: Partial<Chantier> = {};
   loading = false;
   errorMsg = '';
+  successMsg = '';
   isEditMode = false;
   isViewOnly = false;
+  gisements: Gisement[] = [];
 
-  // Define the base layers
-  private openStreetMap = tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 13,
-    attribution: '© OpenStreetMap contributors'
-  });
+  mapCenter: google.maps.LatLngLiteral = { lat: 48.8566, lng: 2.3522 };
+  mapZoom = 16;
+  markerOptions: google.maps.MarkerOptions = { draggable: true };
+  markerPosition?: google.maps.LatLngLiteral;
 
-  private esriWorldImagery = tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 13,
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-  });
-
-  mapOptions: MapOptions = {
-    layers: [
-      this.openStreetMap // Set OpenStreetMap as the default layer
-    ],
-    zoom: 6,
-    center: [48.8566, 2.3522],
+  mapOptions: google.maps.MapOptions = {
+    mapTypeControl: false,
+    fullscreenControl: false,
     zoomControl: true,
-    attributionControl: true
+    streetViewControl: true
   };
 
-  // Define the layers control object
-  leafletLayersControl = {
-    baseLayers: {
-      'Plan OpenStreetMap': this.openStreetMap,
-      'Vue Satellite': this.esriWorldImagery
-    },
-    overlays: {}
+  mapTypeId: google.maps.MapTypeId = google.maps.MapTypeId.ROADMAP; // Default to 'Plan'
+
+  viewModeMarkerOptions: google.maps.MarkerOptions = {
+    icon: {
+      url: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.pn',
+      scaledSize: new google.maps.Size(27, 43)
+    }
   };
 
-  mapLayers: L.Layer[] = [];
-  mapFitBounds?: LatLngBounds;
-  private map?: Map;
-  private chantierMarker?: L.Marker;
-  private destroy$ = new Subject<void>();
+  editModeMarkerOptions: google.maps.MarkerOptions = {
+    draggable: false,
+    icon: {
+      url: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.pn',
+      scaledSize: new google.maps.Size(27, 43)
+    }
+  };
+
+  gisementMarkerIcon: google.maps.Icon = {
+    //url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    url: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png',
+
+    scaledSize: new google.maps.Size(27, 43)
+  };
+
+  @ViewChild('chantierInfoWindow') chantierInfoWindow!: MapInfoWindow;
+  @ViewChild('chantierInfoWindowSatellite') chantierInfoWindowSatellite!: MapInfoWindow;
+  @ViewChild('gisementInfoWindow') gisementInfoWindow!: MapInfoWindow;
+  @ViewChild('gisementInfoWindowSatellite') gisementInfoWindowSatellite!: MapInfoWindow;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private chantierService: ChantierService
+    private chantierService: ChantierService,
+    private gisementService: GisementService
   ) {
     const state = this.router.getCurrentNavigation()?.extras.state;
-    if (state && state['viewOnly']) {
-      this.isViewOnly = true;
-    }
+    if (state?.['viewOnly']) this.isViewOnly = true;
   }
 
   ngOnInit(): void {
@@ -109,194 +99,156 @@ export class ChantierDetailComponent implements OnInit, OnDestroy {
     } else {
       this.chantier = {
         nom: '',
-        maitre_ouvrage: '',
-        entreprise_terrassement: '',
-        localisation: '',
         latitude: 48.8566,
-        longitude: 2.3522
+        longitude: 2.3522,
       };
-      this.mapOptions.center = [this.chantier.latitude!, this.chantier.longitude!];
+      this.mapCenter = {
+        lat: this.chantier.latitude!,
+        lng: this.chantier.longitude!,
+      };
+      this.markerPosition = { ...this.mapCenter };
     }
   }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  onMapReady(map: Map): void {
-    this.map = map;
-    setTimeout(() => {
-      if (this.map) {
-        this.map.invalidateSize();
-        if (this.mapFitBounds) {
-          
-          this.map.fitBounds(this.mapFitBounds);
-        } else if (this.chantier?.latitude !== undefined && this.chantier?.longitude !== undefined) {
-          this.map.setView([this.chantier.latitude, this.chantier.longitude], this.mapOptions.zoom);
-        }
-      }
-    }, 0);
-  }
-
-  // onMapClick(event: LeafletMouseEvent): void {
-  //   const lat = event.latlng.lat;
-  //   const lng = event.latlng.lng;
-  //   this.chantier.latitude = lat;
-  //   this.chantier.longitude = lng;
-
-  //   if (this.chantierMarker) {
-  //     this.chantierMarker.setLatLng(event.latlng);
-  //   } else {
-  //     this.chantierMarker = marker(event.latlng, { draggable: true });
-  //     this.chantierMarker.on('dragend', (e: any) => {
-  //       const pos = e.target.getLatLng();
-  //       this.chantier.latitude = pos.lat;
-  //       this.chantier.longitude = pos.lng;
-  //     });
-  //     this.mapLayers.push(this.chantierMarker);
-  //   }
-  // }
-  onMapClick(event: LeafletMouseEvent): void {
-    if (this.isViewOnly) return; // 🔒 Ne rien faire en mode lecture seule
-  
-    const lat = event.latlng.lat;
-    const lng = event.latlng.lng;
-    this.chantier.latitude = lat;
-    this.chantier.longitude = lng;
-  
-    if (this.chantierMarker) {
-      this.chantierMarker.setLatLng(event.latlng);
-    } else {
-      this.chantierMarker = marker(event.latlng, { draggable: true });
-      this.chantierMarker.on('dragend', (e: any) => {
-        const pos = e.target.getLatLng();
-        this.chantier.latitude = pos.lat;
-        this.chantier.longitude = pos.lng;
-      });
-      this.mapLayers.push(this.chantierMarker);
-    }
-  }
-  
 
   async loadChantier(id: number): Promise<void> {
     this.loading = true;
-    this.errorMsg = '';
     try {
       this.chantier = await this.chantierService.getById(id);
-
-      if (this.chantier.latitude !== undefined && this.chantier.longitude !== undefined) {
-        const latLng = this.normalizeCoordinates(this.chantier.latitude, this.chantier.longitude);
-        
-        this.mapOptions = {
-          ...this.mapOptions,
-          center: latLng,
-          zoom: 6 
+      if (this.chantier.latitude && this.chantier.longitude) {
+        this.mapCenter = {
+          lat: this.chantier.latitude,
+          lng: this.chantier.longitude,
         };
-
-        this.mapLayers = [];
-        this.chantierMarker = marker(latLng, {
-          draggable: !this.isViewOnly,
-          title: this.chantier.nom || 'Chantier'
-        });
-
-        // Add click event to open Google Maps directions
-        this.chantierMarker.on('click', () => {
-          const url = `https://www.google.com/maps/dir/?api=1&destination=${this.chantier.latitude},${this.chantier.longitude}`;
-          window.open(url, '_blank');
-        });
-
-       this.chantierMarker.bindPopup(`
-  <div style="font-family: Arial, sans-serif; font-size: 14px; color: #333; padding: 5px 8px;">
-    <strong style="display: block; margin-bottom: 4px;">
-      ${this.chantier.nom || 'Chantier'}
-    </strong>
-    <a href="https://www.google.com/maps/dir/?api=1&destination=${this.chantier.latitude},${this.chantier.longitude}" 
-       target="_blank" 
-       style="display: inline-block; color: #1976d2; text-decoration: none; font-weight: 500; margin-top: 4px;">
-      🗺️ Obtenir l'itinéraire
-    </a>
-  </div>
-`);
-
-        // add hover event 
-        
-        this.chantierMarker.on('mouseover',()=>{
-          this.chantierMarker?.openPopup()
-        })
-        
-        this.chantierMarker.on('mouseout', () => {
-          this.chantierMarker?.closePopup();
-        });
-
-
-        if (!this.isViewOnly) {
-          this.chantierMarker.on('dragend', (e: any) => {
-            const pos = e.target.getLatLng();
-            this.chantier.latitude = pos.lat;
-            this.chantier.longitude = pos.lng;
-          });
-        }
-
-        this.mapLayers.push(this.chantierMarker);
-
-        setTimeout(() => {
-          if (this.map) {
-            this.map.invalidateSize();
-            this.map.setView(latLng, 15); // Zoom plus proche
-          }
-        });
-        
-
+        this.markerPosition = { ...this.mapCenter };
       }
+      await this.loadGisements(id);
     } catch (err) {
       this.errorMsg = 'Erreur lors du chargement du chantier.';
-      console.error(err);
     } finally {
       this.loading = false;
     }
   }
 
+  private async loadGisements(chantierId: number): Promise<void> {
+    try {
+      this.gisements = await this.gisementService.getByChantierId(chantierId);
+    } catch (err) {
+      console.error('Erreur lors du chargement des gisements:', err);
+    }
+  }
+
+  getGisementsCount(): number {
+    return this.gisements.length;
+  }
+
+  getTotalVolume(): number {
+    if (!this.gisements || this.gisements.length === 0) {
+      return 0;
+    }
+    return this.gisements.reduce((total, gisement) => {
+      let volume = 0;
+      if (gisement && typeof gisement === 'object' && 'volume_terrasse' in gisement) {
+        const rawVolume = (gisement as Gisement).volume_terrasse;
+        if (rawVolume !== null && rawVolume !== undefined) {
+          const volumeAsString = String(rawVolume).trim().replace(',', '.');
+          const parsedVolume = parseFloat(volumeAsString);
+          if (!isNaN(parsedVolume)) {
+            volume = parsedVolume;
+          }
+        }
+      }
+      return total + volume;
+    }, 0);
+  }
+
+  openGisementDetails(gisement: Gisement): void {
+    if (gisement.id) {
+      this.router.navigate(['/gisements', gisement.id, { mode: 'view' }]);
+    }
+  }
+
+  onTabChange(event: any): void {
+    if (event.index === 0) {
+      this.mapTypeId = google.maps.MapTypeId.ROADMAP; // Plan
+    } else {
+      this.mapTypeId = google.maps.MapTypeId.SATELLITE; // Satellite
+    }
+  }
+
+  toggleFullscreen(): void {
+    const mapElement = document.querySelector('google-map');
+    if (mapElement) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        mapElement.requestFullscreen();
+      }
+    }
+  }
+
+  updatePosition(event: google.maps.MapMouseEvent): void {
+    if (this.isViewOnly || !event.latLng) return;
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
+    this.chantier.latitude = lat;
+    this.chantier.longitude = lng;
+    this.markerPosition = { lat, lng };
+  }
+
+  onMarkerDragEnd(event: google.maps.MapMouseEvent): void {
+    if (!event.latLng) return;
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
+    this.chantier.latitude = lat;
+    this.chantier.longitude = lng;
+    this.markerPosition = { lat, lng };
+  }
+
+  openGoogleMaps(): void {
+    if (this.chantier.latitude && this.chantier.longitude) {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${this.chantier.latitude},${this.chantier.longitude}`;
+      window.open(url, '_blank');
+    }
+  }
+
   async saveChantier(): Promise<void> {
-    const chantierToSave: Omit<Chantier, 'id'> = {
-      nom: this.chantier.nom || '',
-      maitre_ouvrage: this.chantier.maitre_ouvrage || '',
-      entreprise_terrassement: this.chantier.entreprise_terrassement || '',
-      localisation: this.chantier.localisation || '',
-      latitude: this.chantier.latitude || 0,
-      longitude: this.chantier.longitude || 0
-    };
+    if (!this.chantier.nom || !this.chantier.maitre_ouvrage || !this.chantier.entreprise_terrassement || !this.chantier.localisation) {
+      this.errorMsg = 'Tous les champs sont requis.';
+      return;
+    }
 
     this.loading = true;
     this.errorMsg = '';
+    this.successMsg = '';
     try {
-      if (this.isEditMode && this.chantier.id !== undefined) {
-        await this.chantierService.update(this.chantier.id, { ...chantierToSave, id: this.chantier.id });
+      if (this.isEditMode && this.chantier.id) {
+        await this.chantierService.update(this.chantier.id, this.chantier as Chantier);
+        this.successMsg = 'Chantier mis à jour avec succès.';
       } else {
-        await this.chantierService.create(chantierToSave as Chantier);
+        await this.chantierService.create(this.chantier as Chantier);
+        this.successMsg = 'Chantier créé avec succès.';
       }
-      this.router.navigate(['/chantiers']);
-    } catch (err: any) {
-      this.errorMsg = err.response?.data?.message || 'Erreur lors de l\'enregistrement du chantier.';
-      console.error(err);
+      setTimeout(() => {
+        this.router.navigate(['/chantiers']);
+      }, 1500);
+    } catch (err) {
+      this.errorMsg = 'Erreur lors de la sauvegarde.';
     } finally {
       this.loading = false;
     }
   }
 
   async deleteChantier(): Promise<void> {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce chantier ?') && this.chantier.id !== undefined) {
-      this.loading = true;
-      this.errorMsg = '';
-      try {
-        await this.chantierService.delete(this.chantier.id);
-        this.router.navigate(['/chantiers']);
-      } catch (err) {
-        this.errorMsg = 'Erreur lors de la suppression du chantier.';
-        console.error(err);
-      } finally {
-        this.loading = false;
-      }
+    if (!this.chantier.id) return;
+
+    this.loading = true;
+    try {
+      await this.chantierService.delete(this.chantier.id);
+      this.router.navigate(['/chantiers']);
+    } catch (err) {
+      this.errorMsg = 'Erreur lors de la suppression.';
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -304,9 +256,11 @@ export class ChantierDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/chantiers']);
   }
 
-  private normalizeCoordinates(lat: number, lng: number): LatLngExpression {
-    const correctedLat = Math.abs(lat) > 90 ? lat / 1_000_000 : lat;
-    const correctedLng = Math.abs(lng) > 180 ? lng / 1_000_000 : lng;
-    return [correctedLat, correctedLng];
+  openChantierInfoWindow(infoWindow: MapInfoWindow, marker: MapMarker) {
+    infoWindow.open(marker);
+  }
+
+  openGisementInfoWindow(infoWindow: MapInfoWindow, marker: MapMarker, gisement: Gisement) {
+    infoWindow.open(marker);
   }
 }
