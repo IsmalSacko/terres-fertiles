@@ -73,20 +73,21 @@ export class DocumentGisementService {
     return this.enrichDocumentsWithGisementDetails(response.data);
   }
 
-  async uploadDocument(gisementId: number, file: File): Promise<DocumentGisement> {
+  async uploadDocument(gisementId: number, file: File, typeDocument: string = 'autre'): Promise<DocumentGisement> {
     const formData = new FormData();
-    formData.append('fichier', file);
+    formData.append('nom_fichier', file);
     formData.append('gisement', gisementId.toString());
-    formData.append('nom_fichier', file.name);
+    formData.append('type_document', typeDocument);
+    formData.append('description', `Document uploadé: ${file.name}`);
 
+    const token = localStorage.getItem('token');
     const response = await axios.post<DocumentGisement>(
       this.apiUrl,
       formData,
       {
-        ...this.getHeaders(),
         headers: {
-          ...this.getHeaders().headers,
-          'Content-Type': 'multipart/form-data'
+          'Authorization': `Token ${token}`,
+          // Ne pas définir Content-Type pour FormData, le navigateur le fait automatiquement
         }
       }
     );

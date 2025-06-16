@@ -37,7 +37,7 @@ export class LoginComponent {
     this.loading = true;
     try {
       await this.authService.login(this.username, this.password);
-      this.router.navigate(['/analyses-laboratoire']);
+      this.router.navigate(['']);
     } catch (err: any) {
       this.errorMsg = err;
     } finally {

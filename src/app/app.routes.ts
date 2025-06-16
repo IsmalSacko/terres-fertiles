@@ -40,6 +40,7 @@ export const routes: Routes = [
   { path: 'composts', component: CompostListComponent },
   { path: 'composts/:id', component: CompostDetailComponent },
   { path: 'melanges', component: MelangeListComponent },
+  { path: 'melanges/new', component: MelangeDetailComponent },
   { path: 'melanges/:id', component: MelangeDetailComponent },
   { path: 'produits-vente', component: ProduitVenteListComponent },
   { path: 'produits-vente/:id', component: ProduitVenteDetailComponent },

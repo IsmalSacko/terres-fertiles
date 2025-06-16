@@ -65,7 +65,7 @@
         </div>
 
         <mat-divider></mat-divider>
-
+          
         <!-- Section carte en mode vue -->
         <div class="info-group" *ngIf="gisement.latitude && gisement.longitude">
           <h3>
@@ -81,11 +81,7 @@
               <map-marker
                 [position]="markerPosition!"
                 [label]="gisement.nom || gisement.commune || 'Gisement'"
-                [options]="{ 
-                  icon: { 
-                    url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                  }
-                }"
+                [options]="{ icon: markerIconOptions }"
                 (mapClick)="openGoogleMaps()">
               </map-marker>
             </google-map>
@@ -106,7 +102,7 @@
             Documents
           </h3>
           
-          <div class="documents-grid">
+          <div class="documents-grid" *ngIf="gisement?.documents?.length">
             <div class="document-card" *ngFor="let doc of gisement.documents">
               <div class="document-header">
                 <mat-icon class="icon-document">picture_as_pdf</mat-icon>
@@ -196,6 +192,55 @@
             <input matInput type="number" [(ngModel)]="gisement.longitude" name="longitude">
             <mat-icon matSuffix>gps_fixed</mat-icon>
           </mat-form-field>
+        </div>
+
+        <!-- Zone de glisser-déposer pour upload de documents -->
+        <div class="upload-section">
+          <div class="section-title">
+            <mat-icon class="icon-document">cloud_upload</mat-icon>
+            Ajouter des documents
+          </div>
+          
+          <!-- Sélecteur de type de document -->
+          <div class="document-type-selector">
+            <mat-form-field appearance="outline">
+              <mat-label>Type de document</mat-label>
+              <mat-select [(ngModel)]="selectedDocumentType">
+                <mat-option *ngFor="let option of documentTypeOptions" [value]="option.value">
+                  {{ option.label }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>category</mat-icon>
+            </mat-form-field>
+          </div>
+          
+          <ngx-dropzone (change)="onSelect($event)" (removedFile)="onRemove($event)" class="dropzone">
+            <ngx-dropzone-label>
+              <mat-icon>cloud_upload</mat-icon>
+              <p>Glissez vos fichiers ici ou cliquez pour sélectionner</p>
+              <small>Formats acceptés: PDF, DOC, DOCX, Images</small>
+            </ngx-dropzone-label>
+          </ngx-dropzone>
+          
+          <!-- Liste des fichiers sélectionnés -->
+          <div class="selected-files" *ngIf="selectedFiles.length > 0">
+            <h4>Fichiers sélectionnés ({{ selectedFiles.length }}) :</h4>
+            <div class="file-list">
+              <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
+                <mat-icon class="file-icon">description</mat-icon>
+                <span class="file-name">{{ file.name }}</span>
+                <span class="file-size">({{ (file.size / 1024).toFixed(1) }} KB)</span>
+              </div>
+            </div>
+            
+            <!-- Bouton d'upload -->
+            <div class="upload-actions">
+              <button mat-raised-button color="primary" (click)="uploadAllDocuments()" [disabled]="loading">
+                <mat-icon>cloud_upload</mat-icon>
+                {{ loading ? 'Upload en cours...' : 'Uploader ' + selectedFiles.length + ' fichier(s)' }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Carte interactive en mode édition -->

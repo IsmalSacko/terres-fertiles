@@ -1,1 +1,556 @@
-<p>melange-detail works!</p>
+<div class="container-fluid">
+  <!-- Loading state -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-2">Chargement du mélange...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <!-- Main content container -->
+  <div *ngIf="!loading && !error">
+
+    <!-- Phase de création initiale (pour un nouveau mélange sans ID encore) -->
+    <div *ngIf="isNew && !melange?.id" class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1 class="h3 mb-1">Créer un nouveau mélange</h1>
+            <p class="text-muted mb-0">Informations générales</p>
+          </div>
+          <button type="button" class="btn btn-outline-secondary" routerLink="/melanges">
+            <i class="bi bi-arrow-left"></i> Annuler
+          </button>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Informations de base</h5>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="melangeForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="nom" class="form-label">Nom du mélange *</label>
+                  <input type="text" class="form-control" id="nom" formControlName="nom">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="fournisseur" class="form-label">Fournisseur *</label>
+                  <input type="text" class="form-control" id="fournisseur" formControlName="fournisseur"
+                         [class.is-invalid]="melangeForm.get('fournisseur')?.invalid && (melangeForm.get('fournisseur')?.dirty || melangeForm.get('fournisseur')?.touched)">
+                  <div *ngIf="melangeForm.get('fournisseur')?.invalid && (melangeForm.get('fournisseur')?.dirty || melangeForm.get('fournisseur')?.touched)"
+                       class="invalid-feedback">
+                    Le fournisseur est requis.
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="plateforme" class="form-label">Plateforme</label>
+                  <select class="form-select" id="plateforme" formControlName="plateforme">
+                    <option value="">Sélectionner une plateforme</option>
+                    <option *ngFor="let plateforme of plateformes" [value]="plateforme.id">
+                      {{ plateforme.nom }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="couverture_vegetale" class="form-label">Couverture végétale</label>
+                  <input type="text" class="form-control" id="couverture_vegetale" formControlName="couverture_vegetale">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="periode_melange" class="form-label">Période de mélange *</label>
+                  <input type="text" class="form-control" id="periode_melange" formControlName="periode_melange"
+                         [class.is-invalid]="melangeForm.get('periode_melange')?.invalid && (melangeForm.get('periode_melange')?.dirty || melangeForm.get('periode_melange')?.touched)">
+                  <div *ngIf="melangeForm.get('periode_melange')?.invalid && (melangeForm.get('periode_melange')?.dirty || melangeForm.get('periode_melange')?.touched)"
+                       class="invalid-feedback">
+                    La période de mélange est requise.
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="date_semis" class="form-label">Date de semis *</label>
+                  <input type="date" class="form-control" id="date_semis" formControlName="date_semis"
+                         [class.is-invalid]="melangeForm.get('date_semis')?.invalid && (melangeForm.get('date_semis')?.dirty || melangeForm.get('date_semis')?.touched)">
+                  <div *ngIf="melangeForm.get('date_semis')?.invalid && (melangeForm.get('date_semis')?.dirty || melangeForm.get('date_semis')?.touched)"
+                       class="invalid-feedback">
+                    La date de semis est requise.
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="references_analyses" class="form-label">Références d'analyses</label>
+                <textarea class="form-control" id="references_analyses" rows="3" formControlName="references_analyses"></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Gisements sélectionnés *</label>
+                <div *ngIf="selectedGisements.length === 0" class="text-muted">
+                  Aucun gisement sélectionné.
+                </div>
+
+                <div *ngIf="selectedGisements.length > 0" class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Gisement</th>
+                        <th>Pourcentage (%)</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let selection of selectedGisements">
+                        <td>{{ getSelectedGisementName(selection.gisementId) }}</td>
+                        <td>
+                          <input type="number" class="form-control form-control-sm" style="width: 80px;"
+                                 [(ngModel)]="selection.pourcentage"
+                                 min="0" max="100" step="0.01"
+                                 name="pourcentage-{{ selection.gisementId }}">
+                        </td>
+                        <td>
+                          <button type="button" class="btn btn-sm btn-outline-danger"
+                                  (click)="removeGisementFromSelection(selection.gisementId)">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="alert mt-2"
+                     [class.alert-warning]="getTotalSelectedPercentage() > 100"
+                     [class.alert-info]="getTotalSelectedPercentage() <= 100">
+                  Total : {{ getTotalSelectedPercentage() | number:'1.0-1' }}%
+                  <span *ngIf="getTotalSelectedPercentage() > 100"> ⚠️ Le total dépasse 100%</span>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-primary" (click)="saveMelange()" [disabled]="melangeForm.invalid">
+                <i class="bi bi-plus-circle"></i> Créer le mélange
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase de workflow/édition (pour un mélange existant ou nouvellement créé) -->
+    <div *ngIf="!isNew || melange?.id" class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1 class="h3 mb-1">{{ melange?.nom || 'Mélange sans nom' }}</h1>
+            <p class="text-muted mb-0">{{ melange?.reference_produit }}</p>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary" routerLink="/melanges">
+              <i class="bi bi-arrow-left"></i> Retour
+            </button>
+            <button type="button" class="btn btn-primary" (click)="saveMelange()">
+              <i class="bi bi-save"></i> Sauvegarder
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow Progress -->
+      <div class="col-12 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Progression du workflow</h5>
+            
+            <!-- Progress bar -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-{{ getEtatColor(melange.etat!) }}">
+                  {{ getEtatLabel(melange.etat!) }}
+                </span>
+                <small class="text-muted">
+                  <span *ngIf="melange.etat === 1">{{ getTotalSelectedPercentage() | number:'1.0-1' }}%</span>
+                  <span *ngIf="melange.etat !== 1">{{ getProgressPercentage(melange.etat!) | number:'1.0-0' }}%</span>
+                </small>
+              </div>
+              <div class="progress" style="height: 10px;">
+                <div class="progress-bar bg-{{ getEtatColor(melange.etat!) }}" 
+                     [style.width.%]="melange.etat === 1 ? getTotalSelectedPercentage() : getProgressPercentage(melange.etat!)"
+                     role="progressbar">
+                </div>
+              </div>
+            </div>
+
+            <!-- Current task -->
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle"></i>
+              <strong>Tâche actuelle:</strong> {{ getTacheActuelle(melange.etat!) }}
+            </div>
+
+            <!-- Navigation buttons -->
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-outline-secondary" 
+                      [disabled]="melange.etat! <= 1"
+                      (click)="previousStep()">
+                <i class="bi bi-chevron-left"></i> Étape précédente
+              </button>
+              <button type="button" class="btn btn-success" 
+                      [disabled]="melange.etat! >= 7"
+                      (click)="nextStep()">
+                Étape suivante <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main content area for workflow -->
+      <div class="col-lg-8">
+        <!-- Basic Information (editable in workflow mode) -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Informations générales</h5>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="melangeForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="nom" class="form-label">Nom du mélange *</label>
+                  <input type="text" class="form-control" id="nom" formControlName="nom">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="fournisseur" class="form-label">Fournisseur *</label>
+                  <input type="text" class="form-control" id="fournisseur" formControlName="fournisseur"
+                         [class.is-invalid]="melangeForm.get('fournisseur')?.invalid && (melangeForm.get('fournisseur')?.dirty || melangeForm.get('fournisseur')?.touched)">
+                  <div *ngIf="melangeForm.get('fournisseur')?.invalid && (melangeForm.get('fournisseur')?.dirty || melangeForm.get('fournisseur')?.touched)"
+                       class="invalid-feedback">
+                    Le fournisseur est requis.
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="plateforme" class="form-label">Plateforme</label>
+                  <select class="form-select" id="plateforme" formControlName="plateforme">
+                    <option value="">Sélectionner une plateforme</option>
+                    <option *ngFor="let plateforme of plateformes" [value]="plateforme.id">
+                      {{ plateforme.nom }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="couverture_vegetale" class="form-label">Couverture végétale</label>
+                  <input type="text" class="form-control" id="couverture_vegetale" formControlName="couverture_vegetale">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="periode_melange" class="form-label">Période de mélange *</label>
+                  <input type="text" class="form-control" id="periode_melange" formControlName="periode_melange"
+                         [class.is-invalid]="melangeForm.get('periode_melange')?.invalid && (melangeForm.get('periode_melange')?.dirty || melangeForm.get('periode_melange')?.touched)">
+                  <div *ngIf="melangeForm.get('periode_melange')?.invalid && (melangeForm.get('periode_melange')?.dirty || melangeForm.get('periode_melange')?.touched)"
+                       class="invalid-feedback">
+                    La période de mélange est requise.
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="date_semis" class="form-label">Date de semis *</label>
+                  <input type="date" class="form-control" id="date_semis" formControlName="date_semis"
+                         [class.is-invalid]="melangeForm.get('date_semis')?.invalid && (melangeForm.get('date_semis')?.dirty || melangeForm.get('date_semis')?.touched)">
+                  <div *ngIf="melangeForm.get('date_semis')?.invalid && (melangeForm.get('date_semis')?.dirty || melangeForm.get('date_semis')?.touched)"
+                       class="invalid-feedback">
+                    La date de semis est requise.
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="references_analyses" class="form-label">Références d'analyses</label>
+                <textarea class="form-control" id="references_analyses" rows="3" formControlName="references_analyses"></textarea>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Step-specific content -->
+        <div class="card mb-4" *ngIf="melange.etat === 1">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Composition du mélange</h5>
+          </div>
+          <div class="card-body">
+            <!-- Ingredients list -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6>Ingrédients ({{ getTotalPercentage() | number:'1.0-1' }}%)</h6>
+                <button type="button" class="btn btn-primary btn-sm" 
+                        (click)="showIngredientForm = true">
+                  <i class="bi bi-plus"></i> Ajouter un gisement
+                </button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Gisement</th>
+                      <th>Pourcentage</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let ingredient of melange.ingredients">
+                      <td>{{ getGisementName(ingredient.gisement) }}</td>
+                      <td>{{ ingredient.pourcentage }}%</td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <button type="button" class="btn btn-outline-primary" 
+                                  (click)="editIngredient(ingredient)">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                          <button type="button" class="btn btn-outline-danger" 
+                                  (click)="deleteIngredient(ingredient.id!)">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div *ngIf="melange.ingredients?.length === 0" class="text-center py-3 text-muted">
+                <i class="bi bi-inbox"></i>
+                <p>Aucun ingrédient ajouté</p>
+              </div>
+            </div>
+
+            <!-- Add ingredient form -->
+            <div *ngIf="showIngredientForm" class="card border-primary">
+              <div class="card-header">
+                <h6 class="mb-0">Ajouter des gisements</h6>
+              </div>
+              <div class="card-body">
+                <!-- Liste des gisements disponibles -->
+                <div class="mb-3">
+                  <h6>Gisements disponibles</h6>
+                  <div class="row">
+                    <div *ngFor="let gisement of availableGisements" class="col-md-6 mb-2">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" 
+                               [id]="'gisement-' + gisement.id"
+                               [checked]="isGisementSelected(gisement.id)"
+                               (change)="onGisementCheckboxChange(gisement.id, $event)">
+                        <label class="form-check-label" [for]="'gisement-' + gisement.id">
+                          {{ gisement.nom }} ({{ gisement.commune }})
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Gisements sélectionnés avec pourcentages -->
+                <div *ngIf="selectedGisements.length > 0" class="mb-3">
+                  <h6>Gisements sélectionnés</h6>
+                  <div class="table-responsive">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Gisement</th>
+                          <th>Pourcentage (%)</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let selection of selectedGisements">
+                          <td>{{ getSelectedGisementName(selection.gisementId) }}</td>
+                          <td>
+                            <input type="number" class="form-control form-control-sm" 
+                                   style="width: 80px;"
+                                   [value]="selection.pourcentage"
+                                   (input)="onPercentageChange(selection.gisementId, $event)"
+                                   min="0" max="100" step="0.01">
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                    (click)="removeGisementFromSelection(selection.gisementId)">
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  <!-- Total des pourcentages -->
+                  <div class="alert" [class.alert-warning]="getTotalSelectedPercentage() > 100" 
+                       [class.alert-info]="getTotalSelectedPercentage() <= 100">
+                    <strong>Total: {{ getTotalSelectedPercentage() | number:'1.0-1' }}%</strong>
+                    <span *ngIf="getTotalSelectedPercentage() > 100" class="ms-2">
+                      ⚠️ Le total dépasse 100%
+                    </span>
+                  </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-primary" 
+                          [disabled]="selectedGisements.length === 0 || getTotalSelectedPercentage() > 100"
+                          (click)="saveMultipleIngredients()">
+                    <i class="bi bi-plus-circle"></i> Ajouter les gisements
+                  </button>
+                  <button type="button" class="btn btn-secondary" (click)="resetIngredientForm()">
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conformity Order -->
+        <div class="card mb-4" *ngIf="melange.etat === 2">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Ordre de conformité</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="ordre_conformite" class="form-label">Ordre de conformité</label>
+              <textarea class="form-control" id="ordre_conformite" rows="6" 
+                        formControlName="ordre_conformite"
+                        placeholder="Renseignez l'ordre de conformité..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mixing Instructions -->
+        <div class="card mb-4" *ngIf="melange.etat === 3">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Consignes de mélange</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="consignes_melange" class="form-label">Consignes de mélange</label>
+              <textarea class="form-control" id="consignes_melange" rows="6" 
+                        formControlName="consignes_melange"
+                        placeholder="Renseignez les consignes de mélange..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Control 1 -->
+        <div class="card mb-4" *ngIf="melange.etat === 4">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Contrôle +1 mois</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="controle_1" class="form-label">Rapport de contrôle +1 mois</label>
+              <textarea class="form-control" id="controle_1" rows="6" 
+                        formControlName="controle_1"
+                        placeholder="Renseignez le rapport de contrôle +1 mois..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Control 2 -->
+        <div class="card mb-4" *ngIf="melange.etat === 5">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Contrôle +2 mois</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="controle_2" class="form-label">Rapport de contrôle +2 mois</label>
+              <textarea class="form-control" id="controle_2" rows="6" 
+                        formControlName="controle_2"
+                        placeholder="Renseignez le rapport de contrôle +2 mois..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technical Sheet -->
+        <div class="card mb-4" *ngIf="melange.etat === 6">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Fiche technique</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="fiche_technique" class="form-label">Fiche technique finale</label>
+              <textarea class="form-control" id="fiche_technique" rows="8" 
+                        formControlName="fiche_technique"
+                        placeholder="Renseignez la fiche technique finale..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <!-- Summary -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Résumé</h5>
+          </div>
+          <div class="card-body">
+            <dl class="row">
+              <dt class="col-sm-4">Référence</dt>
+              <dd class="col-sm-8">{{ melange?.reference_produit }}</dd>
+              
+              <dt class="col-sm-4">Plateforme</dt>
+              <dd class="col-sm-8">{{ getPlateformeName(melange?.plateforme) }}</dd>
+              
+              <dt class="col-sm-4">Fournisseur</dt>
+              <dd class="col-sm-8">{{ melange?.fournisseur }}</dd>
+              
+              <dt class="col-sm-4">Période</dt>
+              <dd class="col-sm-8">{{ melange?.periode_melange }}</dd>
+              
+              <dt class="col-sm-4">Date semis</dt>
+              <dd class="col-sm-8">{{ melange?.date_semis | date:'dd/MM/yyyy' }}</dd>
+              
+              <dt class="col-sm-4">Ingrédients</dt>
+              <dd class="col-sm-8">{{ melange?.ingredients?.length || 0 }} gisements</dd>
+              
+              <dt class="col-sm-4">Total</dt>
+              <dd class="col-sm-8">{{ getTotalPercentage() | number:'1.0-1' }}%</dd>
+            </dl>
+          </div>
+        </div>
+
+        <!-- Workflow steps -->
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Étapes du workflow</h5>
+          </div>
+          <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+              <div class="list-group-item d-flex justify-content-between align-items-center" 
+                   *ngFor="let etat of [1,2,3,4,5,6]"
+                   [class.active]="melange.etat === etat"
+                   [class.list-group-item-success]="melange.etat! > etat">
+                <div>
+                  <strong>{{ getEtatLabel(etat) }}</strong>
+                  <br>
+                  <small class="text-muted">{{ getTacheActuelle(etat) }}</small>
+                </div>
+                <span class="badge bg-{{ melange.etat! > etat ? 'success' : (melange.etat === etat ? getEtatColor(etat) : 'secondary') }}">
+                  <i class="bi" [class.bi-check-circle]="melange.etat! > etat" 
+                     [class.bi-circle]="melange.etat! < etat"
+                     [class.bi-arrow-right-circle]="melange.etat === etat"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -695,3 +695,178 @@ mat-divider {
   }
 }
 
+/* Styles pour ngx-dropzone */
+.upload-section {
+  margin: 20px 0;
+}
+
+.document-type-selector {
+  margin-bottom: 16px;
+}
+
+.document-type-selector mat-form-field {
+  width: 100%;
+  max-width: 300px;
+}
+
+.dropzone {
+  border: 2px dashed var(--primary-color);
+  border-radius: 8px;
+  background: #f8f9ff;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.dropzone:hover {
+  border-color: var(--primary-light);
+  background: #f0f4ff;
+}
+
+.dropzone.ngx-dz-dragover {
+  border-color: var(--success-color);
+  background: #E8F5E8;
+  transform: scale(1.02);
+}
+
+ngx-dropzone-label {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 20px;
+}
+
+ngx-dropzone-label mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: var(--primary-color);
+  margin-bottom: 12px;
+  display: block;
+}
+
+ngx-dropzone-label p {
+  margin: 8px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+ngx-dropzone-label small {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Styles pour les fichiers dans la dropzone */
+ngx-dropzone-preview {
+  margin: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+ngx-dropzone-preview .ngx-dz-preview {
+  background: var(--surface-color);
+  border: 1px solid var(--background-color);
+  border-radius: 4px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+ngx-dropzone-preview .ngx-dz-preview .ngx-dz-preview-icon {
+  color: var(--primary-color);
+}
+
+ngx-dropzone-preview .ngx-dz-preview .ngx-dz-preview-name {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+ngx-dropzone-preview .ngx-dz-preview .ngx-dz-preview-remove {
+  color: var(--danger-color);
+  cursor: pointer;
+}
+
+ngx-dropzone-preview .ngx-dz-preview .ngx-dz-preview-remove:hover {
+  color: #d32f2f;
+}
+
+/* Styles pour la liste des fichiers sélectionnés */
+.selected-files {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.selected-files h4 {
+  margin: 0 0 12px 0;
+  color: var(--primary-color);
+  font-size: 1.1em;
+}
+
+.file-list {
+  margin-bottom: 16px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.file-icon {
+  color: var(--primary-color);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.file-name {
+  flex: 1;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.file-size {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.upload-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.upload-actions button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+}
+
+.dropzone {
+  border: 2px dashed var(--primary-color);
+  border-radius: 8px;
+  background: #f8f9ff;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
