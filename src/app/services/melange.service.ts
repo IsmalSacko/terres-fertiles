@@ -113,7 +113,12 @@ export class MelangeService {
   }
 
   async update(id: number, melange: PartialMelange): Promise<Melange> {
-    const response = await axios.put<Melange>(`${this.apiUrl}${id}/`, melange, this.getHeaders());
+    const response = await axios.patch<Melange>(`${this.apiUrl}${id}/`, melange, this.getHeaders());
+    return response.data;
+  }
+
+  async patch(id: number, melange: Partial<PartialMelange>): Promise<Melange> {
+    const response = await axios.patch<Melange>(`${this.apiUrl}${id}/`, melange, this.getHeaders());
     return response.data;
   }
 

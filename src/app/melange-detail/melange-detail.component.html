@@ -136,7 +136,7 @@
               </div>
 
               <button type="button" class="btn btn-primary" (click)="saveMelange()" [disabled]="melangeForm.invalid">
-                <i class="bi bi-plus-circle"></i> Créer le mélange
+                <i class="bi bi-arrow-right-circle"></i> Étape suivante
               </button>
             </form>
           </div>
@@ -157,15 +157,12 @@
             <button type="button" class="btn btn-outline-secondary" routerLink="/melanges">
               <i class="bi bi-arrow-left"></i> Retour
             </button>
-            <button type="button" class="btn btn-primary" (click)="saveMelange()">
-              <i class="bi bi-save"></i> Sauvegarder
-            </button>
           </div>
         </div>
       </div>
 
       <!-- Workflow Progress -->
-      <div class="col-12 mb-4">
+      <div class="col-12 mb-4" *ngIf="melange?.id && melange?.etat! >= 2">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Progression du workflow</h5>
@@ -195,17 +192,18 @@
               <strong>Tâche actuelle:</strong> {{ getTacheActuelle(melange.etat!) }}
             </div>
 
+            <!-- Success message when workflow is completed -->
+            <div *ngIf="isWorkflowCompleted()" class="alert alert-success">
+              <i class="bi bi-check-circle"></i>
+              <strong>Félicitations !</strong> Le workflow est terminé. La fiche technique a été validée avec succès.
+            </div>
+
             <!-- Navigation buttons -->
             <div class="d-flex justify-content-between">
               <button type="button" class="btn btn-outline-secondary" 
                       [disabled]="melange.etat! <= 1"
                       (click)="previousStep()">
                 <i class="bi bi-chevron-left"></i> Étape précédente
-              </button>
-              <button type="button" class="btn btn-success" 
-                      [disabled]="melange.etat! >= 7"
-                      (click)="nextStep()">
-                Étape suivante <i class="bi bi-chevron-right"></i>
               </button>
             </div>
           </div>
@@ -277,6 +275,13 @@
               <div class="mb-3">
                 <label for="references_analyses" class="form-label">Références d'analyses</label>
                 <textarea class="form-control" id="references_analyses" rows="3" formControlName="references_analyses"></textarea>
+              </div>
+
+              <!-- Save button for workflow mode -->
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
+                  <i class="bi bi-arrow-right-circle"></i> Étape suivante
+                </button>
               </div>
             </form>
           </div>
@@ -422,12 +427,19 @@
             <h5 class="card-title mb-0">Ordre de conformité</h5>
           </div>
           <div class="card-body">
-            <div class="mb-3">
-              <label for="ordre_conformite" class="form-label">Ordre de conformité</label>
-              <textarea class="form-control" id="ordre_conformite" rows="6" 
-                        formControlName="ordre_conformite"
-                        placeholder="Renseignez l'ordre de conformité..."></textarea>
-            </div>
+            <form [formGroup]="melangeForm">
+              <div class="mb-3">
+                <label for="ordre_conformite" class="form-label">Ordre de conformité</label>
+                <textarea class="form-control" id="ordre_conformite" rows="6" 
+                          formControlName="ordre_conformite"
+                          placeholder="Renseignez l'ordre de conformité..."></textarea>
+              </div>
+              <div class="text-end">
+                <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
+                  <i class="bi bi-arrow-right-circle"></i> Étape suivante
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -437,12 +449,19 @@
             <h5 class="card-title mb-0">Consignes de mélange</h5>
           </div>
           <div class="card-body">
-            <div class="mb-3">
-              <label for="consignes_melange" class="form-label">Consignes de mélange</label>
-              <textarea class="form-control" id="consignes_melange" rows="6" 
-                        formControlName="consignes_melange"
-                        placeholder="Renseignez les consignes de mélange..."></textarea>
-            </div>
+            <form [formGroup]="melangeForm">
+              <div class="mb-3">
+                <label for="consignes_melange" class="form-label">Consignes de mélange</label>
+                <textarea class="form-control" id="consignes_melange" rows="6" 
+                          formControlName="consignes_melange"
+                          placeholder="Renseignez les consignes de mélange..."></textarea>
+              </div>
+              <div class="text-end">
+                <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
+                  <i class="bi bi-arrow-right-circle"></i> Étape suivante
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -452,12 +471,19 @@
             <h5 class="card-title mb-0">Contrôle +1 mois</h5>
           </div>
           <div class="card-body">
-            <div class="mb-3">
-              <label for="controle_1" class="form-label">Rapport de contrôle +1 mois</label>
-              <textarea class="form-control" id="controle_1" rows="6" 
-                        formControlName="controle_1"
-                        placeholder="Renseignez le rapport de contrôle +1 mois..."></textarea>
-            </div>
+            <form [formGroup]="melangeForm">
+              <div class="mb-3">
+                <label for="controle_1" class="form-label">Rapport de contrôle +1 mois</label>
+                <textarea class="form-control" id="controle_1" rows="6" 
+                          formControlName="controle_1"
+                          placeholder="Renseignez le rapport de contrôle +1 mois..."></textarea>
+              </div>
+              <div class="text-end">
+                <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
+                  <i class="bi bi-arrow-right-circle"></i> Étape suivante
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -467,27 +493,149 @@
             <h5 class="card-title mb-0">Contrôle +2 mois</h5>
           </div>
           <div class="card-body">
-            <div class="mb-3">
-              <label for="controle_2" class="form-label">Rapport de contrôle +2 mois</label>
-              <textarea class="form-control" id="controle_2" rows="6" 
-                        formControlName="controle_2"
-                        placeholder="Renseignez le rapport de contrôle +2 mois..."></textarea>
-            </div>
+            <form [formGroup]="melangeForm">
+              <div class="mb-3">
+                <label for="controle_2" class="form-label">Rapport de contrôle +2 mois</label>
+                <textarea class="form-control" id="controle_2" rows="6" 
+                          formControlName="controle_2"
+                          placeholder="Renseignez le rapport de contrôle +2 mois..."></textarea>
+              </div>
+              <div class="text-end">
+                <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
+                  <i class="bi bi-arrow-right-circle"></i> Étape suivante
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
         <!-- Technical Sheet -->
         <div class="card mb-4" *ngIf="melange.etat === 6">
           <div class="card-header">
-            <h5 class="card-title mb-0">Fiche technique</h5>
+            <h5 class="card-title mb-0">Fiche technique finale</h5>
           </div>
           <div class="card-body">
-            <div class="mb-3">
-              <label for="fiche_technique" class="form-label">Fiche technique finale</label>
-              <textarea class="form-control" id="fiche_technique" rows="8" 
-                        formControlName="fiche_technique"
-                        placeholder="Renseignez la fiche technique finale..."></textarea>
-            </div>
+            <form [formGroup]="melangeForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="nom_technique" class="form-label">Nom technique du mélange *</label>
+                  <input type="text" class="form-control" id="nom_technique" 
+                         formControlName="nom"
+                         placeholder="Nom technique du mélange">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="reference_technique" class="form-label">Référence technique</label>
+                  <input type="text" class="form-control" id="reference_technique" 
+                         [value]="melange?.reference_produit" readonly>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="fournisseur_technique" class="form-label">Fournisseur</label>
+                  <input type="text" class="form-control" id="fournisseur_technique" 
+                         formControlName="fournisseur" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="periode_technique" class="form-label">Période de mélange</label>
+                  <input type="text" class="form-control" id="periode_technique" 
+                         formControlName="periode_melange" readonly>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="composition_technique" class="form-label">Composition technique</label>
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Gisement</th>
+                        <th>Pourcentage</th>
+                        <th>Caractéristiques</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let ingredient of melange.ingredients">
+                        <td>{{ getGisementName(ingredient.gisement) }}</td>
+                        <td>{{ ingredient.pourcentage }}%</td>
+                        <td><small class="text-muted">Caractéristiques du gisement</small></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="specifications_techniques" class="form-label">Spécifications techniques</label>
+                <textarea class="form-control" id="specifications_techniques" rows="4" 
+                          formControlName="fiche_technique"
+                          placeholder="Spécifications techniques détaillées du mélange..."></textarea>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="normes_conformite" class="form-label">Normes de conformité</label>
+                  <textarea class="form-control" id="normes_conformite" rows="3" 
+                            formControlName="ordre_conformite"
+                            placeholder="Normes et références de conformité..."></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="conditions_utilisation" class="form-label">Conditions d'utilisation</label>
+                  <textarea class="form-control" id="conditions_utilisation" rows="3" 
+                            formControlName="consignes_melange"
+                            placeholder="Conditions et précautions d'utilisation..."></textarea>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="controle_qualite_1" class="form-label">Contrôle qualité +1 mois</label>
+                  <textarea class="form-control" id="controle_qualite_1" rows="3" 
+                            formControlName="controle_1"
+                            placeholder="Résultats du contrôle qualité +1 mois..."></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="controle_qualite_2" class="form-label">Contrôle qualité +2 mois</label>
+                  <textarea class="form-control" id="controle_qualite_2" rows="3" 
+                            formControlName="controle_2"
+                            placeholder="Résultats du contrôle qualité +2 mois..."></textarea>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="conclusion_validation" class="form-label">Conclusion et validation</label>
+                <textarea class="form-control" id="conclusion_validation" rows="4" 
+                          placeholder="Conclusion finale et validation du mélange..."></textarea>
+              </div>
+
+              <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                <strong>Validation finale :</strong> Cette fiche technique sera utilisée comme document de référence pour la production et la commercialisation du mélange.
+              </div>
+
+              <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i>
+                <strong>Dernière étape du workflow :</strong> Une fois validée, cette fiche technique marquera la fin du processus de création du mélange.
+              </div>
+
+              <!-- Affichage de la fiche technique générée -->
+              <div class="card border-success mb-3">
+                <div class="card-header bg-success text-white">
+                  <h6 class="mb-0">
+                    <i class="bi bi-file-text"></i> Fiche technique générée
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit;">{{ generateFicheTechnique() }}</pre>
+                </div>
+              </div>
+
+              <div class="text-end">
+                <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
+                  <i class="bi bi-check-circle"></i> Valider la fiche technique
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -526,7 +674,7 @@
         </div>
 
         <!-- Workflow steps -->
-        <div class="card">
+        <div class="card" *ngIf="melange?.id && melange?.etat! >= 2">
           <div class="card-header">
             <h5 class="card-title mb-0">Étapes du workflow</h5>
           </div>
