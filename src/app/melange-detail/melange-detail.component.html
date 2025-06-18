@@ -33,7 +33,7 @@
             <h5 class="card-title mb-0">Informations de base</h5>
           </div>
           <div class="card-body">
-            <form [formGroup]="melangeForm">
+            <form [formGroup]="melangeForm" [class.disabled-form]="isFormDisabled()">
               <div class="row">
                 <div class="col-12 col-md-6 mb-3">
                   <label for="nom" class="form-label">Nom du mélange</label>
@@ -160,6 +160,16 @@
             <button type="button" class="btn btn-outline-secondary" routerLink="/melanges">
               <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Retour</span>
             </button>
+            <!-- Bouton pour activer/désactiver le mode d'édition -->
+            <button *ngIf="isWorkflowCompleted()" 
+                    type="button" 
+                    class="btn"
+                    [class.btn-warning]="isEditMode"
+                    [class.btn-success]="!isEditMode"
+                    (click)="isEditMode ? disableEditMode() : enableEditMode()">
+              <i class="bi" [class.bi-pencil]="isEditMode" [class.bi-eye]="!isEditMode"></i>
+              <span class="d-none d-sm-inline">{{ isEditMode ? 'Désactiver' : 'Activer' }} l'édition</span>
+            </button>
           </div>
         </div>
       </div>
@@ -221,7 +231,7 @@
             <h5 class="card-title mb-0">Informations générales</h5>
           </div>
           <div class="card-body">
-            <form [formGroup]="melangeForm">
+            <form [formGroup]="melangeForm" [class.disabled-form]="isFormDisabled()">
               <div class="row">
                 <div class="col-12 col-md-6 mb-3">
                   <label for="nom" class="form-label">Nom du mélange</label>
@@ -285,7 +295,8 @@
 
               <!-- Save button for workflow mode -->
               <div class="d-flex gap-2">
-                <button type="button" class="btn btn-success btn-lg w-100 w-md-auto" (click)="saveAndNextStep()">
+                <button type="button" class="btn btn-success btn-lg w-100 w-md-auto" 
+                        (click)="saveAndNextStep()">
                   <i class="bi bi-arrow-right-circle"></i> Étape suivante
                 </button>
               </div>
@@ -384,12 +395,11 @@
                       <tbody>
                         <tr *ngFor="let selection of selectedGisements">
                           <td>{{ getSelectedGisementName(selection.gisementId) }}</td>
-                          <td>
-                            <input type="number" class="form-control form-control-sm" 
-                                   style="width: 80px;"
-                                   [value]="selection.pourcentage"
-                                   (input)="onPercentageChange(selection.gisementId, $event)"
-                                   min="0" max="100" step="0.01">
+                          <td class="align-middle">
+                            <input type="number" class="form-control form-control-sm" style="width: 80px;"
+                                   [(ngModel)]="selection.pourcentage"
+                                   min="0" max="100" step="0.01"
+                                   name="pourcentage-{{ selection.gisementId }}">
                           </td>
                           <td>
                             <button type="button" class="btn btn-outline-danger btn-sm" 
@@ -457,7 +467,8 @@
                 </div>
               </div>
               <div class="text-end">
-                <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
+                <button type="button" class="btn btn-success" 
+                        (click)="saveAndNextStep()">
                   <i class="bi bi-arrow-right-circle"></i> Étape suivante
                 </button>
               </div>
@@ -495,7 +506,8 @@
                 </div>
               </div>
               <div class="text-end">
-                <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
+                <button type="button" class="btn btn-success" 
+                        (click)="saveAndNextStep()">
                   <i class="bi bi-arrow-right-circle"></i> Étape suivante
                 </button>
               </div>
@@ -533,7 +545,8 @@
                 </div>
               </div>
               <div class="text-end">
-                <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
+                <button type="button" class="btn btn-success" 
+                        (click)="saveAndNextStep()">
                   <i class="bi bi-arrow-right-circle"></i> Étape suivante
                 </button>
               </div>
@@ -571,7 +584,8 @@
                 </div>
               </div>
               <div class="text-end">
-                <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
+                <button type="button" class="btn btn-success" 
+                        (click)="saveAndNextStep()">
                   <i class="bi bi-arrow-right-circle"></i> Étape suivante
                 </button>
               </div>
@@ -592,11 +606,13 @@
                   <input type="text" class="form-control" id="nom_technique" 
                          formControlName="nom"
                          placeholder="Nom technique du mélange">
+                  <small class="text-muted">Le nom technique sera utilisé pour identifier le mélange</small>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="reference_technique" class="form-label">Référence technique</label>
                   <input type="text" class="form-control" id="reference_technique" 
                          [value]="melange?.reference_produit" readonly>
+                  <small class="text-muted">Référence automatiquement générée</small>
                 </div>
               </div>
 
@@ -605,11 +621,13 @@
                   <label for="fournisseur_technique" class="form-label">Fournisseur</label>
                   <input type="text" class="form-control" id="fournisseur_technique" 
                          formControlName="fournisseur" readonly>
+                  <small class="text-muted">Fournisseur du mélange</small>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="periode_technique" class="form-label">Période de mélange</label>
                   <input type="text" class="form-control" id="periode_technique" 
                          formControlName="periode_melange" readonly>
+                  <small class="text-muted">Période de production du mélange</small>
                 </div>
               </div>
 
@@ -698,12 +716,11 @@
                         <tbody>
                           <tr *ngFor="let selection of selectedGisements">
                             <td>{{ getSelectedGisementName(selection.gisementId) }}</td>
-                            <td>
-                              <input type="number" class="form-control form-control-sm" 
-                                     style="width: 80px;"
-                                     [value]="selection.pourcentage"
-                                     (input)="onPercentageChange(selection.gisementId, $event)"
-                                     min="0" max="100" step="0.01">
+                            <td class="align-middle">
+                              <input type="number" class="form-control form-control-sm" style="width: 80px;"
+                                     [(ngModel)]="selection.pourcentage"
+                                     min="0" max="100" step="0.01"
+                                     name="pourcentage-{{ selection.gisementId }}">
                             </td>
                             <td>
                               <button type="button" class="btn btn-outline-danger btn-sm" 
@@ -741,32 +758,60 @@
 
               <div class="mb-3">
                 <label for="normes_conformite" class="form-label">Normes de conformité</label>
-                <textarea class="form-control" id="normes_conformite" rows="3" 
-                          formControlName="ordre_conformite"
-                          placeholder="Normes et références de conformité..."></textarea>
+                <div *ngIf="melange.ordre_conformite; else noNormesConformite">
+                  <a [href]="getFileUrl(melange.ordre_conformite)" target="_blank" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-file-pdf"></i> Voir le document
+                  </a>
+                </div>
+                <ng-template #noNormesConformite>
+                  <textarea class="form-control" id="normes_conformite" rows="3" 
+                            formControlName="ordre_conformite"
+                            placeholder="Normes et références de conformité..."></textarea>
+                </ng-template>
               </div>
 
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="conditions_utilisation" class="form-label">Conditions d'utilisation</label>
-                  <textarea class="form-control" id="conditions_utilisation" rows="3" 
-                            formControlName="consignes_melange"
-                            placeholder="Conditions et précautions d'utilisation..."></textarea>
+                  <div *ngIf="melange.consignes_melange; else noConditionsUtilisation">
+                    <a [href]="getFileUrl(melange.consignes_melange)" target="_blank" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-file-word"></i> Voir le document
+                    </a>
+                  </div>
+                  <ng-template #noConditionsUtilisation>
+                    <textarea class="form-control" id="conditions_utilisation" rows="3" 
+                              formControlName="consignes_melange"
+                              placeholder="Conditions et précautions d'utilisation..."></textarea>
+                  </ng-template>
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="controle_qualite_1" class="form-label">Contrôle qualité +1 mois</label>
-                  <textarea class="form-control" id="controle_qualite_1" rows="3" 
-                            formControlName="controle_1"
-                            placeholder="Résultats du contrôle qualité +1 mois..."></textarea>
+                  <div *ngIf="melange.controle_1; else noControle1">
+                    <a [href]="getFileUrl(melange.controle_1)" target="_blank" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-file-excel"></i> Voir le document
+                    </a>
+                  </div>
+                  <ng-template #noControle1>
+                    <textarea class="form-control" id="controle_qualite_1" rows="3" 
+                              formControlName="controle_1"
+                              placeholder="Résultats du contrôle qualité +1 mois..."></textarea>
+                  </ng-template>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="controle_qualite_2" class="form-label">Contrôle qualité +2 mois</label>
-                  <textarea class="form-control" id="controle_qualite_2" rows="3" 
-                            formControlName="controle_2"
-                            placeholder="Résultats du contrôle qualité +2 mois..."></textarea>
+                  <div *ngIf="melange.controle_2; else noControle2">
+                    <a [href]="getFileUrl(melange.controle_2)" target="_blank" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-file-excel"></i> Voir le document
+                    </a>
+                  </div>
+                  <ng-template #noControle2>
+                    <textarea class="form-control" id="controle_qualite_2" rows="3" 
+                              formControlName="controle_2"
+                              placeholder="Résultats du contrôle qualité +2 mois..."></textarea>
+                  </ng-template>
                 </div>
               </div>
 
@@ -804,7 +849,8 @@
               </div>
 
               <div class="text-end">
-                <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
+                <button type="button" class="btn btn-success" 
+                        (click)="saveAndNextStep()">
                   <i class="bi bi-check-circle"></i> Valider la fiche technique
                 </button>
               </div>
@@ -950,5 +996,23 @@
   .badge {
     font-size: 0.85em;
     padding: 0.4em 0.6em;
+  }
+
+  /* Styles pour les formulaires désactivés */
+  .disabled-form {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .disabled-form input,
+  .disabled-form select,
+  .disabled-form textarea {
+    background-color: #f8f9fa !important;
+    cursor: not-allowed;
+  }
+
+  .disabled-form button:not([disabled]) {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 </style>

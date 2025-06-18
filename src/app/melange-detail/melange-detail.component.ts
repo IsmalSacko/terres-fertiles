@@ -58,6 +58,9 @@ export class MelangeDetailComponent implements OnInit {
   uploadedFiles: { [key: string]: File } = {};
   fileErrors: { [key: string]: string } = {};
 
+  // Propriété pour contrôler le mode d'édition
+  isEditMode = true;
+
   constructor(
     private melangeService: MelangeService,
     private gisementService: GisementService,
@@ -718,6 +721,12 @@ export class MelangeDetailComponent implements OnInit {
       console.log('État final du mélange:', this.melange.etat);
       console.log('ID final du mélange:', this.melange.id);
       console.log('Condition workflow progress:', this.melange?.id && this.melange?.etat! >= 2);
+      
+      // Désactiver automatiquement le mode d'édition si le workflow est terminé
+      if (this.isWorkflowCompleted()) {
+        this.disableEditMode();
+        this.updateFormControlsState();
+      }
     } catch (error) {
       console.error('Erreur lors de la sauvegarde et passage à l\'étape suivante:', error);
       this.error = 'Erreur lors de la sauvegarde et passage à l\'étape suivante';
@@ -836,6 +845,33 @@ export class MelangeDetailComponent implements OnInit {
 
   isWorkflowCompleted(): boolean {
     return this.melange?.etat === 6;
+  }
+
+  // Méthodes pour contrôler le mode d'édition
+  enableEditMode(): void {
+    this.isEditMode = true;
+    this.updateFormControlsState();
+  }
+
+  disableEditMode(): void {
+    this.isEditMode = false;
+    this.updateFormControlsState();
+  }
+
+  isFormDisabled(): boolean {
+    // Désactiver les formulaires si le workflow est terminé ET qu'on n'est pas en mode édition
+    return this.isWorkflowCompleted() && !this.isEditMode;
+  }
+
+  // Méthode pour activer/désactiver les contrôles de formulaire
+  updateFormControlsState(): void {
+    const shouldDisable = this.isFormDisabled();
+    
+    if (shouldDisable) {
+      this.melangeForm.disable();
+    } else {
+      this.melangeForm.enable();
+    }
   }
 
   // Méthodes pour la gestion des fichiers
