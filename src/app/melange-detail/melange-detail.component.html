@@ -38,9 +38,9 @@
                 <div class="col-12 col-md-6 mb-3">
                   <label for="nom" class="form-label">Nom du mélange</label>
                   <input type="text" class="form-control form-control-lg" id="nom" 
-                         [value]="melange?.nom || 'Généré automatiquement'" 
-                         readonly disabled />
-                  <small class="text-muted">Le nom sera généré automatiquement par le système</small>
+                         formControlName="nom"
+                         placeholder="Nom du mélange">
+                  <small class="text-muted">Le nom sera généré automatiquement si laissé vide</small>
                 </div>
                 <div class="col-12 col-md-6 mb-3">
                   <label for="fournisseur" class="form-label">Fournisseur *</label>
@@ -148,12 +148,12 @@
     </div>
 
     <!-- Phase de workflow/édition (pour un mélange existant ou nouvellement créé) -->
-    <div *ngIf="!isNew || melange?.id" class="row">
+    <div *ngIf="!isNew || melange?.id || melange?.etat" class="row">
       <!-- Header -->
       <div class="col-12">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
           <div class="mb-3 mb-md-0">
-            <h1 class="h2 h3-md mb-1">{{ melange?.nom || 'Mélange sans nom' }}</h1>
+            <h1 class="h2 h3-md mb-1">{{ getDisplayName() }}</h1>
             <p class="text-muted mb-0">{{ melange?.reference_produit }}</p>
           </div>
           <div class="d-flex gap-2">
@@ -226,9 +226,9 @@
                 <div class="col-12 col-md-6 mb-3">
                   <label for="nom" class="form-label">Nom du mélange</label>
                   <input type="text" class="form-control form-control-lg" id="nom" 
-                         [value]="melange?.nom || 'Généré automatiquement'" 
-                         readonly disabled />
-                  <small class="text-muted">Le nom sera généré automatiquement par le système</small>
+                         formControlName="nom"
+                         placeholder="Nom du mélange">
+                  <small class="text-muted">Le nom sera généré automatiquement si laissé vide</small>
                 </div>
                 <div class="col-12 col-md-6 mb-3">
                   <label for="fournisseur" class="form-label">Fournisseur *</label>
@@ -740,19 +740,13 @@
               </div>
 
               <div class="mb-3">
-                <label for="specifications_techniques" class="form-label">Spécifications techniques</label>
-                <textarea class="form-control" id="specifications_techniques" rows="4" 
-                          formControlName="fiche_technique"
-                          placeholder="Spécifications techniques détaillées du mélange..."></textarea>
+                <label for="normes_conformite" class="form-label">Normes de conformité</label>
+                <textarea class="form-control" id="normes_conformite" rows="3" 
+                          formControlName="ordre_conformite"
+                          placeholder="Normes et références de conformité..."></textarea>
               </div>
 
               <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="normes_conformite" class="form-label">Normes de conformité</label>
-                  <textarea class="form-control" id="normes_conformite" rows="3" 
-                            formControlName="ordre_conformite"
-                            placeholder="Normes et références de conformité..."></textarea>
-                </div>
                 <div class="col-md-6 mb-3">
                   <label for="conditions_utilisation" class="form-label">Conditions d'utilisation</label>
                   <textarea class="form-control" id="conditions_utilisation" rows="3" 
@@ -776,12 +770,6 @@
                 </div>
               </div>
 
-              <div class="mb-3">
-                <label for="conclusion_validation" class="form-label">Conclusion et validation</label>
-                <textarea class="form-control" id="conclusion_validation" rows="4" 
-                          placeholder="Conclusion finale et validation du mélange..."></textarea>
-              </div>
-
               <div class="alert alert-info">
                 <i class="bi bi-info-circle"></i>
                 <strong>Validation finale :</strong> Cette fiche technique sera utilisée comme document de référence pour la production et la commercialisation du mélange.
@@ -792,15 +780,26 @@
                 <strong>Dernière étape du workflow :</strong> Une fois validée, cette fiche technique marquera la fin du processus de création du mélange.
               </div>
 
-              <!-- Affichage de la fiche technique générée -->
-              <div class="card border-success mb-3">
-                <div class="card-header bg-success text-white">
-                  <h6 class="mb-0">
-                    <i class="bi bi-file-text"></i> Fiche technique générée
-                  </h6>
+              <div class="mb-3">
+                <label for="fiche_technique_file" class="form-label">Fiche technique finale</label>
+                <div class="file-upload-container">
+                  <input type="file" class="form-control" id="fiche_technique_file" 
+                         accept=".pdf,.doc,.docx,.txt"
+                         (change)="onFileSelected($event, 'fiche_technique')"
+                         #ficheTechniqueFile>
+                  <div class="file-upload-info">
+                    <i class="bi bi-cloud-upload"></i>
+                    <p>Glissez-déposez votre fiche technique ici ou cliquez pour sélectionner</p>
+                    <small class="text-muted">Formats acceptés: PDF, DOC, DOCX, TXT (Max: 10MB)</small>
+                  </div>
                 </div>
-                <div class="card-body">
-                  <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit;">{{ generateFicheTechnique() }}</pre>
+                <div *ngIf="uploadedFiles['fiche_technique']" class="alert alert-success mt-2">
+                  <i class="bi bi-check-circle"></i>
+                  <strong>Fiche technique téléchargée:</strong> {{ uploadedFiles['fiche_technique'].name }}
+                  <button type="button" class="btn btn-sm btn-outline-danger ms-2" 
+                          (click)="removeFile('fiche_technique')">
+                    <i class="bi bi-trash"></i>
+                  </button>
                 </div>
               </div>
 
@@ -808,6 +807,18 @@
                 <button type="button" class="btn btn-success" (click)="saveAndNextStep()">
                   <i class="bi bi-check-circle"></i> Valider la fiche technique
                 </button>
+              </div>
+
+              <!-- Affichage de la fiche technique générée à la toute fin, uniquement si validé -->
+              <div *ngIf="melange.etat === 6 && melange.fiche_technique" class="card border-success mt-4 mb-3">
+                <div class="card-header bg-success text-white">
+                  <h6 class="mb-0">
+                    <i class="bi bi-file-text"></i> Fiche technique générée
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div class="fiche-technique-content" [innerHTML]="getFicheTechniqueResumeHtml()"></div>
+                </div>
               </div>
             </form>
           </div>
@@ -876,3 +887,68 @@
     </div>
   </div>
 </div>
+
+<style>
+  .fiche-technique-content {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+  }
+  
+  .fiche-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border-left: 4px solid #007bff;
+    background-color: #f8f9fa;
+    border-radius: 0 8px 8px 0;
+  }
+  
+  .fiche-title {
+    color: #007bff !important;
+    font-weight: 600;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.5rem;
+  }
+  
+  .fiche-subtitle {
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  .document-item {
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background-color: white;
+    transition: all 0.2s ease;
+  }
+  
+  .document-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+  }
+  
+  .document-item a {
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  .document-item a:hover {
+    transform: scale(1.05);
+  }
+  
+  .table-sm th {
+    background-color: #e9ecef;
+    font-weight: 600;
+    text-align: center;
+  }
+  
+  .table-sm td {
+    vertical-align: middle;
+    text-align: center;
+  }
+  
+  .badge {
+    font-size: 0.85em;
+    padding: 0.4em 0.6em;
+  }
+</style>

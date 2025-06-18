@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MelangeService, Melange, MelangeEtat, MelangeIngredient, Gisement, Plateforme } from '../services/melange.service';
-import { GisementService } from '../services/gisement.service';
+import { MelangeService, Melange, MelangeEtat, MelangeIngredient, MelangeIngredientInput, Plateforme } from '../services/melange.service';
+import { GisementService, Gisement } from '../services/gisement.service';
+import { ChantierService, Chantier } from '../services/chantier.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-melange-detail',
@@ -45,6 +47,8 @@ export class MelangeDetailComponent implements OnInit {
   gisements: Gisement[] = [];
   plateformes: Plateforme[] = [];
   availableGisements: Gisement[] = [];
+  chantiers: Chantier[] = [];
+  currentUser: any = null;
 
   showIngredientForm = false;
   editingIngredient: MelangeIngredient | null = null;
@@ -57,11 +61,14 @@ export class MelangeDetailComponent implements OnInit {
   constructor(
     private melangeService: MelangeService,
     private gisementService: GisementService,
+    private chantierService: ChantierService,
+    private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder
   ) {
     this.melangeForm = this.fb.group({
+      nom: [''],
       plateforme: [null],
       fournisseur: ['', Validators.required],
       couverture_vegetale: [''],
@@ -90,7 +97,9 @@ export class MelangeDetailComponent implements OnInit {
       this.loading = true;
       await Promise.all([
         this.loadGisements(),
-        this.loadPlateformes()
+        this.loadPlateformes(),
+        this.loadChantiers(),
+        this.loadCurrentUser()
       ]);
       this.availableGisements = this.gisements;
       const id = this.route.snapshot.paramMap.get('id');
@@ -123,6 +132,59 @@ export class MelangeDetailComponent implements OnInit {
     } catch (error) {
       console.error('Erreur lors du chargement des plateformes:', error);
       throw error;
+    }
+  }
+
+  async loadChantiers(): Promise<void> {
+    try {
+      this.chantiers = await this.chantierService.getAll();
+    } catch (error) {
+      console.error('Erreur lors du chargement des chantiers:', error);
+      throw error;
+    }
+  }
+
+  async loadCurrentUser(): Promise<void> {
+    try {
+      console.log('Chargement de l\'utilisateur connecté...');
+      const userResponse = await this.authService.getCurrentUser();
+      console.log('Réponse API utilisateur:', userResponse);
+      
+      // L'API retourne un tableau, prendre le premier utilisateur
+      if (Array.isArray(userResponse) && userResponse.length > 0) {
+        this.currentUser = userResponse[0];
+        console.log('Utilisateur chargé avec succès:', this.currentUser);
+      } else if (typeof userResponse === 'object' && userResponse !== null) {
+        // Si c'est déjà un objet (pas un tableau)
+        this.currentUser = userResponse;
+        console.log('Utilisateur chargé avec succès:', this.currentUser);
+      } else {
+        console.log('Aucun utilisateur trouvé dans la réponse');
+        this.currentUser = null;
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement de l\'utilisateur connecté:', error);
+      // Fallback: essayer de récupérer depuis le localStorage
+      this.currentUser = this.getUserFromLocalStorage();
+      if (this.currentUser) {
+        console.log('Utilisateur récupéré depuis localStorage:', this.currentUser);
+      } else {
+        console.log('Aucun utilisateur trouvé');
+        this.currentUser = null;
+      }
+    }
+  }
+
+  private getUserFromLocalStorage(): any {
+    try {
+      const userStr = localStorage.getItem('currentUser');
+      if (userStr) {
+        return JSON.parse(userStr);
+      }
+      return null;
+    } catch (error) {
+      console.error('Erreur lors de la récupération depuis localStorage:', error);
+      return null;
     }
   }
 
@@ -165,6 +227,7 @@ export class MelangeDetailComponent implements OnInit {
   patchForm(): void {
     if (!this.melange) return;
     this.melangeForm.patchValue({
+      nom: this.melange.nom,
       plateforme: this.melange.plateforme,
       fournisseur: this.melange.fournisseur,
       couverture_vegetale: this.melange.couverture_vegetale,
@@ -297,6 +360,40 @@ export class MelangeDetailComponent implements OnInit {
     return plateforme?.nom || 'Plateforme inconnue';
   }
 
+  getChantierName(chantierId: number | null | undefined): string {
+    if (!chantierId) return 'Non spécifié';
+    const chantier = this.chantiers.find(c => c.id === chantierId);
+    return chantier?.nom || 'Chantier inconnu';
+  }
+
+  getCurrentUserName(): string {
+    console.log('getCurrentUserName appelé, currentUser:', this.currentUser);
+    if (!this.currentUser) return 'Utilisateur non connecté';
+    // L'utilisateur a username, email, role mais pas first_name/last_name
+    return this.currentUser.username || this.currentUser.email || 'Utilisateur inconnu';
+  }
+
+  getCurrentUserCompany(): string {
+    if (!this.currentUser) return 'Non spécifiée';
+    return this.currentUser.company_name || 'Non spécifiée';
+  }
+
+  getCurrentUserRole(): string {
+    if (!this.currentUser) return 'Non spécifié';
+    return this.currentUser.role || 'Non spécifié';
+  }
+
+  getDisplayName(): string {
+    // Priorité à la valeur du formulaire si elle a été modifiée
+    const formName = this.melangeForm.get('nom')?.value;
+    if (formName && formName.trim() !== '') {
+      return formName.trim();
+    }
+    
+    // Sinon utiliser le nom du mélange
+    return this.melange?.nom || 'Mélange sans nom';
+  }
+
   getTotalPercentage(): number {
     if (!this.melange?.ingredients) return 0;
     return this.melange.ingredients.reduce((sum, ing) => sum + (Number(ing.pourcentage) || 0), 0);
@@ -378,6 +475,9 @@ export class MelangeDetailComponent implements OnInit {
         melangeData = {};
         
         // Ajouter seulement les champs non vides
+        if (formData.nom && formData.nom.trim() !== '') {
+          melangeData.nom = formData.nom;
+        }
         if (formData.plateforme) {
           melangeData.plateforme = parseInt(formData.plateforme);
         }
@@ -396,25 +496,13 @@ export class MelangeDetailComponent implements OnInit {
         if (formData.references_analyses && formData.references_analyses.trim() !== '') {
           melangeData.references_analyses = formData.references_analyses;
         }
-        if (formData.ordre_conformite && formData.ordre_conformite.trim() !== '') {
-          melangeData.ordre_conformite = formData.ordre_conformite;
-        }
-        if (formData.consignes_melange && formData.consignes_melange.trim() !== '') {
-          melangeData.consignes_melange = formData.consignes_melange;
-        }
-        if (formData.controle_1 && formData.controle_1.trim() !== '') {
-          melangeData.controle_1 = formData.controle_1;
-        }
-        if (formData.controle_2 && formData.controle_2.trim() !== '') {
-          melangeData.controle_2 = formData.controle_2;
-        }
-        if (formData.fiche_technique && formData.fiche_technique.trim() !== '') {
-          melangeData.fiche_technique = formData.fiche_technique;
-        }
+        // Ne pas inclure les champs de fichiers ici - ils sont gérés séparément
+        // ordre_conformite, consignes_melange, controle_1, controle_2 sont des FileField
+        // fiche_technique est généré automatiquement
       } else {
         // Pour les nouveaux mélanges, inclure seulement les champs nécessaires pour la création
         melangeData = {
-          nom: "Mélange sans nom", // Toujours inclure le nom pour les nouveaux mélanges
+          // Ne pas envoyer de nom par défaut, laisser Django le générer automatiquement
           plateforme: formData.plateforme ? parseInt(formData.plateforme) : null,
           fournisseur: formData.fournisseur,
           couverture_vegetale: formData.couverture_vegetale || null,
@@ -423,6 +511,12 @@ export class MelangeDetailComponent implements OnInit {
           references_analyses: formData.references_analyses || null,
           ingredients: this.melange.ingredients || [] // Toujours inclure ingredients, même vide
         };
+        
+        // Ajouter le nom seulement s'il a été explicitement saisi par l'utilisateur
+        if (formData.nom && formData.nom.trim() !== '') {
+          melangeData.nom = formData.nom.trim();
+        }
+        // Si le nom est vide, ne pas l'envoyer du tout pour que Django le génère
       }
 
       console.log('Données finales envoyées à l\'API:', melangeData);
@@ -443,15 +537,15 @@ export class MelangeDetailComponent implements OnInit {
         
         // Rediriger vers la page de détail du mélange créé
         if (this.melange.id) {
-          this.router.navigate(['/melanges', this.melange.id]);
+        this.router.navigate(['/melanges', this.melange.id]);
         }
       } else {
         // Mettre à jour un mélange existant
         if (this.melange.id) {
-          console.log('Mise à jour du mélange:', this.melange.id, melangeData);
-          this.melange = await this.melangeService.update(this.melange.id, melangeData);
-          console.log('Mélange mis à jour avec succès:', this.melange);
-          console.log('État du mélange mis à jour:', this.melange.etat);
+        console.log('Mise à jour du mélange:', this.melange.id, melangeData);
+        this.melange = await this.melangeService.update(this.melange.id, melangeData);
+        console.log('Mélange mis à jour avec succès:', this.melange);
+        console.log('État du mélange mis à jour:', this.melange.etat);
         }
       }
     } catch (error) {
@@ -460,79 +554,49 @@ export class MelangeDetailComponent implements OnInit {
     }
   }
 
-  async saveCurrentStepData(): Promise<void> {
-    if (!this.melange?.id) return;
+  async saveCurrentStepData(): Promise<any> {
+    const updateData: any = {};
     
-    try {
-      const formData = this.melangeForm.value;
-      console.log('Sauvegarde des données de l\'étape actuelle:', this.melange.etat);
-      console.log('Données du formulaire:', formData);
-      
-      // Préparer les données à mettre à jour selon l'étape actuelle
-      const updateData: any = {};
-      
-      // Ajouter le champ spécifique à l'étape actuelle
-      switch (this.melange.etat) {
-        case 2: // CONFORMITE
-          if (formData.ordre_conformite && formData.ordre_conformite.trim() !== '') {
-            updateData.ordre_conformite = formData.ordre_conformite;
-          }
-          break;
-        case 3: // CONSIGNE
-          if (formData.consignes_melange && formData.consignes_melange.trim() !== '') {
-            updateData.consignes_melange = formData.consignes_melange;
-          }
-          break;
-        case 4: // CONTROLE_1
-          if (formData.controle_1 && formData.controle_1.trim() !== '') {
-            updateData.controle_1 = formData.controle_1;
-          }
-          break;
-        case 5: // CONTROLE_2
-          if (formData.controle_2 && formData.controle_2.trim() !== '') {
-            updateData.controle_2 = formData.controle_2;
-          }
-          break;
-        case 6: // VALIDATION
-          // Pour l'étape 6, sauvegarder seulement les champs individuels (pas fiche_technique)
-          if (formData.ordre_conformite && formData.ordre_conformite.trim() !== '') {
-            updateData.ordre_conformite = formData.ordre_conformite;
-          }
-          if (formData.consignes_melange && formData.consignes_melange.trim() !== '') {
-            updateData.consignes_melange = formData.consignes_melange;
-          }
-          if (formData.controle_1 && formData.controle_1.trim() !== '') {
-            updateData.controle_1 = formData.controle_1;
-          }
-          if (formData.controle_2 && formData.controle_2.trim() !== '') {
-            updateData.controle_2 = formData.controle_2;
-          }
-          
-          // Ne pas sauvegarder fiche_technique ici - il sera généré et sauvegardé séparément
-          break;
-      }
-      
-      if (Object.keys(updateData).length > 0) {
-        console.log('Données à mettre à jour:', updateData);
-        this.melange = await this.melangeService.patch(this.melange.id, updateData);
-        console.log('Données de l\'étape sauvegardées avec succès');
-      } else {
-        console.log('Aucune donnée à sauvegarder pour cette étape - champs vides');
-        // Ne pas faire d'appel API si aucun champ n'est rempli
-        return;
-      }
-    } catch (error: any) {
-      console.error('Erreur lors de la sauvegarde des données de l\'étape:', error);
-      console.error('Détails de l\'erreur:', error.response?.data);
-      console.error('Status:', error.response?.status);
-      
-      // Si c'est une erreur 400, on peut continuer sans sauvegarder
-      if (error.response?.status === 400) {
-        console.log('Erreur 400 - continuation sans sauvegarde des données de l\'étape');
-      } else {
-        throw error; // Relancer l'erreur si ce n'est pas une erreur 400
-      }
+    // Traiter les fichiers uploadés selon l'étape actuelle
+    switch (this.melange.etat) {
+      case MelangeEtat.CONFORMITE:
+        if (this.uploadedFiles['ordre_conformite']) {
+          // Envoyer le fichier directement au backend Django
+          updateData.ordre_conformite = this.uploadedFiles['ordre_conformite'];
+        }
+        break;
+        
+      case MelangeEtat.CONSIGNE:
+        if (this.uploadedFiles['consignes_melange']) {
+          // Envoyer le fichier directement au backend Django
+          updateData.consignes_melange = this.uploadedFiles['consignes_melange'];
+        }
+        break;
+        
+      case MelangeEtat.CONTROLE_1:
+        if (this.uploadedFiles['controle_1']) {
+          // Envoyer le fichier directement au backend Django
+          updateData.controle_1 = this.uploadedFiles['controle_1'];
+        }
+        break;
+        
+      case MelangeEtat.CONTROLE_2:
+        if (this.uploadedFiles['controle_2']) {
+          // Envoyer le fichier directement au backend Django
+          updateData.controle_2 = this.uploadedFiles['controle_2'];
+        }
+        break;
+        
+      case MelangeEtat.VALIDATION:
+        // Pour l'étape de validation, on traite fiche_technique comme un fichier uploadé
+        if (this.uploadedFiles['fiche_technique']) {
+          // Envoyer le fichier directement au backend Django
+          updateData.fiche_technique = this.uploadedFiles['fiche_technique'];
+        }
+        break;
     }
+    
+    return updateData;
   }
 
   async saveAndNextStep(): Promise<void> {
@@ -580,6 +644,14 @@ export class MelangeDetailComponent implements OnInit {
             }
           }
           break;
+        case 6: // VALIDATION
+          if (this.uploadedFiles['fiche_technique']) {
+            const fileUrl = await this.uploadFile(this.uploadedFiles['fiche_technique'], 'fiche_technique');
+            if (fileUrl) {
+              updateData.fiche_technique = fileUrl;
+            }
+          }
+          break;
       }
       
       // D'abord sauvegarder le mélange avec les données actuelles
@@ -589,35 +661,37 @@ export class MelangeDetailComponent implements OnInit {
       // Seulement si ce n'est pas un nouveau mélange
       if (this.melange?.id && !this.isNew) {
         try {
-          // Sauvegarder les URLs des fichiers uploadés
+          // Récupérer les données à mettre à jour pour l'étape actuelle
+          const updateData = await this.saveCurrentStepData();
+          
+          // Sauvegarder les données si il y en a
           if (Object.keys(updateData).length > 0) {
             console.log('Données de fichiers à mettre à jour:', updateData);
-            this.melange = await this.melangeService.patch(this.melange.id, updateData);
+            
+            // Vérifier s'il y a des fichiers à envoyer (fiche_technique est aussi un fichier)
+            const hasFiles = Object.values(updateData).some(value => value instanceof File);
+            
+            if (hasFiles) {
+              // Utiliser patchWithFiles pour les fichiers
+              this.melange = await this.melangeService.patchWithFiles(this.melange.id, updateData);
+            } else {
+              // Utiliser patch normal pour les données JSON (y compris fiche_technique)
+              this.melange = await this.melangeService.patch(this.melange.id, updateData);
+            }
+            
             console.log('Fichiers sauvegardés avec succès');
           }
           
-          // Pour l'étape 6, générer et sauvegarder explicitement le résumé complet
-          if (this.melange.etat === 6) {
-            console.log('=== ÉTAPE 6: Génération du résumé complet ===');
-            const ficheTechniqueComplete = this.generateFicheTechnique();
-            console.log('Résumé généré:', ficheTechniqueComplete);
-            
-            if (ficheTechniqueComplete.trim() !== '') {
-              if (this.melange.id) {
-                await this.melangeService.patch(this.melange.id, {
-                  fiche_technique: ficheTechniqueComplete
-                } as any);
-              }
-              console.log('Résumé complet sauvegardé dans fiche_technique');
-            }
-          }
-        } catch (stepError: any) {
-          // Si c'est une erreur 400, on continue quand même
-          if (stepError.response?.status === 400) {
-            console.log('Erreur 400 lors de la sauvegarde de l\'étape - continuation...');
-          } else {
-            throw stepError; // Relancer les autres erreurs
-          }
+          // La génération de fiche_technique est déjà gérée dans saveCurrentStepData()
+          // Pas besoin de la dupliquer ici
+      } catch (stepError: any) {
+          console.error('Erreur lors de la sauvegarde de l\'étape:', stepError);
+          console.error('Détails de l\'erreur:', stepError.response?.data);
+          console.error('Status:', stepError.response?.status);
+          
+          // Ne pas continuer si il y a une erreur
+          this.error = 'Erreur lors de la sauvegarde de l\'étape. Veuillez réessayer.';
+          throw stepError; // Arrêter l'exécution
         }
       }
       
@@ -631,7 +705,7 @@ export class MelangeDetailComponent implements OnInit {
         await this.melangeService.updateEtat(this.melange.id, 2); // Passer à CONFORMITE
         console.log('État mis à jour, rechargement du mélange...');
         if (this.melange.id) {
-          await this.loadMelange(this.melange.id);
+        await this.loadMelange(this.melange.id);
         }
         console.log('État final après rechargement:', this.melange.etat);
       } else if (this.melange?.id) {
@@ -685,7 +759,7 @@ export class MelangeDetailComponent implements OnInit {
       });
       
       // Recharger le mélange pour avoir les données à jour
-      await this.loadMelange(this.melange.id);
+        await this.loadMelange(this.melange.id);
     } catch (err) {
       console.error('Erreur lors de la suppression:', err);
     }
@@ -730,21 +804,29 @@ export class MelangeDetailComponent implements OnInit {
   }
 
   async saveMultipleIngredients(): Promise<void> {
-    if (!this.melange?.id || this.selectedGisements.length === 0) return;
+    if (this.selectedGisements.length === 0) return;
     
     try {
       // Convertir selectedGisements en format ingredients
-      const ingredients = this.selectedGisements.map(selection => ({
-        gisement: selection.gisementId,
-        pourcentage: selection.pourcentage
+      const ingredients: MelangeIngredientInput[] = this.selectedGisements.map(selection => ({
+          gisement: selection.gisementId,
+          pourcentage: selection.pourcentage
       }));
       
-      // Ajouter tous les ingrédients en une seule requête
-      await this.melangeService.patch(this.melange.id, {
-        ingredients: ingredients
-      } as any);
+      if (this.melange?.id) {
+        // Pour un mélange existant, utiliser l'API
+        await this.melangeService.patch(this.melange.id, {
+          ingredients: ingredients
+        } as any);
+        
+        await this.loadMelange(this.melange.id);
+      } else {
+        // Pour un nouveau mélange, ajouter localement
+        // Utiliser le type MelangeIngredientInput pour les nouveaux mélanges
+        this.melange.ingredients = [...(this.melange.ingredients || []), ...ingredients] as any;
+        this.updateAvailableGisements();
+      }
       
-      await this.loadMelange(this.melange.id);
       this.selectedGisements = [];
       this.showIngredientForm = false;
     } catch (err) {
@@ -849,28 +931,212 @@ export class MelangeDetailComponent implements OnInit {
       return;
     }
     
-    if (!this.melange?.id) {
-      console.error('Aucun mélange chargé');
-      return;
-    }
-    
     if (!confirm('Êtes-vous sûr de vouloir supprimer cet ingrédient ?')) return;
     
     try {
-      // Supprimer l'ingrédient de la liste locale par gisement
-      const updatedIngredients = this.melange.ingredients.filter(
-        ing => ing.gisement !== gisementId
-      );
-      
-      // Mettre à jour le mélange via l'API
-      await this.melangeService.patch(this.melange.id, {
-        ingredients: updatedIngredients
-      });
-      
-      // Recharger le mélange pour avoir les données à jour
-      await this.loadMelange(this.melange.id);
+      if (this.melange?.id) {
+        // Pour un mélange existant, utiliser l'API
+        const updatedIngredients = this.melange.ingredients.filter(
+          ing => ing.gisement !== gisementId
+        );
+        
+        await this.melangeService.patch(this.melange.id, {
+          ingredients: updatedIngredients
+        });
+        
+        await this.loadMelange(this.melange.id);
+      } else {
+        // Pour un nouveau mélange, supprimer localement
+        this.melange.ingredients = this.melange.ingredients.filter(
+          ing => ing.gisement !== gisementId
+        );
+        this.updateAvailableGisements();
+      }
     } catch (err) {
       console.error('Erreur lors de la suppression:', err);
     }
+  }
+
+  getFicheTechniqueResume(): string {
+    // Génère le résumé complet avec toutes les informations du mélange
+    const lines: string[] = [];
+    
+    // === INFORMATIONS DU MÉLANGE ===
+    lines.push('=== FICHE TECHNIQUE DU MÉLANGE ===');
+    lines.push('');
+    
+    // Informations de base
+    lines.push(`Référence: ${this.melange.reference_produit || 'Non définie'}`);
+    lines.push(`Nom: ${this.melange.nom || 'Non défini'}`);
+    lines.push(`Plateforme: ${this.getPlateformeName(this.melange.plateforme)}`);
+    lines.push(`Fournisseur: ${this.melange.fournisseur || 'Non défini'}`);
+    lines.push(`Période de mélange: ${this.melange.periode_melange || 'Non définie'}`);
+    lines.push(`Date de semis: ${this.melange.date_semis || 'Non définie'}`);
+    lines.push(`Couverture végétale: ${this.melange.couverture_vegetale || 'Non définie'}`);
+    lines.push(`Références d'analyses: ${this.melange.references_analyses || 'Non définies'}`);
+    lines.push('');
+    
+    // Composition du mélange
+    lines.push('=== COMPOSITION DU MÉLANGE ===');
+    if (this.melange.ingredients && this.melange.ingredients.length > 0) {
+      this.melange.ingredients.forEach(ingredient => {
+        const gisementName = this.getGisementName(ingredient.gisement);
+        lines.push(`${gisementName}: ${ingredient.pourcentage}%`);
+      });
+      lines.push(`Total: ${this.getTotalPercentage()}%`);
+    } else {
+      lines.push('Aucun ingrédient défini');
+    }
+    lines.push('');
+    
+    // === DOCUMENTS UPLOADÉS ===
+    lines.push('=== DOCUMENTS UPLOADÉS ===');
+    lines.push('');
+    
+    lines.push('NORMES DE CONFORMITÉ:');
+    if (this.melange.ordre_conformite) {
+      lines.push(this.getFileUrl(this.melange.ordre_conformite));
+    } else {
+      lines.push('Non renseigné');
+    }
+    lines.push('');
+    
+    lines.push("CONDITIONS D'UTILISATION:");
+    if (this.melange.consignes_melange) {
+      lines.push(this.getFileUrl(this.melange.consignes_melange));
+    } else {
+      lines.push('Non renseigné');
+    }
+    lines.push('');
+    
+    lines.push('CONTRÔLE QUALITÉ +1 MOIS:');
+    if (this.melange.controle_1) {
+      lines.push(this.getFileUrl(this.melange.controle_1));
+    } else {
+      lines.push('Non renseigné');
+    }
+    lines.push('');
+    
+    lines.push('CONTRÔLE QUALITÉ +2 MOIS:');
+    if (this.melange.controle_2) {
+      lines.push(this.getFileUrl(this.melange.controle_2));
+    } else {
+      lines.push('Non renseigné');
+    }
+    lines.push('');
+    
+    lines.push('FICHE TECHNIQUE FINALE:');
+    if (this.melange.fiche_technique) {
+      lines.push(this.getFileUrl(this.melange.fiche_technique));
+    } else {
+      lines.push('Non renseigné');
+    }
+    
+    return lines.join('\n');
+  }
+
+  getFileUrl(file: string): string {
+    // Si le champ est déjà une URL absolue, retourne tel quel
+    if (file.startsWith('http')) return file;
+    // Sinon, construit l'URL complète
+    return `${window.location.origin}/media/${file}`;
+  }
+
+  getFicheTechniqueResumeHtml(): string {
+    // Génère le résumé complet avec du HTML formaté et des liens cliquables
+    const lines: string[] = [];
+    
+    // === INFORMATIONS DU MÉLANGE ===
+    lines.push('<div class="fiche-section">');
+    lines.push('<h4 class="fiche-title text-primary mb-3"><i class="bi bi-info-circle"></i> FICHE TECHNIQUE DU MÉLANGE</h4>');
+    
+    // Informations de base
+    lines.push('<div class="row mb-3">');
+    lines.push('<div class="col-md-6">');
+    lines.push(`<strong>Référence:</strong> <span class="text-muted">${this.melange.reference_produit || 'Non définie'}</span><br>`);
+    lines.push(`<strong>Nom:</strong> <span class="text-muted">${this.melange.nom || 'Non défini'}</span><br>`);
+    lines.push(`<strong>Plateforme:</strong> <span class="text-muted">${this.getPlateformeName(this.melange.plateforme)}</span><br>`);
+    lines.push(`<strong>Fournisseur:</strong> <span class="text-muted">${this.melange.fournisseur || 'Non défini'}</span>`);
+    lines.push('</div>');
+    lines.push('<div class="col-md-6">');
+    lines.push(`<strong>Période de mélange:</strong> <span class="text-muted">${this.melange.periode_melange || 'Non définie'}</span><br>`);
+    lines.push(`<strong>Date de semis:</strong> <span class="text-muted">${this.melange.date_semis || 'Non définie'}</span><br>`);
+    lines.push(`<strong>Couverture végétale:</strong> <span class="text-muted">${this.melange.couverture_vegetale || 'Non définie'}</span><br>`);
+    lines.push(`<strong>Références d'analyses:</strong> <span class="text-muted">${this.melange.references_analyses || 'Non définies'}</span>`);
+    lines.push('</div>');
+    lines.push('</div>');
+    lines.push('</div>');
+    
+    // === RESPONSABLE DE LA PLATEFORME ===
+    lines.push('<div class="fiche-section">');
+    lines.push('<h5 class="fiche-subtitle text-warning mb-3"><i class="bi bi-person-badge"></i> RESPONSABLE DE LA PLATEFORME</h5>');
+    lines.push('<div class="row mb-3">');
+    lines.push('<div class="col-md-6">');
+    lines.push(`<strong>Responsable:</strong> <span class="text-muted">${this.getCurrentUserName()}</span><br>`);
+    lines.push(`<strong>Entreprise:</strong> <span class="text-muted">${this.getCurrentUserCompany()}</span><br>`);
+    lines.push(`<strong>Rôle:</strong> <span class="badge bg-info">${this.getCurrentUserRole()}</span>`);
+    lines.push('</div>');
+    lines.push('<div class="col-md-6">');
+    lines.push(`<strong>Email:</strong> <span class="text-muted">${this.currentUser?.email || 'Non spécifié'}</span><br>`);
+    lines.push(`<strong>Date de validation:</strong> <span class="text-muted">${new Date().toLocaleDateString('fr-FR')}</span><br>`);
+    lines.push(`<strong>Statut:</strong> <span class="badge bg-success">Validé</span>`);
+    lines.push('</div>');
+    lines.push('</div>');
+    lines.push('</div>');
+    
+    // Composition du mélange
+    lines.push('<div class="fiche-section">');
+    lines.push('<h5 class="fiche-subtitle text-success mb-3"><i class="bi bi-list-ul"></i> COMPOSITION DU MÉLANGE</h5>');
+    if (this.melange.ingredients && this.melange.ingredients.length > 0) {
+      lines.push('<div class="table-responsive">');
+      lines.push('<table class="table table-sm table-bordered">');
+      lines.push('<thead class="table-light">');
+      lines.push('<tr><th>Gisement</th><th>Chantier d\'origine</th><th>Pourcentage</th></tr>');
+      lines.push('</thead>');
+      lines.push('<tbody>');
+      this.melange.ingredients.forEach(ingredient => {
+        const gisementName = this.getGisementName(ingredient.gisement);
+        const gisement = this.gisements.find(g => g.id === ingredient.gisement);
+        const chantierName = gisement ? this.getChantierName(gisement.chantier) : 'Chantier inconnu';
+        lines.push(`<tr><td>${gisementName}</td><td>${chantierName}</td><td><span class="badge bg-primary">${ingredient.pourcentage}%</span></td></tr>`);
+      });
+      lines.push('</tbody>');
+      lines.push('</table>');
+      lines.push('</div>');
+      lines.push(`<div class="alert alert-info"><strong>Total: ${this.getTotalPercentage()}%</strong></div>`);
+    } else {
+      lines.push('<div class="alert alert-warning">Aucun ingrédient défini</div>');
+    }
+    lines.push('</div>');
+    
+    // === DOCUMENTS UPLOADÉS ===
+    lines.push('<div class="fiche-section">');
+    lines.push('<h5 class="fiche-subtitle text-info mb-3"><i class="bi bi-file-earmark-text"></i> DOCUMENTS UPLOADÉS</h5>');
+    
+    const documents = [
+      { title: 'NORMES DE CONFORMITÉ', field: 'ordre_conformite', icon: 'bi-file-pdf' },
+      { title: "CONDITIONS D'UTILISATION", field: 'consignes_melange', icon: 'bi-file-word' },
+      { title: 'CONTRÔLE QUALITÉ +1 MOIS', field: 'controle_1', icon: 'bi-file-excel' },
+      { title: 'CONTRÔLE QUALITÉ +2 MOIS', field: 'controle_2', icon: 'bi-file-excel' },
+      { title: 'FICHE TECHNIQUE FINALE', field: 'fiche_technique', icon: 'bi-file-text' }
+    ];
+    
+    documents.forEach(doc => {
+      const fileUrl = this.melange[doc.field as keyof typeof this.melange] as string;
+      lines.push('<div class="document-item mb-2">');
+      lines.push(`<strong><i class="bi ${doc.icon}"></i> ${doc.title}:</strong> `);
+      if (fileUrl) {
+        const fullUrl = this.getFileUrl(fileUrl);
+        lines.push(`<a href="${fullUrl}" target="_blank" class="btn btn-sm btn-outline-primary">`);
+        lines.push(`<i class="bi bi-download"></i> Voir le document</a>`);
+      } else {
+        lines.push('<span class="text-muted">Non renseigné</span>');
+      }
+      lines.push('</div>');
+    });
+    
+    lines.push('</div>');
+    
+    return lines.join('');
   }
 }

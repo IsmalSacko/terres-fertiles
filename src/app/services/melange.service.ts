@@ -127,6 +127,36 @@ export class MelangeService {
     return response.data;
   }
 
+  async patchWithFiles(id: number, data: any): Promise<Melange> {
+    const formData = new FormData();
+    
+    // Ajouter les champs de données au FormData
+    Object.keys(data).forEach(key => {
+      const value = data[key];
+      if (value instanceof File) {
+        // Si c'est un fichier, l'ajouter directement
+        formData.append(key, value);
+      } else if (typeof value === 'object' && value !== null) {
+        // Si c'est un objet (comme ingredients), le convertir en JSON
+        formData.append(key, JSON.stringify(value));
+      } else {
+        // Sinon, ajouter comme string
+        formData.append(key, String(value));
+      }
+    });
+    
+    // Headers spéciaux pour FormData (sans Content-Type pour que le navigateur le définisse automatiquement)
+    const token = localStorage.getItem('token');
+    const headers = { 
+      headers: { 
+        Authorization: `Token ${token}` 
+      } 
+    };
+    
+    const response = await axios.patch<Melange>(`${this.apiUrl}${id}/`, formData, headers);
+    return response.data;
+  }
+
   async delete(id: number): Promise<void> {
     await axios.delete(`${this.apiUrl}${id}/`, this.getHeaders());
   }
