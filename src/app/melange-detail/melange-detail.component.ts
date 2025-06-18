@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MelangeService, Melange, MelangeEtat, MelangeIngredient, Gisement, Plateforme } from '../services/melange.service';
@@ -8,7 +8,7 @@ import { GisementService } from '../services/gisement.service';
 @Component({
   selector: 'app-melange-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, DecimalPipe],
   templateUrl: './melange-detail.component.html',
   styleUrl: './melange-detail.component.css'
 })
@@ -45,6 +45,10 @@ export class MelangeDetailComponent implements OnInit {
   showIngredientForm = false;
   editingIngredient: MelangeIngredient | null = null;
   selectedGisements: { gisementId: number, pourcentage: number }[] = [];
+
+  // Propriétés pour la gestion des fichiers
+  uploadedFiles: { [key: string]: File } = {};
+  fileErrors: { [key: string]: string } = {};
 
   constructor(
     private melangeService: MelangeService,
@@ -291,11 +295,11 @@ export class MelangeDetailComponent implements OnInit {
 
   getTotalPercentage(): number {
     if (!this.melange?.ingredients) return 0;
-    return this.melange.ingredients.reduce((sum, ing) => sum + ing.pourcentage, 0);
+    return this.melange.ingredients.reduce((sum, ing) => sum + (Number(ing.pourcentage) || 0), 0);
   }
 
   getTotalSelectedPercentage(): number {
-    return this.selectedGisements.reduce((sum, s) => sum + s.pourcentage, 0);
+    return this.selectedGisements.reduce((sum, s) => sum + (Number(s.pourcentage) || 0), 0);
   }
 
   // Navigation methods
@@ -496,6 +500,46 @@ export class MelangeDetailComponent implements OnInit {
       console.log('isNew:', this.isNew);
       console.log('melange.id:', this.melange?.id);
       
+      // Upload des fichiers si présents
+      const uploadPromises: Promise<void>[] = [];
+      const updateData: any = {};
+      
+      // Vérifier les fichiers pour l'étape actuelle
+      switch (this.melange.etat) {
+        case 2: // CONFORMITE
+          if (this.uploadedFiles['ordre_conformite']) {
+            const fileUrl = await this.uploadFile(this.uploadedFiles['ordre_conformite'], 'ordre_conformite');
+            if (fileUrl) {
+              updateData.ordre_conformite = fileUrl;
+            }
+          }
+          break;
+        case 3: // CONSIGNE
+          if (this.uploadedFiles['consignes_melange']) {
+            const fileUrl = await this.uploadFile(this.uploadedFiles['consignes_melange'], 'consignes_melange');
+            if (fileUrl) {
+              updateData.consignes_melange = fileUrl;
+            }
+          }
+          break;
+        case 4: // CONTROLE_1
+          if (this.uploadedFiles['controle_1']) {
+            const fileUrl = await this.uploadFile(this.uploadedFiles['controle_1'], 'controle_1');
+            if (fileUrl) {
+              updateData.controle_1 = fileUrl;
+            }
+          }
+          break;
+        case 5: // CONTROLE_2
+          if (this.uploadedFiles['controle_2']) {
+            const fileUrl = await this.uploadFile(this.uploadedFiles['controle_2'], 'controle_2');
+            if (fileUrl) {
+              updateData.controle_2 = fileUrl;
+            }
+          }
+          break;
+      }
+      
       // D'abord sauvegarder le mélange avec les données actuelles
       await this.saveMelange();
       
@@ -503,7 +547,12 @@ export class MelangeDetailComponent implements OnInit {
       // Seulement si ce n'est pas un nouveau mélange
       if (this.melange?.id && !this.isNew) {
         try {
-          await this.saveCurrentStepData();
+          // Sauvegarder les URLs des fichiers uploadés
+          if (Object.keys(updateData).length > 0) {
+            console.log('Données de fichiers à mettre à jour:', updateData);
+            this.melange = await this.melangeService.patch(this.melange.id, updateData);
+            console.log('Fichiers sauvegardés avec succès');
+          }
           
           // Pour l'étape 6, générer et sauvegarder explicitement le résumé complet
           if (this.melange.etat === 6) {
@@ -512,9 +561,11 @@ export class MelangeDetailComponent implements OnInit {
             console.log('Résumé généré:', ficheTechniqueComplete);
             
             if (ficheTechniqueComplete.trim() !== '') {
-              await this.melangeService.patch(this.melange.id, {
-                fiche_technique: ficheTechniqueComplete
-              } as any);
+              if (this.melange.id) {
+                await this.melangeService.patch(this.melange.id, {
+                  fiche_technique: ficheTechniqueComplete
+                } as any);
+              }
               console.log('Résumé complet sauvegardé dans fiche_technique');
             }
           }
@@ -537,7 +588,9 @@ export class MelangeDetailComponent implements OnInit {
         console.log('Passage à l\'état 2 (CONFORMITE)...');
         await this.melangeService.updateEtat(this.melange.id, 2); // Passer à CONFORMITE
         console.log('État mis à jour, rechargement du mélange...');
-        await this.loadMelange(this.melange.id);
+        if (this.melange.id) {
+          await this.loadMelange(this.melange.id);
+        }
         console.log('État final après rechargement:', this.melange.etat);
       } else if (this.melange?.id) {
         console.log('Mélange existant, passage à l\'étape suivante...');
@@ -566,12 +619,31 @@ export class MelangeDetailComponent implements OnInit {
   }
 
   async deleteIngredient(ingredientId: number): Promise<void> {
+    if (!ingredientId || ingredientId === undefined) {
+      console.error('ID d\'ingrédient invalide:', ingredientId);
+      return;
+    }
+    
+    if (!this.melange?.id) {
+      console.error('Aucun mélange chargé');
+      return;
+    }
+    
     if (!confirm('Êtes-vous sûr de vouloir supprimer cet ingrédient ?')) return;
+    
     try {
-      await this.melangeService.deleteIngredient(ingredientId);
-      if (this.melange?.id) {
-        await this.loadMelange(this.melange.id);
-      }
+      // Supprimer l'ingrédient de la liste locale
+      const updatedIngredients = this.melange.ingredients.filter(
+        ing => ing.id !== ingredientId
+      );
+      
+      // Mettre à jour le mélange via l'API
+      await this.melangeService.patch(this.melange.id, {
+        ingredients: updatedIngredients
+      });
+      
+      // Recharger le mélange pour avoir les données à jour
+      await this.loadMelange(this.melange.id);
     } catch (err) {
       console.error('Erreur lors de la suppression:', err);
     }
@@ -606,7 +678,8 @@ export class MelangeDetailComponent implements OnInit {
     const target = event.target as HTMLInputElement;
     const selection = this.selectedGisements.find(s => s.gisementId === gisementId);
     if (selection) {
-      selection.pourcentage = +target.value;
+      const value = parseFloat(target.value);
+      selection.pourcentage = isNaN(value) ? 0 : value;
     }
   }
 
@@ -618,13 +691,17 @@ export class MelangeDetailComponent implements OnInit {
     if (!this.melange?.id || this.selectedGisements.length === 0) return;
     
     try {
-      for (const selection of this.selectedGisements) {
-        await this.melangeService.addIngredient({
-          melange: this.melange.id,
-          gisement: selection.gisementId,
-          pourcentage: selection.pourcentage
-        });
-      }
+      // Convertir selectedGisements en format ingredients
+      const ingredients = this.selectedGisements.map(selection => ({
+        gisement: selection.gisementId,
+        pourcentage: selection.pourcentage
+      }));
+      
+      // Ajouter tous les ingrédients en une seule requête
+      await this.melangeService.patch(this.melange.id, {
+        ingredients: ingredients
+      } as any);
+      
       await this.loadMelange(this.melange.id);
       this.selectedGisements = [];
       this.showIngredientForm = false;
@@ -635,5 +712,123 @@ export class MelangeDetailComponent implements OnInit {
 
   isWorkflowCompleted(): boolean {
     return this.melange?.etat === 6;
+  }
+
+  // Méthodes pour la gestion des fichiers
+  onFileSelected(event: Event, fieldName: string): void {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    
+    if (file) {
+      // Validation du fichier
+      const error = this.validateFile(file);
+      if (error) {
+        this.fileErrors[fieldName] = error;
+        target.value = '';
+        return;
+      }
+      
+      // Supprimer l'erreur précédente
+      delete this.fileErrors[fieldName];
+      
+      // Ajouter le fichier
+      this.uploadedFiles[fieldName] = file;
+      
+      console.log(`Fichier sélectionné pour ${fieldName}:`, file.name);
+    }
+  }
+
+  validateFile(file: File): string | null {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+    
+    if (file.size > maxSize) {
+      return 'Le fichier est trop volumineux. Taille maximale: 10MB';
+    }
+    
+    if (!allowedTypes.includes(file.type)) {
+      return 'Type de fichier non autorisé. Formats acceptés: PDF, DOC, DOCX, TXT, XLS, XLSX';
+    }
+    
+    return null;
+  }
+
+  removeFile(fieldName: string): void {
+    delete this.uploadedFiles[fieldName];
+    delete this.fileErrors[fieldName];
+    
+    // Réinitialiser l'input file
+    const fileInput = document.getElementById(`${fieldName}_file`) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
+  getFileIcon(fileName: string): string {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    switch (extension) {
+      case 'pdf': return 'bi-file-pdf';
+      case 'doc':
+      case 'docx': return 'bi-file-word';
+      case 'txt': return 'bi-file-text';
+      case 'xls':
+      case 'xlsx': return 'bi-file-excel';
+      default: return 'bi-file-earmark';
+    }
+  }
+
+  async uploadFile(file: File, fieldName: string): Promise<string | null> {
+    try {
+      // Ici, vous devrez implémenter la logique d'upload vers votre backend
+      // Pour l'instant, on simule un upload réussi
+      console.log(`Upload du fichier ${file.name} pour ${fieldName}`);
+      
+      // Simuler un délai d'upload
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Retourner l'URL du fichier uploadé (à adapter selon votre backend)
+      return `uploads/${fieldName}/${file.name}`;
+    } catch (error) {
+      console.error('Erreur lors de l\'upload:', error);
+      return null;
+    }
+  }
+
+  async deleteIngredientByGisement(gisementId: number): Promise<void> {
+    if (!gisementId || gisementId === undefined) {
+      console.error('ID de gisement invalide:', gisementId);
+      return;
+    }
+    
+    if (!this.melange?.id) {
+      console.error('Aucun mélange chargé');
+      return;
+    }
+    
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cet ingrédient ?')) return;
+    
+    try {
+      // Supprimer l'ingrédient de la liste locale par gisement
+      const updatedIngredients = this.melange.ingredients.filter(
+        ing => ing.gisement !== gisementId
+      );
+      
+      // Mettre à jour le mélange via l'API
+      await this.melangeService.patch(this.melange.id, {
+        ingredients: updatedIngredients
+      });
+      
+      // Recharger le mélange pour avoir les données à jour
+      await this.loadMelange(this.melange.id);
+    } catch (err) {
+      console.error('Erreur lors de la suppression:', err);
+    }
   }
 }

@@ -77,7 +77,7 @@ export interface PartialMelange {
 })
 export class MelangeService {
   private apiUrl = 'http://127.0.0.1:8000/api/melanges/';
-  private ingredientsApiUrl = 'http://127.0.0.1:8000/api/melange-ingredients/';
+  private ingredientsApiUrl = 'http://127.0.0.1:8000/api/melanges/';
   private plateformesApiUrl = 'http://127.0.0.1:8000/api/plateformes/';
 
   constructor() {}
@@ -140,12 +140,28 @@ export class MelangeService {
   }
 
   async addIngredient(ingredient: MelangeIngredientInput & { melange: number }): Promise<MelangeIngredient> {
-    const response = await axios.post<MelangeIngredient>(
-      this.ingredientsApiUrl,
-      ingredient,
+    // Utiliser l'endpoint des mélanges pour ajouter un ingrédient
+    const response = await axios.patch<Melange>(
+      `${this.apiUrl}${ingredient.melange}/`,
+      {
+        ingredients: [{
+          gisement: ingredient.gisement,
+          pourcentage: ingredient.pourcentage
+        }]
+      },
       this.getHeaders()
     );
-    return response.data;
+    
+    // Retourner le premier ingrédient ajouté
+    const addedIngredient = response.data.ingredients?.find(ing => 
+      ing.gisement === ingredient.gisement && ing.pourcentage === ingredient.pourcentage
+    );
+    
+    if (!addedIngredient) {
+      throw new Error('Ingrédient non trouvé après ajout');
+    }
+    
+    return addedIngredient;
   }
 
   async updateIngredient(id: number, ingredient: Partial<MelangeIngredient>): Promise<MelangeIngredient> {
@@ -157,8 +173,33 @@ export class MelangeService {
     return response.data;
   }
 
-  async deleteIngredient(id: number): Promise<void> {
-    await axios.delete(`${this.ingredientsApiUrl}${id}/`, this.getHeaders());
+  async deleteIngredient(ingredientId: number): Promise<void> {
+    // Pour supprimer un ingrédient, nous devons d'abord récupérer le mélange
+    // puis supprimer l'ingrédient de la liste et mettre à jour le mélange
+    try {
+      // Récupérer tous les mélanges pour trouver celui qui contient l'ingrédient
+      const melanges = await this.getAll();
+      const melangeWithIngredient = melanges.find(m => 
+        m.ingredients?.some(ing => ing.id === ingredientId)
+      );
+      
+      if (!melangeWithIngredient) {
+        throw new Error(`Aucun mélange trouvé pour l'ingrédient ${ingredientId}`);
+      }
+      
+      // Filtrer l'ingrédient à supprimer
+      const updatedIngredients = melangeWithIngredient.ingredients.filter(
+        ing => ing.id !== ingredientId
+      );
+      
+      // Mettre à jour le mélange sans l'ingrédient
+      await this.patch(melangeWithIngredient.id!, {
+        ingredients: updatedIngredients
+      });
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'ingrédient:', error);
+      throw error;
+    }
   }
 
   async getPlateformes(): Promise<Plateforme[]> {

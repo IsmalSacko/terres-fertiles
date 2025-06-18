@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MelangeService, Melange, MelangeEtat } from '../services/melange.service';
 
 @Component({
   selector: 'app-melange-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, DecimalPipe],
   templateUrl: './melange-list.component.html',
   styleUrl: './melange-list.component.css'
 })
