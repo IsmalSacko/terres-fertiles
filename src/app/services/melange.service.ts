@@ -52,12 +52,14 @@ export interface Melange {
   date_semis: string;
   references_analyses: string | null;
   etat: MelangeEtat;
+  etat_display?: string;
   ordre_conformite: string | null;
   consignes_melange: string | null;
   controle_1: string | null;
   controle_2: string | null;
   fiche_technique: string | null;
   ingredients: MelangeIngredient[];
+  gisements: number[];
 }
 
 // Pour POST uniquement (plateforme = ID, ingredients = tableau)
@@ -101,12 +103,15 @@ export class MelangeService {
     try {
       console.log('Données envoyées pour création :', melange);
       const response = await axios.post<Melange>(this.apiUrl, melange, this.getHeaders());
+      console.log('Réponse de création reçue:', response.data);
+      console.log('ID du mélange créé:', response.data.id);
       return response.data;
     } catch (error: any) {
       console.error('Erreur lors de la création du mélange :', {
         message: error.message,
         status: error.response?.status,
         data: error.response?.data,
+        response: error.response?.data
       });
       throw error;
     }

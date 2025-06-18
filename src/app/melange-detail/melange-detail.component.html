@@ -36,8 +36,11 @@
             <form [formGroup]="melangeForm">
               <div class="row">
                 <div class="col-12 col-md-6 mb-3">
-                  <label for="nom" class="form-label">Nom du mélange *</label>
-                  <input type="text" class="form-control form-control-lg" id="nom" formControlName="nom">
+                  <label for="nom" class="form-label">Nom du mélange</label>
+                  <input type="text" class="form-control form-control-lg" id="nom" 
+                         [value]="melange?.nom || 'Généré automatiquement'" 
+                         readonly disabled />
+                  <small class="text-muted">Le nom sera généré automatiquement par le système</small>
                 </div>
                 <div class="col-12 col-md-6 mb-3">
                   <label for="fournisseur" class="form-label">Fournisseur *</label>
@@ -221,8 +224,11 @@
             <form [formGroup]="melangeForm">
               <div class="row">
                 <div class="col-12 col-md-6 mb-3">
-                  <label for="nom" class="form-label">Nom du mélange *</label>
-                  <input type="text" class="form-control form-control-lg" id="nom" formControlName="nom">
+                  <label for="nom" class="form-label">Nom du mélange</label>
+                  <input type="text" class="form-control form-control-lg" id="nom" 
+                         [value]="melange?.nom || 'Généré automatiquement'" 
+                         readonly disabled />
+                  <small class="text-muted">Le nom sera généré automatiquement par le système</small>
                 </div>
                 <div class="col-12 col-md-6 mb-3">
                   <label for="fournisseur" class="form-label">Fournisseur *</label>
@@ -422,7 +428,7 @@
         </div>
 
         <!-- Conformity Order -->
-        <div class="card mb-4" *ngIf="melange.etat === 2">
+        <div class="card mb-4" *ngIf="melange.etat === MelangeEtat.CONFORMITE">
           <div class="card-header">
             <h5 class="card-title mb-0">Ordre de conformité</h5>
           </div>
@@ -460,7 +466,7 @@
         </div>
 
         <!-- Mixing Instructions -->
-        <div class="card mb-4" *ngIf="melange.etat === 3">
+        <div class="card mb-4" *ngIf="melange.etat === MelangeEtat.CONSIGNE">
           <div class="card-header">
             <h5 class="card-title mb-0">Consignes de mélange</h5>
           </div>
@@ -498,7 +504,7 @@
         </div>
 
         <!-- Control 1 -->
-        <div class="card mb-4" *ngIf="melange.etat === 4">
+        <div class="card mb-4" *ngIf="melange.etat === MelangeEtat.CONTROLE_1">
           <div class="card-header">
             <h5 class="card-title mb-0">Contrôle +1 mois</h5>
           </div>
@@ -536,7 +542,7 @@
         </div>
 
         <!-- Control 2 -->
-        <div class="card mb-4" *ngIf="melange.etat === 5">
+        <div class="card mb-4" *ngIf="melange.etat === MelangeEtat.CONTROLE_2">
           <div class="card-header">
             <h5 class="card-title mb-0">Contrôle +2 mois</h5>
           </div>
@@ -574,7 +580,7 @@
         </div>
 
         <!-- Technical Sheet -->
-        <div class="card mb-4" *ngIf="melange.etat === 6">
+        <div class="card mb-4" *ngIf="melange.etat === MelangeEtat.VALIDATION">
           <div class="card-header">
             <h5 class="card-title mb-0">Fiche technique finale</h5>
           </div>

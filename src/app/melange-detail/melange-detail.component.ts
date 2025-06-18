@@ -13,6 +13,9 @@ import { GisementService } from '../services/gisement.service';
   styleUrl: './melange-detail.component.css'
 })
 export class MelangeDetailComponent implements OnInit {
+  // Expose enum values to template
+  MelangeEtat = MelangeEtat;
+  
   melange: Melange = {
     nom: '',
     date_creation: new Date().toISOString().split('T')[0],
@@ -29,7 +32,8 @@ export class MelangeDetailComponent implements OnInit {
     controle_1: null,
     controle_2: null,
     fiche_technique: null,
-    ingredients: []
+    ingredients: [],
+    gisements: []
   };
   loading = true;
   error = '';
@@ -58,7 +62,6 @@ export class MelangeDetailComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.melangeForm = this.fb.group({
-      nom: [''],
       plateforme: [null],
       fournisseur: ['', Validators.required],
       couverture_vegetale: [''],
@@ -146,9 +149,11 @@ export class MelangeDetailComponent implements OnInit {
       controle_1: null,
       controle_2: null,
       fiche_technique: null,
-      ingredients: []
+      ingredients: [],
+      gisements: []
     };
     this.updateAvailableGisements();
+    this.patchForm();
   }
 
   updateAvailableGisements(): void {
@@ -160,7 +165,6 @@ export class MelangeDetailComponent implements OnInit {
   patchForm(): void {
     if (!this.melange) return;
     this.melangeForm.patchValue({
-      nom: this.melange.nom,
       plateforme: this.melange.plateforme,
       fournisseur: this.melange.fournisseur,
       couverture_vegetale: this.melange.couverture_vegetale,
@@ -327,17 +331,41 @@ export class MelangeDetailComponent implements OnInit {
     try {
       if (this.melangeForm.invalid) {
         console.error('Formulaire invalide');
+        console.error('Erreurs de validation:', this.melangeForm.errors);
+        console.error('Statut des champs:', {
+          fournisseur: this.melangeForm.get('fournisseur')?.errors,
+          periode_melange: this.melangeForm.get('periode_melange')?.errors,
+          date_semis: this.melangeForm.get('date_semis')?.errors
+        });
         return;
       }
 
       const formData = this.melangeForm.value;
       console.log('Données du formulaire à sauvegarder:', formData);
+      
+      // Vérifier que les champs requis ne sont pas vides
+      if (!formData.fournisseur || formData.fournisseur.trim() === '') {
+        console.error('Le fournisseur est requis');
+        this.error = 'Le fournisseur est requis';
+        return;
+      }
+      
+      if (!formData.periode_melange || formData.periode_melange.trim() === '') {
+        console.error('La période de mélange est requise');
+        this.error = 'La période de mélange est requise';
+        return;
+      }
+      
+      if (!formData.date_semis) {
+        console.error('La date de semis est requise');
+        this.error = 'La date de semis est requise';
+        return;
+      }
+
       console.log('Valeurs spécifiques:');
-      console.log('- ordre_conformite:', formData.ordre_conformite);
-      console.log('- consignes_melange:', formData.consignes_melange);
-      console.log('- controle_1:', formData.controle_1);
-      console.log('- controle_2:', formData.controle_2);
-      console.log('- fiche_technique:', formData.fiche_technique);
+      console.log('- fournisseur:', formData.fournisseur);
+      console.log('- periode_melange:', formData.periode_melange);
+      console.log('- date_semis:', formData.date_semis);
 
       // Préparer les données pour l'API
       let melangeData: any = {
@@ -350,9 +378,6 @@ export class MelangeDetailComponent implements OnInit {
         melangeData = {};
         
         // Ajouter seulement les champs non vides
-        if (formData.nom && formData.nom.trim() !== '') {
-          melangeData.nom = formData.nom;
-        }
         if (formData.plateforme) {
           melangeData.plateforme = parseInt(formData.plateforme);
         }
@@ -387,13 +412,26 @@ export class MelangeDetailComponent implements OnInit {
           melangeData.fiche_technique = formData.fiche_technique;
         }
       } else {
-        // Pour les nouveaux mélanges, inclure les ingrédients
-        melangeData.ingredients = this.melange.ingredients || [];
+        // Pour les nouveaux mélanges, inclure seulement les champs nécessaires pour la création
+        melangeData = {
+          nom: "Mélange sans nom", // Toujours inclure le nom pour les nouveaux mélanges
+          plateforme: formData.plateforme ? parseInt(formData.plateforme) : null,
+          fournisseur: formData.fournisseur,
+          couverture_vegetale: formData.couverture_vegetale || null,
+          periode_melange: formData.periode_melange,
+          date_semis: formData.date_semis,
+          references_analyses: formData.references_analyses || null,
+          ingredients: this.melange.ingredients || [] // Toujours inclure ingredients, même vide
+        };
       }
 
       console.log('Données finales envoyées à l\'API:', melangeData);
 
-      if (!this.melange.id) {
+      // Déterminer si c'est une création ou une mise à jour
+      const isCreating = !this.melange.id || this.isNew;
+      console.log('Mode création:', isCreating, 'melange.id:', this.melange.id, 'isNew:', this.isNew);
+
+      if (isCreating) {
         // Créer un nouveau mélange
         console.log('Création d\'un nouveau mélange:', melangeData);
         console.log('Avant création - this.melange:', this.melange);
@@ -404,13 +442,17 @@ export class MelangeDetailComponent implements OnInit {
         console.log('ID du mélange créé:', this.melange.id);
         
         // Rediriger vers la page de détail du mélange créé
-        this.router.navigate(['/melanges', this.melange.id]);
-      } else if (this.melange.id) {
+        if (this.melange.id) {
+          this.router.navigate(['/melanges', this.melange.id]);
+        }
+      } else {
         // Mettre à jour un mélange existant
-        console.log('Mise à jour du mélange:', this.melange.id, melangeData);
-        this.melange = await this.melangeService.update(this.melange.id, melangeData);
-        console.log('Mélange mis à jour avec succès:', this.melange);
-        console.log('État du mélange mis à jour:', this.melange.etat);
+        if (this.melange.id) {
+          console.log('Mise à jour du mélange:', this.melange.id, melangeData);
+          this.melange = await this.melangeService.update(this.melange.id, melangeData);
+          console.log('Mélange mis à jour avec succès:', this.melange);
+          console.log('État du mélange mis à jour:', this.melange.etat);
+        }
       }
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
