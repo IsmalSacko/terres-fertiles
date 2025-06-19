@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MelangeService, Melange, MelangeEtat } from '../services/melange.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-melange-list',
@@ -15,7 +16,7 @@ export class MelangeListComponent implements OnInit {
   loading = true;
   error = '';
 
-  constructor(private melangeService: MelangeService) {}
+  constructor(private melangeService: MelangeService, private authSrvice: AuthService) {}
 
   ngOnInit(): void {
     this.loadMelanges();
@@ -24,7 +25,17 @@ export class MelangeListComponent implements OnInit {
   async loadMelanges(): Promise<void> {
     try {
       this.loading = true;
-      this.melanges = await this.melangeService.getAll();
+      const currentUser = await this.authSrvice.getCurrentUser();
+      if (!currentUser){
+      // INSERT_YOUR_CODE
+      // Rediriger vers la page de login si aucun utilisateur n'est connecté
+      window.location.href = '/login';
+      
+
+      }else{
+
+        this.melanges = await this.melangeService.getAll();
+      }
     } catch (err) {
       this.error = 'Erreur lors du chargement des mélanges';
       console.error(err);
