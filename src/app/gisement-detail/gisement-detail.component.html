@@ -205,7 +205,7 @@
           <div class="document-type-selector">
             <mat-form-field appearance="outline">
               <mat-label>Type de document</mat-label>
-              <mat-select [(ngModel)]="selectedDocumentType">
+              <mat-select [(ngModel)]="selectedDocumentType" name="selectedDocumentType">
                 <mat-option *ngFor="let option of documentTypeOptions" [value]="option.value">
                   {{ option.label }}
                 </mat-option>

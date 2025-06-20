@@ -75,7 +75,8 @@ export class DocumentGisementService {
 
   async uploadDocument(gisementId: number, file: File, typeDocument: string = 'autre'): Promise<DocumentGisement> {
     const formData = new FormData();
-    formData.append('nom_fichier', file);
+    formData.append('nom_fichier', file.name);
+    formData.append('fichier', file)
     formData.append('gisement', gisementId.toString());
     formData.append('type_document', typeDocument);
     formData.append('description', `Document uploadé: ${file.name}`);

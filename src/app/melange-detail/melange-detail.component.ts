@@ -11,7 +11,7 @@ import { AuthService } from '../services/auth.service';
   selector: 'app-melange-detail',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, DecimalPipe],
-  templateUrl: './melange-detail.component.html',
+  templateUrl: 'melange-detail.component.html',
   styleUrl: './melange-detail.component.css'
 })
 export class MelangeDetailComponent implements OnInit {

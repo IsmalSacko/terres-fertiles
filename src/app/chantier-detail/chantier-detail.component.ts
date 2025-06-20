@@ -39,7 +39,7 @@ export class ChantierDetailComponent implements OnInit {
   isEditMode = false;
   isViewOnly = false;
   gisements: Gisement[] = [];
-
+  google: any;
   mapCenter: google.maps.LatLngLiteral = { lat: 48.8566, lng: 2.3522 };
   mapZoom = 16;
   markerOptions: google.maps.MarkerOptions = { draggable: true };

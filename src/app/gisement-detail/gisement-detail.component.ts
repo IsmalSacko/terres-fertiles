@@ -190,10 +190,10 @@ export class GisementDetailComponent implements OnInit {
   }
 
   previewDocument(doc: DocumentGisement): void {
-    if (doc.fichier && doc.fichier.toLowerCase().endsWith('.pdf')) {
+    if (doc.fichier) {
       window.open(doc.fichier, '_blank');
     } else {
-      this.errorMsg = 'L\'aperçu n\'est disponible que pour les fichiers PDF.';
+      this.errorMsg = "URL du fichier non disponible";
     }
   }
 
