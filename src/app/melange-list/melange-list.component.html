@@ -83,8 +83,12 @@
 
             <div class="card-footer">
               <div class="d-flex justify-content-between align-items-center">
-                <a [routerLink]="['/melanges', melange.id]" class="btn btn-outline-primary btn-sm">
+                <a [routerLink]="['/melanges', melange.id]" class="btn btn-primary btn-sm">
                   <i class="bi bi-eye"></i> Voir détails
+                </a>
+
+                <a [routerLink]="['/melanges-amendements']" [queryParams]="{ melangeId: melange.id }" class="btn btn-primary btn-sm">
+                  <i class="bi bi-plus-circle"></i> Matière organique
                 </a>
                 <div class="btn-group" role="group">
                   <button type="button" class="btn btn-outline-secondary btn-sm" 

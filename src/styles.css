@@ -67,9 +67,10 @@ html, body {
 
 /* Styles communs pour les cartes */
 mat-card {
-  background: var(--surface-color);
+  background: rgba(255,255,255,0.85) !important;
+  backdrop-filter: blur(2px);
   border-radius: 12px;
-  box-shadow: var(--card-shadow) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   transition: transform var(--transition-speed), box-shadow var(--transition-speed);
   margin-bottom: 20px;
 }

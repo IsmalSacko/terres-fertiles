@@ -1,2 +1,10 @@
-
-<router-outlet />
+<div [ngStyle]="{
+    'background-image': 
+      'linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(' + backgroundImage + ')',
+    'background-size': 'cover',
+    'background-position': 'center',
+    'background-repeat': 'no-repeat',
+    'min-height': '100vh'
+  }">
+    <router-outlet></router-outlet>
+</div>

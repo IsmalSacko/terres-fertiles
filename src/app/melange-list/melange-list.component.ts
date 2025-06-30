@@ -15,13 +15,18 @@ export class MelangeListComponent implements OnInit {
   melanges: Melange[] = [];
   loading = true;
   error = '';
-
+  selectedMelangeId: number | null = null;
   constructor(private melangeService: MelangeService, private authSrvice: AuthService) {}
 
   ngOnInit(): void {
     this.loadMelanges();
   }
+ 
 
+  toggleAmendementForm(melangeId: number): void {
+    this.selectedMelangeId = this.selectedMelangeId === melangeId ? null : melangeId;
+  }
+  
   async loadMelanges(): Promise<void> {
     try {
       this.loading = true;

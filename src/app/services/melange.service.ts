@@ -30,6 +30,28 @@ export interface MelangeIngredient {
   gisement_details?: Gisement;
 }
 
+
+export interface AmendementOrganique {
+  id: number;
+  nom: string;
+  fournisseur: string;
+  date_reception: string;
+  date_semis: string;
+  volume_disponible: number;
+  localisation?: string;
+  latitude?: number;
+  longitude?: number;
+  palteforme?: number;
+  responsable?: number;
+}
+
+export interface MelangeAmendement {
+  id?: number;
+  melange: number;
+  amendementOrganique: number;
+  pourcentage: number;
+}
+
 export enum MelangeEtat {
   COMPOSITION = 1,
   CONFORMITE = 2,
@@ -80,7 +102,11 @@ export interface PartialMelange {
 export class MelangeService {
   private apiUrl = 'http://127.0.0.1:8000/api/melanges/';
   private ingredientsApiUrl = 'http://127.0.0.1:8000/api/melanges/';
+ 
   private plateformesApiUrl = 'http://127.0.0.1:8000/api/plateformes/';
+  private amendementsOrganiquesApiUrl = 'http://127.0.0.1:8000/api/amendements-organiques/';
+  private melangeAmendementsApiUrl = 'http://127.0.0.1:8000/api/melange-amendements/';
+
 
   constructor() {}
 
@@ -88,6 +114,32 @@ export class MelangeService {
     const token = localStorage.getItem('token');
     return { headers: { Authorization: `Token ${token}` } };
   }
+
+  // 🔄 Récupérer tous les amendements organiques
+async getAmendementsOrganiques(): Promise<AmendementOrganique[]>{
+  const response = await axios.get<AmendementOrganique[]>(this.amendementsOrganiquesApiUrl, this.getHeaders());
+  return response.data;
+}
+
+// 🔄 Récupérer les amendements d'un mélange
+async getAmendementsByMelange(melangeId: number): Promise<MelangeAmendement[]> {
+  const response = await axios.get<MelangeAmendement[]>(
+    `${this.melangeAmendementsApiUrl}?melange=${melangeId}`,
+    this.getHeaders()
+  );
+  return response.data;
+}
+
+// ➕ Ajouter un amendement à un mélange
+async addAmendement(amendement: MelangeAmendement): Promise<MelangeAmendement> {
+  const response = await axios.post<MelangeAmendement>(
+    this.melangeAmendementsApiUrl,
+    amendement,
+    this.getHeaders()
+  );
+  return response.data;
+}
+
 
   async getAll(): Promise<Melange[]> {
     const response = await axios.get<Melange[]>(this.apiUrl, this.getHeaders());
