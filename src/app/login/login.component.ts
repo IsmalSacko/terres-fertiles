@@ -37,7 +37,11 @@ export class LoginComponent {
     this.loading = true;
     try {
       await this.authService.login(this.username, this.password);
-      this.router.navigate(['']);
+      this.router.navigate(['/dashboard']); // Redirige vers la page d'accueil ou celle de votre choix
+     setTimeout(() => {
+      window.location.reload();
+     }, 100);
+     
     } catch (err: any) {
       this.errorMsg = err;
     } finally {

@@ -29,7 +29,9 @@
   margin: auto;
   font-family: var(--font-family-sans);
 }
-
+.melange-amendement-details{
+  color: #4CAF50 !important;
+}
 .page-header {
   text-align: center;
   margin-bottom: 3rem;
@@ -40,6 +42,7 @@
   font-weight: 700;
   color: var(--primary-color);
   margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .page-header .subtitle {
@@ -152,8 +155,8 @@
 
 /* --- Alerts --- */
 .card-footer {
-  margin-top: 1rem;
-  min-height: 40px;
+  /* margin-top: 1rem;
+  min-height: 40px; */
 }
 
 .alert {

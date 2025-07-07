@@ -3,8 +3,6 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { EtapesComponent } from './pages/etapes/etapes.component';
 import { DocumentGisementComponent } from './document-gisement/document-gisement.component';
 import { ProduitsComponent } from './pages/produits/produits.component';
-import { AdminUsersComponent } from './pages/admin-users/admin-users.component';
-import { WorkflowOverviewComponent } from './workflow-overview/workflow-overview.component';
 import { GisementListComponent } from './gisement-list/gisement-list.component';
 import { GisementDetailComponent } from './gisement-detail/gisement-detail.component';
 import { CompostListComponent } from './compost-list/compost-list.component';
@@ -23,6 +21,7 @@ import { ChantierListComponent } from './chantier-list/chantier-list.component';
 import { ChantierDetailComponent } from './chantier-detail/chantier-detail.component';
 import { MelangeAmendementListComponent } from './melange-amendement-list/melange-amendement-list.component.ts.component';
 import { AmendementOrganiqueCreateComponent } from './amendement-organique-create/amendement-organique-create.component';
+import { RegisterComponent } from './register/register.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -31,8 +30,7 @@ export const routes: Routes = [
   { path: 'etapes', component: EtapesComponent },
   { path: 'documents-gisement', component: DocumentGisementComponent },
   { path: 'produits', component: ProduitsComponent },
-  { path: 'users', component: AdminUsersComponent },
-  { path: 'workflow', component: WorkflowOverviewComponent },
+  { path: 'register', component: RegisterComponent },
   { path: 'chantiers', component: ChantierListComponent },
   { path: 'chantiers/new', component: ChantierDetailComponent },
   { path: 'chantiers/:id', component: ChantierDetailComponent },

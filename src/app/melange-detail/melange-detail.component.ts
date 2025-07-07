@@ -35,7 +35,8 @@ export class MelangeDetailComponent implements OnInit {
     controle_2: null,
     fiche_technique: null,
     ingredients: [],
-    gisements: []
+    gisements: [],
+    amendements: []
   };
   loading = true;
   error = '';
@@ -215,7 +216,9 @@ export class MelangeDetailComponent implements OnInit {
       controle_2: null,
       fiche_technique: null,
       ingredients: [],
-      gisements: []
+      gisements: [],
+      amendements:  []
+     
     };
     this.updateAvailableGisements();
     this.patchForm();

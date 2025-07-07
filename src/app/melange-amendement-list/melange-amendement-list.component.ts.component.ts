@@ -7,6 +7,7 @@ import { MatOptionModule, ErrorStateMatcher } from '@angular/material/core';
 import { MelangeService, Melange, AmendementOrganique, MelangeAmendement } from '../services/melange.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class ShowOnDirtyErrorStateMatcher implements ErrorStateMatcher {
@@ -26,7 +27,8 @@ export class ShowOnDirtyErrorStateMatcher implements ErrorStateMatcher {
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
-    MatOptionModule
+    MatOptionModule,
+    MatIconModule
   ],
   providers: [
     { provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher }

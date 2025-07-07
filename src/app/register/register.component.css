@@ -1,0 +1,162 @@
+body, :host {
+  background: linear-gradient(135deg, #e8f5e9 0%, #fffde7 100%);
+  min-height: 100vh;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+
+.bird-animation-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+  margin-bottom: -20px !important;
+
+  position: relative;
+}
+
+.bird-svg {
+  width: 120px;
+  height: 60px;
+  animation: bird-fly 3.5s cubic-bezier(.4,0,.2,1) infinite alternate;
+}
+
+@keyframes bird-fly {
+  0%   { transform: translateX(-30vw) scale(1) rotate(-8deg); opacity: 0.7; }
+  40%  { transform: translateX(10vw) scale(1.05) rotate(0deg); opacity: 1; }
+  60%  { transform: translateX(30vw) scale(1.1) rotate(2deg); opacity: 1; }
+  100% { transform: translateX(60vw) scale(1.05) rotate(-4deg); opacity: 0.7; }
+}
+
+.bird-wing {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 0;
+  animation: wing-flap 1.2s ease-in-out infinite;
+}
+@keyframes wing-flap {
+  0%, 100% { stroke-dashoffset: 0; }
+  50% { stroke-dashoffset: 30; }
+}
+
+.register-title {
+  text-align: center;
+  color: #388e3c;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.register-form {
+  max-width: 480px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  border-radius: 18px;
+  padding: 32px 28px 24px 28px;
+  box-shadow: 0 8px 32px 0 rgba(46, 125, 50, 0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border: 1.5px solid #c8e6c9;
+  position: relative;
+  z-index: 2;
+}
+
+mat-form-field {
+  width: 100%;
+  background: rgba(232,245,233,0.18);
+  border-radius: 8px;
+}
+
+mat-label, .mat-form-field-label {
+  color: #388e3c !important;
+  font-weight: 500;
+}
+
+.mat-input-element, input, select {
+  color: #4e342e;
+  font-size: 1.08rem;
+}
+
+.register-btn {
+  margin-top: 12px;
+  background: linear-gradient(90deg, #388e3c 60%, #8d6e63 100%);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: 24px;
+  box-shadow: 0 4px 16px rgba(56,142,60,0.13);
+  transition: background 0.2s, transform 0.18s;
+}
+.register-btn:hover {
+  background: linear-gradient(90deg, #43a047 60%, #a1887f 100%);
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .register-form {
+    padding: 18px 6vw 16px 6vw;
+    max-width: 98vw;
+  }
+  .bird-svg {
+    width: 80px;
+    height: 40px;
+  }
+  .register-title {
+    font-size: 1.3rem;
+  }
+  .bird-animation-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 42px;
+    margin-bottom: -10px !important;
+   
+    position: relative;
+  }
+}
+
+.register-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 600;
+  border-radius: 12px;
+  margin: 0 auto 18px auto;
+  max-width: 480px;
+  padding: 14px 18px;
+  box-shadow: 0 2px 12px rgba(44,62,80,0.10);
+  opacity: 0.98;
+  animation: fadeInMsg 0.5s;
+  gap: 12px;
+}
+.register-message.success {
+  background: linear-gradient(90deg, #c8e6c9 60%, #a5d6a7 100%);
+  color: #256029;
+  border: 1.5px solid #43a047;
+}
+.register-message.error {
+  background: linear-gradient(90deg, #ffebee 60%, #ffcdd2 100%);
+  color: #b71c1c;
+  border: 1.5px solid #e53935;
+}
+.msg-icon {
+  font-size: 2.1rem;
+  margin-right: 8px;
+  animation: popIn 0.5s;
+}
+@keyframes fadeInMsg {
+  from { opacity: 0; transform: translateY(-16px) scale(0.95); }
+  to   { opacity: 0.98; transform: translateY(0) scale(1); }
+}
+@keyframes popIn {
+  0% { transform: scale(0.5) rotate(-20deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}

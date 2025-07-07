@@ -64,10 +64,12 @@ export enum MelangeEtat {
 export interface Melange {
   id?: number;
   nom: string;
+  utilisateur?: string
   date_creation: string;
   reference_produit: string;
   plateforme: number | null;
   plateforme_details?: Plateforme;
+  plateforme_nom?: string;
   fournisseur: string;
   couverture_vegetale: string | null;
   periode_melange: string;
@@ -82,6 +84,7 @@ export interface Melange {
   fiche_technique: string | null;
   ingredients: MelangeIngredient[];
   gisements: number[];
+  amendements: MelangeAmendement []
 }
 
 // Pour POST uniquement (plateforme = ID, ingredients = tableau)
@@ -94,6 +97,7 @@ export interface PartialMelange {
   references_analyses?: string | null;
   plateforme?: number | null;
   ingredients?: MelangeIngredientInput[];
+  
 }
 
 @Injectable({

@@ -3,8 +3,16 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { 
+  margin: 0; 
+  font-family: Roboto, 
+  "Helvetica Neue", sans-serif;
+  
+ }
+.container{
+  margin-top: 30px;
 
+}
 .icon-view {
     color: #1976d2; /* ou primary si tu veux */
   }

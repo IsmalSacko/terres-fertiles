@@ -1,9 +1,9 @@
-<div class="container-fluid mt-2">
+<div class="container-fluid mt-5">
   <div class="row">
-    <div class="col-12">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="col-12 ">
+      <div class="d-flex justify-content-between align-items-center mb-4 ">
         <h1 class="h3 mb-0">Mélanges</h1>
-        <a routerLink="/melanges/new" class="btn btn-primary">
+        <a routerLink="/melanges/new" class="btn mel-btn mt-2">
           <i class="bi bi-plus-circle"></i> Nouveau mélange
         </a>
       </div>
@@ -26,7 +26,8 @@
 
       <!-- Melanges list -->
       <div *ngIf="!loading && !error" class="row">
-        <div *ngFor="let melange of melanges" class="col-lg-6 col-xl-4 mb-4">
+        <div *ngFor="let melange of melanges" class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+
           <div class="card h-100 shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
               <h5 class="card-title mb-0">{{ melange.nom || 'Mélange sans nom' }}</h5>
@@ -49,7 +50,12 @@
               </div>
               
               <div class="mb-3">
+                <i class="bi bi-calendar-event me-1"></i>
                 <strong>Date de création:</strong> {{ melange.date_creation | date:'dd/MM/yyyy' }}
+                
+              <div class="mb-3">
+                <i class="bi bi-person "></i>
+                <strong >Crée par : {{melange.utilisateur}}</strong> 
               </div>
 
               <!-- Progress bar -->
@@ -77,29 +83,35 @@
               <!-- Ingredients summary -->
               <div class="mb-3">
                 <strong>Ingrédients:</strong>
-                <span class="badge bg-secondary ms-2">{{ melange.ingredients.length || 0 }} gisements</span>
+                <span class="badge gis-amendement ms-2">{{ melange.ingredients.length || 0 }} 
+                  {{ melange.ingredients.length > 1 ? 'gisements' : 'gisement' }}
+                  </span>
+                <span class="badge gis-amendement ms-2">{{ melange.amendements.length || 0 }}
+                  {{ melange.amendements.length > 1 ? 'Matières organiques' : 'Matière organique' }}
+                  </span>
               </div>
             </div>
 
             <div class="card-footer">
               <div class="d-flex justify-content-between align-items-center">
-                <a [routerLink]="['/melanges', melange.id]" class="btn btn-primary btn-sm">
-                  <i class="bi bi-eye"></i> Voir détails
+                <a [routerLink]="['/melanges', melange.id]" class="btn mel-btn btn-sm">
+                  <i class="bi bi-eye"></i> détails
                 </a>
 
-                <a [routerLink]="['/melanges-amendements']" [queryParams]="{ melangeId: melange.id }" class="btn btn-primary btn-sm">
-                  <i class="bi bi-plus-circle"></i> Matière organique
+                <a [routerLink]="['/melanges-amendements']" [queryParams]="{ melangeId: melange.id }" class="btn mel-btn btn-sm">
+                  <i class="bi bi-plus-circle"></i> Amendement 
+                  
                 </a>
                 <div class="btn-group" role="group">
-                  <button type="button" class="btn btn-outline-secondary btn-sm" 
+                  <button type="button" class="btn mel-btn btn-sm" 
                           [disabled]="melange.etat === 1"
                           (click)="previousStep(melange)">
                     <i class="bi bi-chevron-left"></i>
                   </button>
-                  <button type="button" class="btn btn-outline-success btn-sm"
+                  <button type="button" style="margin-left: 3px !important;" class="btn mel-btn btn-sm"
                           [disabled]="melange.etat === 6"
                           (click)="nextStep(melange)">
-                    <i class="bi bi-chevron-right"></i>
+                    <i class="bi bi-chevron-right"></i> 
                   </button>
                 </div>
               </div>
@@ -113,7 +125,7 @@
         <i class="bi bi-inbox display-1 text-muted"></i>
         <h3 class="mt-3">Aucun mélange trouvé</h3>
         <p class="text-muted">Commencez par créer votre premier mélange.</p>
-        <a routerLink="/melanges/new" class="btn btn-primary">
+        <a routerLink="/melanges/new" class="mel-btn">
           <i class="bi bi-plus-circle"></i> Créer un mélange
         </a>
       </div>

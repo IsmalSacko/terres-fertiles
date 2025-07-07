@@ -19,6 +19,7 @@ export interface DocumentGisement {
 
 export interface Gisement {
   id: number;
+  chantier_nom?: string;
   chantier: number;
   documents: DocumentGisement[];
   nom: string;
@@ -47,6 +48,12 @@ export class GisementService {
   private getHeaders() {
     const token = localStorage.getItem('token');
     return { headers: { Authorization: `Token ${token}` } };
+  }
+
+  // Cette méthode récupère tous les gisements avec authentification (utilisée pour l'affichage sur la carte)
+  async getAllGisementCart(): Promise<Gisement[]> {
+    const response = await axios.get<Gisement[]>(this.apiUrl, this.getHeaders());
+    return response.data;
   }
 
   async getAll(): Promise<Gisement[]> {

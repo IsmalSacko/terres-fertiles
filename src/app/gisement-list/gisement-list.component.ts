@@ -7,6 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
+import { GisementsMapComponent } from '../gisements-map/gisements-map.component';
+
 
 @Component({
   selector: 'app-gisement-list',
@@ -17,8 +19,9 @@ import { MatMenuModule } from '@angular/material/menu';
     MatIconModule,
     CommonModule,
     MatCardModule,
-    MatMenuModule
-  ],
+    MatMenuModule,
+    GisementsMapComponent
+],
   templateUrl: './gisement-list.component.html',
   styleUrl: './gisement-list.component.css'
 })

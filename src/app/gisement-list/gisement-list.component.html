@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container mt-5">
   <div class="header-actions">
     <h2>
       <mat-icon>landscape</mat-icon>
@@ -9,6 +9,7 @@
       Ajouter un gisement
     </button>
   </div>
+  <app-gisements-map/>
 
   <div class="gisements-grid" *ngIf="gisements.length; else emptyList">
     <mat-card class="gisement-card" *ngFor="let g of gisements">
@@ -39,9 +40,6 @@
       </div>
 
       <mat-card-actions>
-        <button mat-icon-button color="primary" (click)="goToDetail(g.id, 'view')" title="Voir">
-          <mat-icon>visibility</mat-icon>
-        </button>
         <button mat-icon-button (click)="goToDetail(g.id, 'edit')" title="Modifier">
           <mat-icon>edit</mat-icon>
         </button>

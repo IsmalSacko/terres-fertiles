@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container mt-4">
   <header class="page-header">
     <h1 class="text-white">Mélanges & Amendements</h1>
     <p class="subtitle text-white">Ajoutez des amendements organiques à vos mélanges existants.</p>
@@ -15,10 +15,20 @@
          [id]="'melange-card-' + melange.id" 
          [style.animation-delay.ms]="i * 100">
       <div class="card-header">
-        <h3>{{ melange.nom }}</h3>
-        <span class="chip">ID: {{ melange.id }}</span>
+        <h3 class="melange-amendement-details">
+          <mat-icon aria-label="Mélange" class="melange-icon" style="vertical-align: middle; margin-right: 6px;">science</mat-icon>
+          {{ melange.nom }} </h3>
+        <span class="chip">Plateforme : {{ melange.plateforme_nom }}</span>
       </div>
-      <p class="card-meta">Créé le : {{ melange.date_creation | date:'dd/MM/yyyy' }}</p>
+      <p class="card-meta melange-amendement-details">
+        <mat-icon aria-label="Date de création" style="vertical-align: middle; margin-right: 4px;">event</mat-icon>
+        Créé le : {{ melange.date_creation | date:'dd/MM/yyyy' }}
+      </p>
+      <p class="card-meta melange-amendement-details">
+      <mat-icon aria-label="Utilisateur" style="vertical-align: middle; margin-right: 4px;">person</mat-icon>
+      Créé par : {{ melange.utilisateur }}
+      </p>
+
 
       <div class="card-body">
         <form *ngIf="forms[melange.id!]" [formGroup]="forms[melange.id!]" (ngSubmit)="onSubmit(melange.id!)" class="amendement-form">
