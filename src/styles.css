@@ -54,6 +54,8 @@ body {
   --transition-speed: 0.3s;
 }
 
+
+
 html, body { 
   height: 100%; 
   margin: 0; 
@@ -288,4 +290,18 @@ mat-form-field {
 
 .slide-in {
   animation: slideIn 0.5s ease-out;
+}
+
+.success-snackbar,
+.success-snackbar .mat-mdc-snack-bar-label,
+.success-snackbar .mat-simple-snackbar,
+.success-snackbar .mat-simple-snackbar span,
+.success-snackbar .mdc-snackbar__label {
+  color: #fff !important;
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 40%, var(--accent-dark) 50%) !important;
+  font-weight: 600;
+  font-size: 1.15rem;
+  border-radius: 32px !important;
+  box-shadow: 0 8px 32px var(--primary-light) !important;
+  letter-spacing: 0.5px;
 }

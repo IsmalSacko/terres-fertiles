@@ -24,6 +24,10 @@
             <mat-icon>calendar_today</mat-icon>
             {{ g.periode_terrassement }}
           </span>
+          <span *ngIf="g.date_creation">
+            <mat-icon>calendar_month</mat-icon>
+            {{ g.date_creation | date:'dd/MM/yyyy' }}
+          </span>
           <span>
             <mat-icon>straighten</mat-icon>
             {{ g.volume_terrasse }} m³

@@ -22,6 +22,10 @@ import { ChantierDetailComponent } from './chantier-detail/chantier-detail.compo
 import { MelangeAmendementListComponent } from './melange-amendement-list/melange-amendement-list.component.ts.component';
 import { AmendementOrganiqueCreateComponent } from './amendement-organique-create/amendement-organique-create.component';
 import { RegisterComponent } from './register/register.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
+import { ActivateComponent } from './activate/activate.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { ResetPasswordConfirmComponent } from './auth/reset-password-confirm/reset-password-confirm.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -31,6 +35,7 @@ export const routes: Routes = [
   { path: 'documents-gisement', component: DocumentGisementComponent },
   { path: 'produits', component: ProduitsComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'profil',component: UserProfileComponent },
   { path: 'chantiers', component: ChantierListComponent },
   { path: 'chantiers/new', component: ChantierDetailComponent },
   { path: 'chantiers/:id', component: ChantierDetailComponent },
@@ -49,5 +54,8 @@ export const routes: Routes = [
   { path: 'analyses-laboratoire', component: AnalyseLaboratoireListComponent },
   { path: 'analyses-laboratoire/:id', component: AnalyseLaboratoireDetailComponent },
   { path: 'melanges-amendements', component: MelangeAmendementListComponent },
-  {path: 'amendement-organique-create', component: AmendementOrganiqueCreateComponent}
+  { path: 'amendement-organique-create', component: AmendementOrganiqueCreateComponent},
+  { path: 'activate/:uid/:token', component: ActivateComponent},
+  { path: 'reset-password', component: ResetPasswordComponent},
+  { path: 'reset-password-confirm/:uid/:token', component:ResetPasswordConfirmComponent}
 ];

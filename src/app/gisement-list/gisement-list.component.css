@@ -62,21 +62,22 @@
 
 .gisements-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  max-width: 1400px;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1rem;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
 }
 
 .gisement-card {
   background: var(--surface-color);
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   transition: all var(--transition-speed);
   position: relative;
   border: 1px solid transparent;
-  padding: 1.5rem;
+  padding: 0.7rem 0.7rem 0.5rem 0.7rem;
+  min-height: 120px;
 }
 
 .gisement-card:hover {
@@ -105,9 +106,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   text-align: center;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
 }
 
 .folder-button {
@@ -132,27 +133,27 @@
 }
 
 .folder-icon {
-  width: 4rem;
-  height: 4rem;
+  width: 2.2rem;
+  height: 2.2rem;
   object-fit: contain;
   transition: all var(--transition-speed);
 }
 
 .gisement-name {
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   color: var(--text-primary);
   font-weight: 500;
-  margin: 0.5rem 0;
+  margin: 0.3rem 0;
 }
 
 .gisement-info {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.3rem;
   width: 100%;
   text-align: left;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .gisement-info span {
@@ -171,8 +172,8 @@
 mat-card-actions {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  gap: 0.2rem;
+  padding: 0.2rem;
   opacity: 0;
   transition: opacity var(--transition-speed);
 }
@@ -199,13 +200,13 @@ mat-card-actions button[color="warn"] {
 
 .empty-list {
   text-align: center;
-  padding: 3rem;
+  padding: 1.5rem;
   color: var(--text-secondary);
   font-style: italic;
   background: var(--surface-color);
-  border-radius: 12px;
-  margin: 2rem auto;
-  max-width: 400px;
+  border-radius: 8px;
+  margin: 1rem auto;
+  max-width: 320px;
   animation: fadeIn 0.5s ease-out;
 }
 
@@ -227,16 +228,16 @@ mat-card-actions button[color="warn"] {
 
   .gisements-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.5rem;
   }
 
   .gisement-card {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 
   .folder-icon {
-    width: 3rem;
-    height: 3rem;
+    width: 1.5rem;
+    height: 1.5rem;
   }
 
   mat-card-actions {

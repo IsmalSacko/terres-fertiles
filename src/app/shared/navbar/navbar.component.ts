@@ -87,4 +87,9 @@ export class NavbarComponent {
     this.router.navigate(['/register']);
     this.closeSidenav();
   }
+
+  goToProfile(): void {
+    this.router.navigate(['/profil']);
+    this.closeSidenav();
+  }
 }

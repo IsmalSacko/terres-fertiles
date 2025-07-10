@@ -38,6 +38,10 @@
   </button>
   <mat-menu #userMenu="matMenu">
     <button mat-menu-item *ngIf="isLoggedIn" (click)="logout()">Déconnexion</button>
+    <button mat-menu-item *ngIf="isLoggedIn" (click)="goToProfile()">
+      <mat-icon>account_circle</mat-icon>
+      Profil
+    </button>
     <button mat-menu-item *ngIf="!isLoggedIn" (click)="login()">Connexion</button>
     <button mat-menu-item *ngIf="!isLoggedIn" (click)="register()"><mat-icon>person_add</mat-icon> Inscription</button>
   </mat-menu>

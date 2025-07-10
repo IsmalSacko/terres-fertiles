@@ -1,11 +1,33 @@
 import axios from 'axios';
 import { Injectable } from '@angular/core';
-
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+  company_name: string;
+  siret_number: string;
+  address: string;
+  city: string;
+  postal_code: string;
+  country: string;
+  phone_number: string;
+}
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthService {
   private loginUrl = 'http://127.0.0.1:8000/api/auth/'; // à adapter si besoin
+  private userProfileUrl = 'http://127.0.0.1:8000/api/user/me/';
+
+
+  private getHeadres(){
+    const token = localStorage.getItem('token');
+    return {headers: { Authorization: `Token ${token}` }};
+  }
 
   // Méthode d'authentification
   async login(username: string, password: string): Promise<any> {
@@ -15,9 +37,9 @@ export class AuthService {
         localStorage.setItem('token', response.data.auth_token);
         console.log('Connexion réussie ! 🎉');
 
-        // Récupérer et sauvegarder les informations de l'utilisateur
+        // Récupérer et sauvegarder les informations de l'utilisateur connecté
         try {
-          const userResponse = await axios.get(`${this.loginUrl}users/`, {
+          const userResponse = await axios.get(this.userProfileUrl, {
             headers: { Authorization: `Token ${response.data.auth_token}` }
           });
           localStorage.setItem('currentUser', JSON.stringify(userResponse.data));
@@ -37,37 +59,14 @@ export class AuthService {
   }
 
   // Méthode pour récupérer l'utilisateur connecté
-  async getCurrentUser(): Promise<any> {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Aucun token trouvé');
-      }
-
-      console.log('Appel API getCurrentUser avec token:', token);
-      const response = await axios.get(`${this.loginUrl}users/`, {
-        headers: { Authorization: `Token ${token}` }
-      });
-      console.log('Réponse API getCurrentUser:', response.data);
-
-      // L'API retourne un tableau, prendre le premier utilisateur
-      let userData;
-      if (Array.isArray(response.data) && response.data.length > 0) {
-        userData = response.data[0];
-      } else {
-        userData = response.data;
-      }
-
-      // Sauvegarder dans localStorage pour fallback
-      localStorage.setItem('currentUser', JSON.stringify(userData));
-
-      return response.data; // Retourner la réponse complète pour que le composant puisse la traiter
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération de l\'utilisateur:', error);
-      console.error('Détails de l\'erreur:', error.response?.data);
-      throw error.response ? error.response.data.message : 'Erreur de récupération utilisateur';
-    }
+  async getCurrentUser(): Promise<User> {
+    const token = localStorage.getItem('token');
+    if (!this.getHeadres()) throw new Error('Aucun token trouvé');
+    const response = await axios.get(this.userProfileUrl, this.getHeadres());
+    localStorage.setItem('currentUser', JSON.stringify(response.data));
+    return response.data; // Un seul objet User
   }
+
   logout(){
     localStorage.removeItem('token');
 
@@ -75,5 +74,22 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!localStorage.getItem('token');
+  }
+
+  async updateUser(data: Partial<User>): Promise<User> {
+    const response = await axios.patch<User>(
+      this.userProfileUrl,
+      data, this.getHeadres()
+     
+    );
+    localStorage.setItem('currentUser', JSON.stringify(response.data));
+    return response.data;
+  }
+
+  // Méthode pour supprimer l'utilisateur connecté
+  async deleteUser(): Promise<void> {
+    await axios.delete(this.userProfileUrl, this.getHeadres());
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
   }
 }
