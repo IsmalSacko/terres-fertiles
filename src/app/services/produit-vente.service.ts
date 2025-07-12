@@ -18,7 +18,12 @@ interface Melange {
 
 export interface ProduitVente {
   id: number;
-  chantier: Chantier;
+  chantier_info?: {
+    id: number;
+    nom: string;
+    latitude: number;
+    longitude: number;
+  };
   melange: Melange;
   
   reference_produit: string;

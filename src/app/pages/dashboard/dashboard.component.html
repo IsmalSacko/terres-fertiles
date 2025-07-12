@@ -6,15 +6,15 @@
     </h2>
   </div>
 
-  <div class="dashboard-items-container">
-    <mat-card *ngFor="let item of dashboardItems" 
-              class="dashboard-card" 
-              [routerLink]="item.route"
-              [attr.data-category]="item.category">
-      <mat-card-content class="dashboard-card-content">
-        <mat-icon class="dashboard-icon">{{ item.icon }}</mat-icon>
-        <h3>{{ item.title }}</h3>
-      </mat-card-content>
-    </mat-card>
+  <div class="dashboard-cards-hierarchy-row">
+    <ng-container *ngFor="let item of dashboardItems; let last = last">
+      <mat-card class="dashboard-card" [routerLink]="item.route" [attr.data-category]="item.category">
+        <mat-card-content class="dashboard-card-content">
+          <mat-icon class="dashboard-icon">{{ item.icon }}</mat-icon>
+          <h3>{{ item.title }}</h3>
+        </mat-card-content>
+      </mat-card>
+      <mat-icon *ngIf="!last" class="dashboard-arrow-icon">arrow_forward</mat-icon>
+    </ng-container>
   </div>
 </div>

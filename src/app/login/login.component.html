@@ -23,6 +23,11 @@
         <button mat-raised-button color="primary" type="submit" [disabled]="loading || !loginForm.form.valid" class="full-width-button">
           {{ loading ? 'Connexion...' : 'Se connecter' }}
         </button>
+
+        <!-- Lien mot de passe oublié -->
+        <div class="forgot-password-link mt-2">
+          <a routerLink="/reset-password">Mot de passe oublié&nbsp;?</a>
+        </div>
       </form>
     </mat-card-content>
   </mat-card>

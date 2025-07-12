@@ -44,6 +44,7 @@ export class ProduitVenteListComponent implements OnInit {
   displayedColumns: string[] = [
     'reference_produit',
     'nom_site',
+    'chantier_origine',
     'fournisseur',
     'volume_initial',
     'volume_disponible',

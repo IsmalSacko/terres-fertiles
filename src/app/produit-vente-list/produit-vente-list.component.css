@@ -88,3 +88,10 @@ a:hover {
     width: 100%;
   }
 }
+.mat-mdc-card{
+  top: 25px;
+}
+.mat-mdc-card-header{
+  margin-bottom: 10px !important;
+  background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+}

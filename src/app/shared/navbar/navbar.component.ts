@@ -56,7 +56,9 @@ export class NavbarComponent {
         try {
           const userObj = JSON.parse(user);
           const userData = Array.isArray(userObj) ? userObj[0] : userObj;
-          this.userName = userData.username || userData.email || null;
+          this.userName = (userData.first_name && userData.last_name)
+            ? userData.first_name + ' ' + userData.last_name
+            : (userData.username || userData.email || null);
         } catch {
           this.userName = null;
         }

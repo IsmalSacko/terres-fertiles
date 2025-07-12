@@ -28,6 +28,17 @@ export class ResetPasswordConfirmComponent {
   errorMessage = '';
   loading = false;
 
+  hideNewPassword = true;
+  hideConfirmPassword = true;
+
+  toggleNewPasswordVisibility() {
+    this.hideNewPassword = !this.hideNewPassword;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.hideConfirmPassword = !this.hideConfirmPassword;
+  }
+
   async onSubmit() {
     const { new_password, confirm_password } = this.form.value;
 

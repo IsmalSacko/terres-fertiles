@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container mt-5">
   <mat-card>
     <mat-card-header>
       <mat-card-title>Produits disponibles</mat-card-title>
@@ -52,7 +52,8 @@
           <!-- Fournisseur -->
           <ng-container matColumnDef="fournisseur">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Fournisseur</th>
-            <td mat-cell *matCellDef="let produit">{{ produit.fournisseur }}</td>
+            <td mat-cell *matCellDef="let produit">{{ produit.fournisseur }}</td> 
+            
           </ng-container>
 
           <!-- Volume initial -->
@@ -81,6 +82,14 @@
           <ng-container matColumnDef="date_disponibilite">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Date disponibilité</th>
             <td mat-cell *matCellDef="let produit">{{ produit.date_disponibilite | date:'dd/MM/yyyy' }}</td>
+          </ng-container>
+
+          <!-- Chantier d'origine -->
+          <ng-container matColumnDef="chantier_origine">
+            <th mat-header-cell *matHeaderCellDef> Chantier d'origine </th>
+            <td mat-cell *matCellDef="let produit">
+              {{ produit.chantier_info?.nom || '—' }}
+            </td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

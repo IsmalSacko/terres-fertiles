@@ -89,9 +89,9 @@ export class ProduitVenteDetailComponent implements OnInit {
   onMapReady(map: L.Map): void {
     this.map = map;
     setTimeout(() => {
-      if (this.map && this.produit?.chantier?.latitude && this.produit?.chantier?.longitude) {
+      if (this.map && this.produit?.chantier_info?.latitude && this.produit?.chantier_info?.longitude) {
         this.map.invalidateSize();
-        this.map.setView([this.produit.chantier.latitude, this.produit.chantier.longitude], 13);
+        this.map.setView([this.produit.chantier_info.latitude, this.produit.chantier_info.longitude], 13);
       }
     }, 0);
   }
@@ -103,8 +103,8 @@ export class ProduitVenteDetailComponent implements OnInit {
       this.produit = await this.produitService.getProduitById(id);
       console.log('Produit chargé:', this.produit);
       
-      if (this.produit?.chantier?.latitude && this.produit?.chantier?.longitude) {
-        const latLng: L.LatLngExpression = [this.produit.chantier.latitude, this.produit.chantier.longitude];
+      if (this.produit?.chantier_info?.latitude && this.produit?.chantier_info?.longitude) {
+        const latLng: L.LatLngExpression = [this.produit.chantier_info.latitude, this.produit.chantier_info.longitude];
         
         this.produitMarker = L.marker(latLng, {
           title: this.produit.nom_site || 'Site'
@@ -118,7 +118,7 @@ export class ProduitVenteDetailComponent implements OnInit {
             <div style="margin-bottom: 4px;">
               ${this.produit?.volume_disponible} m³ disponible
             </div>
-            <a href="https://www.google.com/maps/dir/?api=1&destination=${this.produit.chantier?.latitude},${this.produit.chantier?.longitude}" 
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${this.produit.chantier_info?.latitude},${this.produit.chantier_info?.longitude}" 
                target="_blank" 
                style="display: inline-block; color: #1976d2; text-decoration: none; font-weight: 500; margin-top: 4px;">
               🗺️ Obtenir l'itinéraire

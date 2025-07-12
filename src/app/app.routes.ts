@@ -5,8 +5,6 @@ import { DocumentGisementComponent } from './document-gisement/document-gisement
 import { ProduitsComponent } from './pages/produits/produits.component';
 import { GisementListComponent } from './gisement-list/gisement-list.component';
 import { GisementDetailComponent } from './gisement-detail/gisement-detail.component';
-import { CompostListComponent } from './compost-list/compost-list.component';
-import { CompostDetailComponent } from './compost-detail/compost-detail.component';
 import { MelangeListComponent } from './melange-list/melange-list.component';
 import { MelangeDetailComponent } from './melange-detail/melange-detail.component';
 import { ProduitVenteListComponent } from './produit-vente-list/produit-vente-list.component';
@@ -41,21 +39,25 @@ export const routes: Routes = [
   { path: 'chantiers/:id', component: ChantierDetailComponent },
   { path: 'gisements', component: GisementListComponent },
   { path: 'gisements/new', component: GisementCreateComponent },
-  { path: 'gisements/:id', component: GisementDetailComponent },
-  { path: 'composts', component: CompostListComponent },
-  { path: 'composts/:id', component: CompostDetailComponent },
+  { path: 'gisements/:id', component: GisementDetailComponent },  
+  { path: 'melanges-amendements', component: MelangeAmendementListComponent },
+  { path: 'amendement-organique-create', component: AmendementOrganiqueCreateComponent},
+  
   { path: 'melanges', component: MelangeListComponent },
   { path: 'melanges/new', component: MelangeDetailComponent },
   { path: 'melanges/:id', component: MelangeDetailComponent },
+
   { path: 'produits-vente', component: ProduitVenteListComponent },
   { path: 'produits-vente/:id', component: ProduitVenteDetailComponent },
+
   { path: 'documents-techniques', component: DocumentTechniqueListComponent },
   { path: 'documents-techniques/:id', component: DocumentTechniqueDetailComponent },
+
   { path: 'analyses-laboratoire', component: AnalyseLaboratoireListComponent },
   { path: 'analyses-laboratoire/:id', component: AnalyseLaboratoireDetailComponent },
-  { path: 'melanges-amendements', component: MelangeAmendementListComponent },
-  { path: 'amendement-organique-create', component: AmendementOrganiqueCreateComponent},
+
   { path: 'activate/:uid/:token', component: ActivateComponent},
+  
   { path: 'reset-password', component: ResetPasswordComponent},
   { path: 'reset-password-confirm/:uid/:token', component:ResetPasswordConfirmComponent}
 ];
