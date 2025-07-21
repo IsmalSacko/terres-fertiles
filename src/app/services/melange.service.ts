@@ -48,7 +48,8 @@ export interface AmendementOrganique {
 export interface MelangeAmendement {
   id?: number;
   melange: number;
-  amendementOrganique: number;
+  amendementOrganique?: number; // camelCase pour compatibilité Angular
+  amendement_organique?: number; // snake_case pour compatibilité Django
   pourcentage: number;
 }
 
@@ -65,6 +66,7 @@ export interface Melange {
   id?: number;
   nom: string;
   utilisateur?: string
+  nom_complet?: string
   date_creation: string;
   reference_produit: string;
   plateforme: number | null;
@@ -143,7 +145,6 @@ async addAmendement(amendement: MelangeAmendement): Promise<MelangeAmendement> {
   );
   return response.data;
 }
-
 
   async getAll(): Promise<Melange[]> {
     const response = await axios.get<Melange[]>(this.apiUrl, this.getHeaders());
@@ -291,6 +292,14 @@ async addAmendement(amendement: MelangeAmendement): Promise<MelangeAmendement> {
       console.error('Erreur lors de la suppression de l\'ingrédient:', error);
       throw error;
     }
+  }
+
+  async deleteAmendement(amendementId: number): Promise<void> {
+    await axios.delete(`${this.melangeAmendementsApiUrl}${amendementId}/`, this.getHeaders());
+  }
+
+  async updateAmendement(id: number, data: any): Promise<any> {
+    return axios.patch(`${this.melangeAmendementsApiUrl}${id}/`, data, this.getHeaders());
   }
 
   async getPlateformes(): Promise<Plateforme[]> {

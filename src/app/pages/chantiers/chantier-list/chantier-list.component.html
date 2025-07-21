@@ -1,0 +1,54 @@
+<div class="container">
+  <div class="header">
+    <h2 class="text-white">Liste des chantiers</h2>
+    <button mat-raised-button color="primary" (click)="addChantier()">
+      <mat-icon>add</mat-icon>
+      Ajouter un chantier
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="errorMsg" class="error-message">
+    {{ errorMsg }}
+  </div>
+
+  <mat-grid-list [cols]="cols" [rowHeight]="rowHeight" gutterSize="16px" *ngIf="chantiers.length">
+    <mat-grid-tile *ngFor="let chantier of chantiers">
+      <mat-card class="chantier-card">
+        <div class="card-content-wrapper">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="chantier-icon">public</mat-icon>
+            <mat-card-title>{{ chantier.nom }}</mat-card-title>
+            <mat-card-subtitle>{{ chantier.maitre_ouvrage }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <!-- Any additional content can go here -->
+          </mat-card-content>
+        </div>
+        
+        <mat-card-actions align="end">
+
+          <button mat-icon-button color="" (click)="ajouterGisementAuChantier()" matTooltip="Ajouter un gisement" style="color: azure;">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-icon-button color="primary" (click)="goToDetail(chantier.id)" matTooltip="Voir">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="editChantier(chantier.id)" matTooltip="Modifier">
+            <mat-icon class="icon-view">edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteChantier(chantier.id)" matTooltip="Supprimer">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+
+  <div *ngIf="!loading && !chantiers.length" class="no-data">
+    Aucun chantier trouvé.
+  </div>
+</div> 

@@ -14,6 +14,7 @@ interface Melange {
   id: number;
   nom: string;
   description: string;
+  date_creation?: string;
 }
 
 export interface ProduitVente {
@@ -21,14 +22,23 @@ export interface ProduitVente {
   chantier_info?: {
     id: number;
     nom: string;
+    localisation: string;
     latitude: number;
     longitude: number;
   };
-  melange: Melange;
-  
+  plateforme?: {
+    id: number;
+    nom: string;
+    localisation: string;
+  };
+  melange: Melange & {
+    ingredients?: { id: number; nom: string; pourcentage: string; }[];
+    amendements?: { id: number; nom: string; pourcentage: string; }[];
+  };
   reference_produit: string;
   fournisseur: string;
   nom_site: string;
+  date_creation?: string;              
   volume_initial: string;
   volume_disponible: string;
   date_disponibilite: string;
@@ -38,6 +48,10 @@ export interface ProduitVente {
   date_achat: string | null;
   periode_destockage: string | null;
   localisation_projet: string | null;
+  temps_sur_plateforme?: number;
+  delai_avant_disponibilite?: number;
+  documents?: { nom_fichier: string; type_document: string; fichier: string; }[];
+  analyses?: { laboratoire: string; date_analyse: string; fichier_pdf?: string; }[];
 }
 
 
@@ -58,9 +72,10 @@ export class ProduitVenteService {
 
   private getHeaders() {
     const token = localStorage.getItem('token');
-    return { headers: { Authorization: `Token ${token}` } };
+    const headres = { headers: { Authorization: `Token ${token}` } };
+  
+    return headres;
   }
-
   async getProduits(page: number = 1, pageSize: number = 10): Promise<ProduitVenteResponse> {
     console.log('Appel API getProduits avec headers:', this.getHeaders());
     try {

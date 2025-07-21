@@ -1,0 +1,77 @@
+<div class="container mt-5">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Produits disponibles</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <!-- Filtres -->
+      <div class="filters">
+        <mat-form-field appearance="outline">
+          <mat-label>Rechercher</mat-label>
+          <input matInput
+                 [(ngModel)]="searchTerm"
+                 (keyup)="applyFilter()"
+                 placeholder="Référence, site, fournisseur...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Statut</mat-label>
+          <mat-select [(ngModel)]="selectedStatut" (selectionChange)="applyFilter()">
+            <mat-option value="">Tous</mat-option>
+            <mat-option value="disponible">Disponible</mat-option>
+            <mat-option value="partiel">Partiellement vendu</mat-option>
+            <mat-option value="vendu">Vendu</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <!-- Loading spinner -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner diameter="50"></mat-spinner>
+      </div>
+      <!-- Grille de cartes produits -->
+      <div class="product-grid" *ngIf="!loading">
+        <mat-card class="product-card" *ngFor="let produit of filteredProduits">
+          <mat-card-header>
+            <mat-card-title>
+              {{ produit.nom_site }}
+              <mat-chip [style.background-color]="getStatutColor(produit)" [style.color]="'white'">
+                {{ getStatutProduit(produit) }}
+              </mat-chip>
+            </mat-card-title>
+            <mat-card-subtitle>
+              <mat-icon>calendar_today</mat-icon>
+              {{ produit.date_disponibilite | date:'dd/MM/yyyy' }}
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="big-info">
+              <mat-icon>inventory_2</mat-icon>
+              <span class="big-volume">{{ produit.volume_disponible | number:'1.0-2' }} m³</span>
+            </div>
+            <div class="origin">
+              <mat-icon>engineering</mat-icon>
+              {{ produit.chantier_info?.nom }} ({{ produit.chantier_info?.localisation }})
+            </div>
+            <div class="platform">
+              <mat-icon>factory</mat-icon>
+              {{ produit.plateforme?.nom }} ({{ produit.plateforme?.localisation }})
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <a mat-button color="primary" [routerLink]="['/produits-vente', produit.id]">
+              <mat-icon>visibility</mat-icon>
+              Voir le détail
+            </a>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+      <mat-paginator
+        [length]="totalItems"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        (page)="onPageChange($event)"
+        aria-label="Sélectionner la page">
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>
