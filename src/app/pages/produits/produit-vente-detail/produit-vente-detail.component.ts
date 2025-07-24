@@ -10,7 +10,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import * as L from 'leaflet';
 import { ProduitVenteService, ProduitVente } from '../../../services/produit-vente.service';
 
@@ -28,7 +27,6 @@ import { ProduitVenteService, ProduitVente } from '../../../services/produit-ven
     MatIconModule,
     MatDividerModule,
     MatChipsModule,
-    LeafletModule
   ],
   providers: [ProduitVenteService],
   templateUrl: './produit-vente-detail.component.html',

@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { DocumentGisementComponent } from './pages/gisments/document-gisement/document-gisement.component';
 import { GisementDetailComponent } from './pages/gisments/gisement-detail/gisement-detail.component';
+import { GisementListComponent } from './pages/gisments/gisement-list/gisement-list.component';
 import { MelangeListComponent } from './pages/melanges/melange-list/melange-list.component';
 import { MelangeDetailComponent } from './pages/melanges/melange-detail/melange-detail.component';
 import { ProduitVenteListComponent } from './pages/produits/produit-vente-list/produit-vente-list.component';
@@ -19,6 +20,7 @@ import { UserProfileComponent } from './pages/compte/user-profile/user-profile.c
 import { ActivateComponent } from './pages/compte/activate/activate.component';
 import { ResetPasswordComponent } from './pages/compte/reset-password/reset-password.component';
 import { ResetPasswordConfirmComponent } from './pages/compte/auth/reset-password-confirm/reset-password-confirm.component';
+import { PlanningComponent } from './pages/planning/planning.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -30,6 +32,7 @@ export const routes: Routes = [
   { path: 'chantiers', component: ChantierListComponent },
   { path: 'chantiers/new', component: ChantierDetailComponent },
   { path: 'chantiers/:id', component: ChantierDetailComponent },
+  { path: 'gisements', component: GisementListComponent },
   { path: 'gisements/new', component: GisementCreateComponent },
   { path: 'gisements/:id', component: GisementDetailComponent },  
   { path: 'melanges-amendements', component: MelangeAmendementListComponent },
@@ -38,7 +41,7 @@ export const routes: Routes = [
   { path: 'melanges', component: MelangeListComponent },
   { path: 'melanges/new', component: MelangeDetailComponent },
   { path: 'produits-vente', component: ProduitVenteListComponent },
-  { path: 'produits-vente/:id', component: ProduitVenteDetailComponent },
+  { path: 'produits/:id', component: ProduitVenteDetailComponent },
 
   { path: 'analyses-laboratoire', component: AnalyseLaboratoireListComponent },
   { path: 'analyses-laboratoire/:id', component: AnalyseLaboratoireDetailComponent },
@@ -46,5 +49,6 @@ export const routes: Routes = [
   { path: 'activate/:uid/:token', component: ActivateComponent},
   
   { path: 'reset-password', component: ResetPasswordComponent},
-  { path: 'reset-password-confirm/:uid/:token', component:ResetPasswordConfirmComponent}
+  { path: 'reset-password-confirm/:uid/:token', component:ResetPasswordConfirmComponent},
+  { path: 'planning', component: PlanningComponent}
 ];

@@ -6,7 +6,7 @@
     <a (click)="navigateAndClose('/gisements')"><mat-icon>layers</mat-icon> Gisements</a>
     <a (click)="navigateAndClose('/chantiers')"><mat-icon>engineering</mat-icon> Chantiers</a>
     <a (click)="navigateAndClose('/plateforme')"><mat-icon>home_work</mat-icon> Plateforme</a>
-    <a (click)="navigateAndClose('/produits')"><mat-icon>category</mat-icon> Produits</a>
+    <a (click)="navigateAndClose('/produits-vente')"><mat-icon>category</mat-icon> Produits</a>
     <a (click)="navigateAndClose('/dashboard')"><mat-icon>dashboard</mat-icon> Dashboard</a>
     <button *ngIf="isLoggedIn" (click)="logout()"><mat-icon>logout</mat-icon> Déconnexion</button>
     <button *ngIf="!isLoggedIn" (click)="login()"><mat-icon>login</mat-icon> Connexion</button>
@@ -25,11 +25,11 @@
   </span>
   <span class="spacer"></span>
   <nav class="nav-links x mx-3">
+    <a mat-button routerLink="/dashboard" routerLinkActive="active-link"><mat-icon>dashboard</mat-icon> Tableau de bord</a>
+    <a mat-button routerLink="/produits-vente" routerLinkActive="active-link"><mat-icon>shopping_cart</mat-icon> Produits</a>
     <a mat-button routerLink="/chantiers" routerLinkActive="active-link"><mat-icon>location_city</mat-icon> Chantiers</a>
-    <a mat-button routerLink="/gisements" routerLinkActive="active-link"><mat-icon>layers</mat-icon> Gisements</a>
+    <a mat-button routerLink="/gisements" routerLinkActive="active-link"><mat-icon>landscape</mat-icon> Gisements</a>
     <a mat-button routerLink="/plateforme" routerLinkActive="active-link"><mat-icon>home_work</mat-icon> Plateforme</a>
-    <a mat-button routerLink="/produits" routerLinkActive="active-link"><mat-icon>shopping_cart</mat-icon> Produits</a>
-    <a mat-button routerLink="/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }"><mat-icon>dashboard</mat-icon> </a>
   </nav>
   <button mat-icon-button class="mobile-menu-btn" (click)="openSidenav()">
     <mat-icon>menu</mat-icon>
