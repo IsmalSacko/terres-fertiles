@@ -1,1 +1,78 @@
-<plotly-plot [data]="timelineData" [layout]="layout"></plotly-plot> 
+<div *ngIf="!loading && !error" class="container-fluid planning-container mt-5">
+  <div class="planning-table">
+
+    <div class="header-row">
+      <div class="corner-cell">Mélanges</div>
+
+      <div *ngFor="let month of months" class="month-section">
+        <div class="month-name">{{ month }} {{ currentYear }}</div>
+
+        <!-- Ligne des semaines avec jours inclus -->
+        <div class="week-row">
+          <div *ngFor="let week of weeksInMonth[month]" class="week-cell">
+            <div class="week-label">S{{ week }}</div>
+            <div class="days-inside-week">
+          <span *ngFor="let day of daysInWeekMonth[month][week]" class="day-item">
+            {{ day }}
+          </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Lignes pour chaque plateforme -->
+    <div *ngFor="let plateforme of getPlateformesFromInterventions()"  class="plateforme-row">
+      <div  class="plateforme-name">{{ plateforme }} </div>
+
+
+      <div *ngFor="let month of months" class="month-section">
+        <div class="week-row">
+          <div *ngFor="let week of weeksInMonth[month]"
+
+               class="week-cell"
+               [class.clickable]="hasIntervention(plateforme, week, month)"
+               (click)="onCellClick(plateforme, week, month)"
+               (mouseenter)="onCellHover(plateforme, week, month)"
+               (mouseleave)="onCellLeave()">
+
+            <span *ngIf="getNote(plateforme, week, month)" class="note">
+              {{ getNote(plateforme, week, month) }}
+            </span>
+
+            <!-- Tooltip étendu -->
+            <div *ngIf="hoveredIntervention &&
+                        hoveredIntervention.melange === plateforme &&
+                        hoveredIntervention.week === week &&
+                        hoveredIntervention.month === month"
+
+                 class="hover-info">
+
+              <strong>Mélange :</strong> {{ hoveredIntervention.melange }}<br>
+              <strong>Semaine :</strong> S{{ hoveredIntervention.week }}<br>
+              <strong>Mois :</strong> {{ hoveredIntervention.month }}<br>
+              <strong>Note :</strong> {{ hoveredIntervention.note }}<br>
+              <strong>Date :</strong> {{ hoveredIntervention.date || 'N/A' }}<br>
+              <strong>Responsable :</strong> {{ hoveredIntervention.responsable || 'N/A' }}<br>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- Sélecteur d’année en bas -->
+  <div class="year-selector mt-4">
+    <label for="year-select">Année :</label>
+    <select [(ngModel)]="currentYear" (change)="onYearChange()" id="year-select">
+      <option *ngFor="let y of years" [ngValue]="y">{{ y }}</option>
+    </select>
+
+
+  </div>
+</div>
+
+
+<div *ngIf="loading">Chargement en cours...</div>
+<div *ngIf="error">{{ error }}</div>

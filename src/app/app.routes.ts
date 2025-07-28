@@ -13,14 +13,15 @@ import { LoginComponent } from './pages/compte/login/login.component';
 import { GisementCreateComponent } from './pages/gisments/gisement-create/gisement-create.component';
 import { ChantierListComponent } from './pages/chantiers/chantier-list/chantier-list.component';
 import { ChantierDetailComponent } from './pages/chantiers/chantier-detail/chantier-detail.component';
-import { MelangeAmendementListComponent } from './pages/melanges/melange-amendement-list/melange-amendement-list.component.ts.component'; 
+import { MelangeAmendementListComponent } from './pages/melanges/melange-amendement-list/melange-amendement-list.component.ts.component';
 import { AmendementOrganiqueCreateComponent } from './pages/produits/labo/amendement-organique-create/amendement-organique-create.component';
 import { RegisterComponent } from './pages/compte/register/register.component';
 import { UserProfileComponent } from './pages/compte/user-profile/user-profile.component';
 import { ActivateComponent } from './pages/compte/activate/activate.component';
 import { ResetPasswordComponent } from './pages/compte/reset-password/reset-password.component';
 import { ResetPasswordConfirmComponent } from './pages/compte/auth/reset-password-confirm/reset-password-confirm.component';
-import { PlanningComponent } from './pages/planning/planning.component';
+import {PlanningComponent} from './pages/planning/planning.component';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -34,10 +35,10 @@ export const routes: Routes = [
   { path: 'chantiers/:id', component: ChantierDetailComponent },
   { path: 'gisements', component: GisementListComponent },
   { path: 'gisements/new', component: GisementCreateComponent },
-  { path: 'gisements/:id', component: GisementDetailComponent },  
+  { path: 'gisements/:id', component: GisementDetailComponent },
   { path: 'melanges-amendements', component: MelangeAmendementListComponent },
   { path: 'amendement-organique-create', component: AmendementOrganiqueCreateComponent},
-  
+
   { path: 'melanges', component: MelangeListComponent },
   { path: 'melanges/new', component: MelangeDetailComponent },
   { path: 'produits-vente', component: ProduitVenteListComponent },
@@ -47,8 +48,10 @@ export const routes: Routes = [
   { path: 'analyses-laboratoire/:id', component: AnalyseLaboratoireDetailComponent },
 
   { path: 'activate/:uid/:token', component: ActivateComponent},
-  
+
   { path: 'reset-password', component: ResetPasswordComponent},
   { path: 'reset-password-confirm/:uid/:token', component:ResetPasswordConfirmComponent},
-  { path: 'planning', component: PlanningComponent}
+
+  {path: 'planning', component: PlanningComponent},
+
 ];
