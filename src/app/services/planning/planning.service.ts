@@ -27,7 +27,6 @@ export class PlanningService {
     console.log('Suppression terminée pour ID:', id);
   }
 
-
   // 🔁 Récupérer tous les plannings
   async getPlannings(): Promise<MelangeModel[]> {
     const response = await axios.get<MelangeModel[]>(this.apiUrl, this.getHeaders());

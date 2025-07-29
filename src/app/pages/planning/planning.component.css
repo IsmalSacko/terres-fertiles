@@ -209,3 +209,12 @@
     padding: 8px 6px;
   }
 }
+
+/* Classe pour les cellules cliquables */
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  background-color: #f0f0f0;
+}

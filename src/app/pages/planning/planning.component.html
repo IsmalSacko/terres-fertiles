@@ -23,7 +23,7 @@
 
 
     <!-- Lignes pour chaque plateforme -->
-    <div *ngFor="let plateforme of getPlateformesFromInterventions()"  class="plateforme-row">
+    <div *ngFor="let plateforme of getAllMelangesDisponibles()"  class="plateforme-row">
       <div  class="plateforme-name">{{ plateforme }} </div>
 
 
@@ -31,8 +31,7 @@
         <div class="week-row">
           <div *ngFor="let week of weeksInMonth[month]"
 
-               class="week-cell"
-               [class.clickable]="hasIntervention(plateforme, week, month)"
+               class="week-cell clickable"
                (click)="onCellClick(plateforme, week, month)"
                (mouseenter)="onCellHover(plateforme, week, month)"
                (mouseleave)="onCellLeave()">
