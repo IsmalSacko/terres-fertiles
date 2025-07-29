@@ -37,17 +37,20 @@ export class PlanningFormComponent {
     this.dialogRef.close(this.melange); // envoie les données au parent
   }
   onDelete() {
-    this.data.melange.statut = 'deleted';
-    this.service.deletePlanning(
-      this.data.melange.id
-    ).then(() => {
-      console.log('Planning supprimé avec succès');
-    }).catch(error => {
-      console.error('Erreur lors de la suppression du planning:', error);
-    });
-
-    this.dialogRef.close(this.data.melange);
+    if (confirm('Voulez-vous vraiment supprimer ce planning ?')) {
+      this.service.deletePlanning(this.melange.id)
+        .then(() => {
+          // Fermer la modale avec un retour indiquant que suppression a eu lieu
+          this.dialogRef.close('deleted');
+        })
+        .catch(error => {
+          console.error('Erreur lors de la suppression du planning:', error);
+        });
+    }
   }
+
+
+
 
   onCancel() {
     this.dialogRef.close(); // annule

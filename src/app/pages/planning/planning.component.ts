@@ -123,6 +123,8 @@ export class PlanningComponent implements OnInit {
             date: m.date_debut
           };
         });
+    // on met à jour les interventions
+
     console.log('Interventions mises à jour:', this.interventions.length);
   }
 
@@ -166,58 +168,6 @@ export class PlanningComponent implements OnInit {
     this.hoveredIntervention = null;
   }
 
-/*  onCellClick(melangeNom: string, week: number, month: string) {
-    const melangeObj = this.melanges.find(m => m.melange_nom === melangeNom);
-    if (!melangeObj) {
-      console.error('Mélange introuvable pour le nom:', melangeNom);
-      return;
-    }
-    const melangeId = melangeObj.melange;
-
-    this.selectedMelanges = this.melanges.filter(m => {
-      const date = new Date(m.date_debut);
-      const [_, w] = this.getWeekNumber(date);
-      const mth = this.months[date.getMonth()];
-      return m.melange === melangeId && w === week && mth === month;
-    });
-
-    if (this.selectedMelanges.length === 0) {
-      const monthIndex = this.months.indexOf(month);
-      const firstDayOfMonth = new Date(Date.UTC(this.currentYear, monthIndex, 1));
-      const dayOffset = (week - this.getWeekNumber(firstDayOfMonth)[1]) * 7;
-      const dateDebut = new Date(firstDayOfMonth);
-      dateDebut.setUTCDate(firstDayOfMonth.getUTCDate() + dayOffset);
-
-      const dialogRef = this.dialog.open(PlanningFormComponent, {
-        width: '500px',
-        data: {
-          melange: {
-            id: 0,
-            titre: '',
-            date_debut: dateDebut.toISOString().substring(0, 10),
-            duree_jours: 1,
-            statut: 'pending',
-            melange: melangeId,
-            melange_nom: melangeNom
-          }
-        }
-      });
-
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.planningService.createPlanning(result)
-              .then(() => this.planningService.getPlannings())
-              .then(plannings => {
-                this.melanges = plannings;
-                this.updateInterventions();
-              })
-              .catch(err => {
-                console.error('Erreur lors de la création du planning:', err);
-              });
-        }
-      });
-    }
-  }*/
 
   onCellClick(melangeNom: string, week: number, month: string) {
     const melangeObj = this.melanges.find(m => m.melange_nom === melangeNom);
@@ -246,7 +196,7 @@ export class PlanningComponent implements OnInit {
     const dialogRef = this.dialog.open(PlanningFormComponent, {
       width: '500px',
       data: {
-        melange: existingIntervention ? { ...existingIntervention } : {
+        melange: existingIntervention ? {...existingIntervention} : {
           id: 0,
           titre: '',
           date_debut: dateDebut.toISOString().substring(0, 10),
@@ -258,33 +208,79 @@ export class PlanningComponent implements OnInit {
       }
     });
 
+    /*   dialogRef.afterClosed().subscribe(async result => {
+         if (result) {
+           try {
+             if (result.id && result.id !== 0) {
+               if (result.statut === 'deleted') {
+                 // ✅ Pas de PUT ici
+                 this.allMelanges = await this.planningService.getPlannings();
+                 this.melanges = this.allMelanges.filter(m => {
+                   const d = new Date(m.date_debut);
+                   return d.getUTCFullYear() === this.currentYear;
+                 });
+                 this.updateInterventions();
+                 return;
+               }
+
+               // Cas mise à jour
+               await this.planningService.updatePlanning(result);
+             } else {
+               // Cas création
+               await this.planningService.createPlanning(result);
+             }
+
+             // Rafraîchir dans tous les cas
+             this.allMelanges = await this.planningService.getPlannings();
+             this.melanges = this.allMelanges.filter(m => {
+               const d = new Date(m.date_debut);
+               return d.getUTCFullYear() === this.currentYear;
+             });
+             this.updateInterventions();
+
+           } catch (err) {
+             console.error('Erreur lors de la sauvegarde du planning:', err);
+           }
+         }
+       });*/
     dialogRef.afterClosed().subscribe(async result => {
-      if (result) {
-        try {
-          if (result.id && result.id !== 0) {
-            // Modification ou suppression
-            if (result.statut === 'deleted') {
-              await this.planningService.deletePlanning(result.id);
-            } else {
-              await this.planningService.updatePlanning(result);
-            }
-          } else {
-            // Création
-            await this.planningService.createPlanning(result);
-          }
-          // Recharger plannings et rafraîchir l'affichage
-          this.allMelanges = await this.planningService.getPlannings();
-          this.melanges = this.allMelanges.filter(m => {
-            const d = new Date(m.date_debut);
-            return d.getUTCFullYear() === this.currentYear;
-          });
-          this.updateInterventions();
-        } catch (err) {
-          console.error('Erreur lors de la sauvegarde du planning:', err);
+      if (!result) return;
+
+      if (result === 'deleted') {
+        // Simplement rafraîchir la liste, pas de suppression côté front
+        await this.refreshPlanningList();
+        return;
+      }
+
+      try {
+        if (result.id && result.id !== 0) {
+          // Mise à jour du planning
+          await this.planningService.updatePlanning(result);
+        } else {
+          // Création d'un nouveau planning
+          await this.planningService.createPlanning(result);
         }
+        await this.refreshPlanningList();
+      } catch (err) {
+        console.error('Erreur lors de la sauvegarde du planning:', err);
       }
     });
+
+
   }
+// Extraire la logique de rafraîchissement dans une méthode pour éviter répétition
+  private async refreshPlanningList() {
+      this.allMelanges = await this.planningService.getPlannings();
+      this.melanges = this.allMelanges.filter(m => {
+        const d = new Date(m.date_debut);
+        return d.getUTCFullYear() === this.currentYear;
+      });
+      this.updateInterventions();
+    }
+
+
+
+
 
 
   getNomMelangeById(id: number): string {
