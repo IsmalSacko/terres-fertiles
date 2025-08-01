@@ -38,7 +38,7 @@ import { NgxDropzoneModule } from 'ngx-dropzone';
     NgxDropzoneModule
   ],
   templateUrl: './gisement-detail.component.html',
-  styleUrls: ['./gisement-detail.component.css']
+  styleUrl: './gisement-detail.component.css'
 })
 export class GisementDetailComponent implements OnInit {
   gisement: Partial<Gisement> = {};

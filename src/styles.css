@@ -58,11 +58,82 @@ body {
 
 html, body { 
   height: 100%; 
-  margin: 0; 
+  margin: 0;
+  padding: 0;
+}
+
+body { 
   font-family: Roboto, "Helvetica Neue", sans-serif;
   background-color: var(--background-color);
   color: var(--text-primary);
 }
+
+/* Styles globaux pour la navbar fixe - Pour éviter que le contenu soit caché sous la navbar */
+.page-container,
+.dashboard-container,
+.gisement-container,
+.chantier-container,
+.chantiers-container,
+.produit-container,
+.melange-container,
+.planning-container,
+app-dashboard,
+app-gisement-list,
+app-chantier-list,
+app-chantier-detail,
+app-melange-list,
+app-planning,
+app-saisie-vente,
+.main-content {
+  padding-top: 90px !important;
+  min-height: calc(100vh - 90px);
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+  .page-container,
+  .dashboard-container,
+  .gisement-container,
+  .chantier-container,
+  .chantiers-container,
+  .produit-container,
+  .melange-container,
+  .planning-container,
+  app-dashboard,
+  app-gisement-list,
+  app-chantier-list,
+  app-chantier-detail,
+  app-melange-list,
+  app-planning,
+  app-saisie-vente,
+  .main-content {
+    padding-top: 85px !important;
+    min-height: calc(100vh - 85px);
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container,
+  .dashboard-container,
+  .gisement-container,
+  .chantier-container,
+  .chantiers-container,
+  .produit-container,
+  .melange-container,
+  .planning-container,
+  app-dashboard,
+  app-gisement-list,
+  app-chantier-list,
+  app-chantier-detail,
+  app-melange-list,
+  app-planning,
+  app-saisie-vente,
+  .main-content {
+    padding-top: 95px !important;
+    min-height: calc(100vh - 95px);
+  }
+}
+ 
 
 /* Couleurs des icônes par catégorie */
 .icon-location { color: var(--primary-color) !important; }

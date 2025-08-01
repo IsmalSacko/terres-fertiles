@@ -3,7 +3,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MelangeModel } from '../planning/melange.model';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
-import {PlanningService} from '../../services/planning/planning.service';
+// Update the import path if planning.service.ts is located elsewhere, for example:
+import { PlanningService } from '../../services/planning/planning.service';
+// Or adjust the path to match the correct location of planning.service.ts
 
 @Component({
   selector: 'app-planning-form',
@@ -33,7 +35,6 @@ export class PlanningFormComponent {
   }
 
   onSave() {
-    // Tu peux faire une vérification ici si nécessaire
     this.dialogRef.close(this.melange); // envoie les données au parent
   }
   onDelete() {
@@ -43,7 +44,7 @@ export class PlanningFormComponent {
           // Fermer la modale avec un retour indiquant que suppression a eu lieu
           this.dialogRef.close('deleted');
         })
-        .catch(error => {
+        .catch((error: any) => {
           console.error('Erreur lors de la suppression du planning:', error);
         });
     }

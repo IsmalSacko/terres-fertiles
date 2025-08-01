@@ -1,63 +1,135 @@
-<div class="container mt-5">
-  <div class="header-actions">
-    <h2>
-      <mat-icon>landscape</mat-icon>
-      Liste des gisements
-    </h2>
-    <button mat-raised-button (click)="addGisement()">
-      <mat-icon>add</mat-icon>
-      Ajouter un gisement
-    </button>
-  </div>
-  <app-gisements-map/>
-
-  <div class="gisements-grid" *ngIf="gisements.length; else emptyList">
-    <mat-card class="gisement-card" *ngFor="let g of gisements">
-      <div class="gisement-content">
-        <button class="folder-button" (click)="goToDetail(g.id, 'view')">
-          <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png" class="folder-icon" alt="Gisement" />
-        </button>
-        <h3 class="gisement-name">{{ g.nom }}</h3>
-        
-        <div class="gisement-info">
-          <span>
-            <mat-icon>calendar_today</mat-icon>
-            {{ g.periode_terrassement }}
-          </span>
-          <span *ngIf="g.date_creation">
-            <mat-icon>calendar_month</mat-icon>
-            {{ g.date_creation | date:'dd/MM/yyyy' }}
-          </span>
-          <span>
-            <mat-icon>straighten</mat-icon>
-            {{ g.volume_terrasse }} m³
-          </span>
-          <span>
-            <mat-icon>category</mat-icon>
-            {{ g.materiau }}
-          </span>
-          <span *ngIf="g.localisation">
-            <mat-icon>location_on</mat-icon>
-            {{ g.localisation }}
-          </span>
+<div class="modern-container fade-in">
+  <!-- Header moderne avec gradient -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <mat-icon>landscape</mat-icon>
+        </div>
+        <div class="header-text">
+          <h1 class="header-title">Gisements</h1>
+          <p class="header-subtitle">Gérez vos gisements de terre et matériaux</p>
         </div>
       </div>
-
-      <mat-card-actions>
-        <button mat-icon-button (click)="goToDetail(g.id, 'edit')" title="Modifier">
-          <mat-icon>edit</mat-icon>
+      <div class="header-actions">
+        <button mat-raised-button (click)="addGisement()" class="add-button">
+          <mat-icon>add</mat-icon>
+          Nouveau gisement
         </button>
-        <button mat-icon-button color="warn" (click)="deleteGisement(g.id)" title="Supprimer">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </mat-card-actions>
-    </mat-card>
+      </div>
+    </div>
   </div>
 
+  <!-- Carte des gisements -->
+  <div class="map-section slide-in">
+    <app-gisements-map/>
+  </div>
+
+  <!-- Grille moderne des gisements -->
+  <div class="gisements-section slide-in" *ngIf="gisements.length; else emptyList">
+    <div class="section-header">
+      <h2>Tous les gisements</h2>
+      <div class="stats-badge">
+        <mat-icon>inventory</mat-icon>
+        <span>{{ gisements.length }} gisement{{ gisements.length > 1 ? 's' : '' }}</span>
+      </div>
+    </div>
+    
+    <div class="gisements-grid">
+      <div class="gisement-card" *ngFor="let g of gisements; let i = index" [style.animation-delay]="(i * 0.1) + 's'">
+        <div class="card-header">
+          <div class="gisement-avatar">
+            <mat-icon>landscape</mat-icon>
+          </div>
+          <div class="card-menu">
+            <button mat-icon-button [matMenuTriggerFor]="menu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="goToDetail(g.id, 'view')">
+                <mat-icon>visibility</mat-icon>
+                <span>Voir les détails</span>
+              </button>
+              <button mat-menu-item (click)="goToDetail(g.id, 'edit')">
+                <mat-icon>edit</mat-icon>
+                <span>Modifier</span>
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="deleteGisement(g.id)" class="delete-menu-item">
+                <mat-icon>delete</mat-icon>
+                <span>Supprimer</span>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+
+        <div class="card-content" (click)="goToDetail(g.id, 'view')">
+          <h3 class="gisement-name">{{ g.nom }}</h3>
+          
+          <div class="gisement-stats">
+            <div class="stat-item primary">
+              <mat-icon>straighten</mat-icon>
+              <div class="stat-details">
+                <span class="stat-value">{{ g.volume_terrasse || '0' }}</span>
+                <span class="stat-label">m³</span>
+              </div>
+            </div>
+            
+            <div class="stat-item secondary">
+              <mat-icon>category</mat-icon>
+              <div class="stat-details">
+                <span class="stat-value">{{ g.materiau || 'Non spécifié' }}</span>
+                <span class="stat-label">Matériau</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="gisement-info">
+            <div class="info-item" *ngIf="g.commune">
+              <mat-icon>location_city</mat-icon>
+              <span>{{ g.commune }}</span>
+            </div>
+            <div class="info-item" *ngIf="g.periode_terrassement">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ g.periode_terrassement }}</span>
+            </div>
+            <div class="info-item" *ngIf="g.date_creation">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{ g.date_creation | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="info-item" *ngIf="g.type_de_sol">
+              <mat-icon>terrain</mat-icon>
+              <span>{{ g.type_de_sol }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button mat-button (click)="goToDetail(g.id, 'view')" class="view-button">
+            <mat-icon>visibility</mat-icon>
+            Voir
+          </button>
+          <button mat-button (click)="goToDetail(g.id, 'edit')" class="edit-button">
+            <mat-icon>edit</mat-icon>
+            Modifier
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- État vide moderne -->
   <ng-template #emptyList>
-    <div class="empty-list">
-      <mat-icon>landscape</mat-icon>
-      <p>Aucun gisement trouvé.</p>
+    <div class="empty-state slide-in">
+      <div class="empty-icon">
+        <mat-icon>landscape</mat-icon>
+      </div>
+      <h3>Aucun gisement disponible</h3>
+      <p>Commencez par créer votre premier gisement de matériaux</p>
+      <button mat-raised-button (click)="addGisement()" class="empty-action-button">
+        <mat-icon>add</mat-icon>
+        Créer un gisement
+      </button>
     </div>
   </ng-template>
 </div>

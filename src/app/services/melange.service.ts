@@ -28,6 +28,9 @@ export interface MelangeIngredient {
   gisement: number;
   pourcentage: number;
   gisement_details?: Gisement;
+  // Propriétés ajoutées par l'API lors de la lecture
+  nom?: string;
+  type?: string;
 }
 
 
@@ -51,6 +54,9 @@ export interface MelangeAmendement {
   amendementOrganique?: number; // camelCase pour compatibilité Angular
   amendement_organique?: number; // snake_case pour compatibilité Django
   pourcentage: number;
+  // Propriétés ajoutées par l'API lors de la lecture
+  nom?: string;
+  type?: string;
 }
 
 export enum MelangeEtat {

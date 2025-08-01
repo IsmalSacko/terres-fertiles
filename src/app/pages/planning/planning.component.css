@@ -156,6 +156,70 @@
   user-select: none;
 }
 
+/* Styles pour les différents statuts */
+.note-planned {
+  background: #ffa500 !important; /* Orange pour planifié */
+  color: white;
+}
+
+.note-active {
+  background: #2196f3 !important; /* Bleu pour en cours */
+  color: white;
+}
+
+.note-done {
+  background: #4caf50 !important; /* Vert pour terminé */
+  color: white;
+}
+
+/* Styles pour la légende des statuts */
+.status-legend {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  margin: 0 20px;
+}
+
+.status-legend h6 {
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Couleurs spécifiques pour chaque statut dans la légende */
+.legend-color.note-planned {
+  background: #ffa500; /* Orange pour planifié */
+}
+
+.legend-color.note-active {
+  background: #2196f3; /* Bleu pour en cours */
+}
+
+.legend-color.note-done {
+  background: #4caf50; /* Vert pour terminé */
+}
+
 .hover-info {
   position: absolute;
   top: -26px;

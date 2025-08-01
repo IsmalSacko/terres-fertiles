@@ -1,87 +1,103 @@
-<div class="container" *ngIf="!loading; else loadingTemplate">
-  <mat-card class="gisement-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon class="icon-location">location_on</mat-icon>
-        {{ isEditMode ? 'Modifier' : (isViewOnly ? 'Gisement de' : 'Ajouter un gisement') }} {{ gisement.commune || '' }}
-      </mat-card-title>
-      <mat-card-subtitle>
-        <mat-icon class="icon-action icon-small">tag</mat-icon>
-        ID: {{ gisement.id || 'Nouveau' }}
-      </mat-card-subtitle>
-    </mat-card-header>
+<div class="modern-container" *ngIf="!loading; else loadingTemplate">
+  <!-- Header moderne cohérent -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <mat-icon>{{ isEditMode ? 'edit' : (isViewOnly ? 'visibility' : 'add') }}</mat-icon>
+        </div>
+        <div class="header-text">
+          <h1 class="header-title">
+            {{ isEditMode ? 'Modifier' : (isViewOnly ? 'Détails du gisement' : 'Nouveau gisement') }}
+          </h1>
+          <p class="header-subtitle">{{ gisement.commune || 'Gestion des gisements de terre' }}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-button (click)="goBack()" class="back-button">
+          <mat-icon>arrow_back</mat-icon>
+          Retour
+        </button>
+        <button mat-raised-button *ngIf="isViewOnly" (click)="editGisement()" class="edit-button">
+          <mat-icon>edit</mat-icon>
+          Modifier
+        </button>
+      </div>
+    </div>
+  </div>
 
-    <mat-card-content>
-      <div class="info-section" *ngIf="isViewOnly">
-        <div class="info-group">
-          <h3>
-            <mat-icon class="icon-action">info</mat-icon>
-            Informations générales
-          </h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">
-                <mat-icon class="icon-calendar icon-small">calendar_today</mat-icon>
-                Période de terrassement
-              </span>
-              <span class="value">{{ gisement.periode_terrassement || 'Non définie' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">
-                <mat-icon class="icon-measurement icon-large">straighten</mat-icon>
-                Volume terrassé
-              </span>
-              <span class="value">{{ gisement.volume_terrasse || 0 }} m³</span>
-            </div>
-            <div class="info-item">
-              <span class="label">
-                <mat-icon class="icon-material icon-small">category</mat-icon>
-                Matériau
-              </span>
-              <span class="value">{{ gisement.materiau || 'Non défini' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">
-                <mat-icon class="icon-location icon-small">place</mat-icon>
-                Localisation
-              </span>
-              <span class="value">{{ gisement.localisation || 'Non définie' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">
-                <mat-icon class="icon-material icon-small">terrain</mat-icon>
-                Type de sol
-              </span>
-              <span class="value">{{ getSolTypeName(gisement.type_de_sol || 'limon') }}</span>
-            </div>
-            <div class="info-item" *ngIf="gisement.latitude && gisement.longitude">
-              <span class="label">
-                <mat-icon class="icon-location icon-small">gps_fixed</mat-icon>
-                Coordonnées GPS
-              </span>
-              <span class="value">{{ gisement.latitude }}, {{ gisement.longitude }}</span>
-            </div>
+  <!-- Contenu principal dans des cartes modernes -->
+  <div class="content-grid">
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="header-icon">info</mat-icon>
+        <mat-card-title>Informations générales</mat-card-title>
+      </mat-card-header>
+      <mat-card-content *ngIf="isViewOnly">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>
+              <mat-icon class="icon-small">calendar_today</mat-icon>
+              Période de terrassement
+            </label>
+            <span>{{ gisement.periode_terrassement || 'Non définie' }}</span>
+          </div>
+          <div class="info-item">
+            <label>
+              <mat-icon class="icon-small">straighten</mat-icon>
+              Volume terrassé
+            </label>
+            <span>{{ gisement.volume_terrasse || 0 }} m³</span>
+          </div>
+          <div class="info-item">
+            <label>
+              <mat-icon class="icon-small">category</mat-icon>
+              Matériau
+            </label>
+            <span>{{ gisement.materiau || 'Non défini' }}</span>
+          </div>
+          <div class="info-item">
+            <label>
+              <mat-icon class="icon-small">place</mat-icon>
+              Localisation
+            </label>
+            <span>{{ gisement.localisation || 'Non définie' }}</span>
+          </div>
+          <div class="info-item">
+            <label>
+              <mat-icon class="icon-small">terrain</mat-icon>
+              Type de sol
+            </label>
+            <span>{{ getSolTypeName(gisement.type_de_sol || 'limon') }}</span>
+          </div>
+          <div class="info-item" *ngIf="gisement.latitude && gisement.longitude">
+            <label>
+              <mat-icon class="icon-small">gps_fixed</mat-icon>
+              Coordonnées GPS
+            </label>
+            <span>{{ gisement.latitude }}, {{ gisement.longitude }}</span>
           </div>
         </div>
+      </mat-card-content>
+    </mat-card>
 
-        <mat-divider></mat-divider>
-          
-        <!-- Section carte en mode vue -->
-        <div class="info-group" *ngIf="gisement.latitude && gisement.longitude">
-          <h3>
-            <mat-icon class="icon-location">map</mat-icon>
-            Localisation sur la carte
-          </h3>
-          <div class="map-container">
-            <google-map
-              height="400px"
-              width="100%"
-              [center]="mapCenter"
-              [zoom]="mapZoom">
-              <map-marker
-                [position]="markerPosition!"
-                [label]="gisement.nom || gisement.commune || 'Gisement'"
-                [options]="{ icon: markerIconOptions }"
+    <!-- Section carte en mode vue -->
+    <mat-card class="map-card" *ngIf="isViewOnly && gisement.latitude && gisement.longitude">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="header-icon">map</mat-icon>
+        <mat-card-title>Localisation sur la carte</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="map-container">
+          <google-map
+            height="400px"
+            width="100%"
+            [center]="mapCenter"
+            [zoom]="mapZoom">
+            <map-marker
+              [position]="markerPosition!"
+              [label]="gisement.nom || gisement.commune || 'Gisement'"
+              [options]="{ icon: markerIconOptions }"
                 (mapClick)="openGoogleMaps()">
               </map-marker>
             </google-map>
@@ -92,211 +108,138 @@
               Obtenir l'itinéraire
             </button>
           </div>
-        </div>
+      </mat-card-content>
+    </mat-card>
 
-        <mat-divider></mat-divider>
-
-        <div class="info-group" *ngIf="gisement?.documents?.length">
-          <h3>
-            <mat-icon class="icon-document">description</mat-icon>
-            Documents
-          </h3>
-          
-          <div class="documents-grid" *ngIf="gisement?.documents?.length">
-            <div class="document-card" *ngFor="let doc of gisement.documents">
-              <div class="document-header">
-                <mat-icon class="icon-document">picture_as_pdf</mat-icon>
-                <div class="document-info">
+    <!-- Section documents -->
+    <mat-card class="documents-card" *ngIf="isViewOnly && gisement?.documents?.length">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="header-icon">description</mat-icon>
+        <mat-card-title>Documents</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="documents-grid">
+          <div class="document-item" *ngFor="let doc of gisement.documents">
+            <div class="document-content">
+              <div class="document-info">
+                <mat-icon class="document-icon">picture_as_pdf</mat-icon>
+                <div class="document-text">
                   <h4 class="document-name">{{ doc.nom_fichier }}</h4>
-                  <div class="document-date">{{ doc.date_ajout | date:'dd/MM/yyyy' }}</div>
+                  <p class="document-date">{{ doc.date_ajout | date: 'dd/MM/yyyy' }}</p>
                 </div>
               </div>
-              
               <div class="document-actions">
-                <button class="document-action-button" (click)="previewDocument(doc)" title="Aperçu">
-                  <mat-icon class="icon-action">visibility</mat-icon>
+                <button mat-button class="document-action-button" (click)="previewDocument(doc)">
+                  <mat-icon>visibility</mat-icon>
                   Aperçu
                 </button>
-                <button class="document-action-button" (click)="downloadDocument(doc)" title="Télécharger">
-                  <mat-icon class="icon-action">download</mat-icon>
+                <button mat-button class="document-action-button" (click)="downloadDocument(doc)">
+                  <mat-icon>download</mat-icon>
                   Télécharger
                 </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </mat-card-content>
+    </mat-card>
 
-      <form *ngIf="isEditMode" (ngSubmit)="saveGisement()" class="edit-form">
-        <div class="form-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>Chantier</mat-label>
-            <mat-select [(ngModel)]="gisement.chantier" name="chantier" required>
-              <mat-option *ngFor="let chantier of chantiers" [value]="chantier.id">
-                <mat-icon class="icon-small">business</mat-icon>
-                {{ chantier.nom }}
-              </mat-option>
-            </mat-select>
-            <mat-icon matSuffix>business</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Commune</mat-label>
-            <input matInput [(ngModel)]="gisement.commune" name="commune" required>
-            <mat-icon matSuffix>location_city</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Période de terrassement</mat-label>
-            <input matInput [(ngModel)]="gisement.periode_terrassement" name="periode_terrassement" required>
-            <mat-icon matSuffix>calendar_today</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Volume terrassé (m³)</mat-label>
-            <input matInput type="number" [(ngModel)]="gisement.volume_terrasse" name="volume_terrasse" required>
-            <mat-icon matSuffix>straighten</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Matériau</mat-label>
-            <input matInput [(ngModel)]="gisement.materiau" name="materiau" required>
-            <mat-icon matSuffix>category</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Localisation</mat-label>
-            <input matInput [(ngModel)]="gisement.localisation" name="localisation" required>
-            <mat-icon matSuffix>place</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Type de sol</mat-label>
-            <mat-select [(ngModel)]="gisement.type_de_sol" name="type_de_sol" required>
-              <mat-option *ngFor="let option of typeSolOptions" [value]="option.value">
-                <mat-icon class="icon-small">terrain</mat-icon>
-                {{ option.viewValue }}
-              </mat-option>
-            </mat-select>
-            <mat-icon matSuffix>terrain</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Latitude</mat-label>
-            <input matInput type="number" [(ngModel)]="gisement.latitude" name="latitude">
-            <mat-icon matSuffix>gps_fixed</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Longitude</mat-label>
-            <input matInput type="number" [(ngModel)]="gisement.longitude" name="longitude">
-            <mat-icon matSuffix>gps_fixed</mat-icon>
-          </mat-form-field>
-        </div>
-
-        <!-- Zone de glisser-déposer pour upload de documents -->
-        <div class="upload-section">
-          <div class="section-title">
-            <mat-icon class="icon-document">cloud_upload</mat-icon>
-            Ajouter des documents
-          </div>
-          
-          <!-- Sélecteur de type de document -->
-          <div class="document-type-selector">
+    <!-- Formulaire de création/édition -->
+    <mat-card class="form-card" *ngIf="!isViewOnly">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="header-icon">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+        <mat-card-title>{{ isEditMode ? 'Modifier le gisement' : 'Nouveau gisement' }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form (ngSubmit)="saveGisement()" class="gisement-form" *ngIf="isEditMode">
+          <div class="form-grid">
+            <!-- Chantier -->
             <mat-form-field appearance="outline">
-              <mat-label>Type de document</mat-label>
-              <mat-select [(ngModel)]="selectedDocumentType" name="selectedDocumentType">
-                <mat-option *ngFor="let option of documentTypeOptions" [value]="option.value">
-                  {{ option.label }}
+              <mat-label>Chantier</mat-label>
+              <mat-select [(ngModel)]="gisement.chantier" name="chantier" required>
+                <mat-option *ngFor="let chantier of chantiers" [value]="chantier.id">
+                  {{ chantier.nom }}
                 </mat-option>
               </mat-select>
+              <mat-icon matSuffix>business</mat-icon>
+            </mat-form-field>
+
+            <!-- Commune -->
+            <mat-form-field appearance="outline">
+              <mat-label>Commune</mat-label>
+              <input matInput [(ngModel)]="gisement.commune" name="commune" required>
+              <mat-icon matSuffix>location_city</mat-icon>
+            </mat-form-field>
+
+            <!-- Période de terrassement -->
+            <mat-form-field appearance="outline">
+              <mat-label>Période de terrassement</mat-label>
+              <input matInput [(ngModel)]="gisement.periode_terrassement" name="periode_terrassement" required>
+              <mat-icon matSuffix>calendar_today</mat-icon>
+            </mat-form-field>
+
+            <!-- Volume terrassé -->
+            <mat-form-field appearance="outline">
+              <mat-label>Volume terrassé (m³)</mat-label>
+              <input matInput type="number" [(ngModel)]="gisement.volume_terrasse" name="volume_terrasse" required>
+              <mat-icon matSuffix>straighten</mat-icon>
+            </mat-form-field>
+
+            <!-- Matériau -->
+            <mat-form-field appearance="outline">
+              <mat-label>Matériau</mat-label>
+              <input matInput [(ngModel)]="gisement.materiau" name="materiau" required>
               <mat-icon matSuffix>category</mat-icon>
             </mat-form-field>
-          </div>
-          
-          <ngx-dropzone (change)="onSelect($event)" (removedFile)="onRemove($event)" class="dropzone">
-            <ngx-dropzone-label>
-              <mat-icon>cloud_upload</mat-icon>
-              <p>Glissez vos fichiers ici ou cliquez pour sélectionner</p>
-              <small>Formats acceptés: PDF, DOC, DOCX, Images</small>
-            </ngx-dropzone-label>
-          </ngx-dropzone>
-          
-          <!-- Liste des fichiers sélectionnés -->
-          <div class="selected-files" *ngIf="selectedFiles.length > 0">
-            <h4>Fichiers sélectionnés ({{ selectedFiles.length }}) :</h4>
-            <div class="file-list">
-              <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
-                <mat-icon class="file-icon">description</mat-icon>
-                <span class="file-name">{{ file.name }}</span>
-                <span class="file-size">({{ (file.size / 1024).toFixed(1) }} KB)</span>
-              </div>
-            </div>
-            
-            <!-- Bouton d'upload -->
-            <div class="upload-actions">
-              <button mat-raised-button color="primary" (click)="uploadAllDocuments()" [disabled]="loading">
-                <mat-icon>cloud_upload</mat-icon>
-                {{ loading ? 'Upload en cours...' : 'Uploader ' + selectedFiles.length + ' fichier(s)' }}
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <!-- Carte interactive en mode édition -->
-        <div class="map-section">
-          <div class="section-title">
-            <mat-icon class="icon-location">map</mat-icon>
-            Localisation sur la carte
-          </div>
-          <div class="map-container">
-            <google-map
-              height="300px"
-              width="100%"
-              [center]="mapCenter"
-              [zoom]="mapZoom"
-              (mapClick)="updatePosition($event)">
-              <map-marker
-                *ngIf="markerPosition"
-                [position]="markerPosition"
-                [options]="markerOptions"
-                (mapDragend)="onMarkerDragEnd($event)">
-              </map-marker>
-            </google-map>
-          </div>
-          <div class="map-instructions">
-            <mat-icon class="icon-action">info</mat-icon>
-            Cliquez sur la carte ou déplacez le marqueur pour définir la position
-          </div>
-        </div>
-      </form>
-    </mat-card-content>
+            <!-- Localisation -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Localisation</mat-label>
+              <textarea matInput [(ngModel)]="gisement.localisation" name="localisation" required></textarea>
+              <mat-icon matSuffix>place</mat-icon>
+            </mat-form-field>
 
-    <mat-card-actions>
-      <button mat-button (click)="goBack()" *ngIf="isViewOnly" class="back-button">
-        <mat-icon class="icon-action">arrow_back</mat-icon>
-        Retour
-      </button>
-      <button mat-raised-button color="primary" (click)="editGisement()" *ngIf="isViewOnly" class="edit-button">
-        <mat-icon class="icon-action">edit</mat-icon>
-        Modifier
-      </button>
-      <ng-container *ngIf="isEditMode">
-        <button mat-button (click)="cancelEdit()" class="cancel-button">
-          <mat-icon class="icon-warning">cancel</mat-icon>
-          Annuler
-        </button>
-        <button mat-raised-button color="primary" (click)="saveGisement()" class="save-button">
-          <mat-icon class="icon-action">save</mat-icon>
-          Enregistrer
-        </button>
-        <button mat-raised-button color="warn" (click)="deleteGisement()" class="delete-button">
-          <mat-icon class="icon-error">delete</mat-icon>
-          Supprimer
-        </button>
-      </ng-container>
-    </mat-card-actions>
-  </mat-card>
+            <!-- Type de sol -->
+            <mat-form-field appearance="outline">
+              <mat-label>Type de sol</mat-label>
+              <mat-select [(ngModel)]="gisement.type_de_sol" name="type_de_sol" required>
+                <mat-option *ngFor="let option of typeSolOptions" [value]="option.value">
+                  {{ option.viewValue }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>terrain</mat-icon>
+            </mat-form-field>
+
+            <!-- Coordonnées GPS -->
+            <div class="coordinates-group">
+              <mat-form-field appearance="outline">
+                <mat-label>Latitude</mat-label>
+                <input matInput type="number" [(ngModel)]="gisement.latitude" name="latitude">
+                <mat-icon matSuffix>gps_fixed</mat-icon>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Longitude</mat-label>
+                <input matInput type="number" [(ngModel)]="gisement.longitude" name="longitude">
+                <mat-icon matSuffix>gps_fixed</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Actions du formulaire -->
+          <div class="form-actions">
+            <button type="button" mat-button (click)="cancelEdit()" class="cancel-button">
+              <mat-icon>cancel</mat-icon>
+              Annuler
+            </button>
+            <button type="submit" mat-raised-button color="primary" class="submit-button">
+              <mat-icon>save</mat-icon>
+              Enregistrer
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>
 
 <ng-template #loadingTemplate>

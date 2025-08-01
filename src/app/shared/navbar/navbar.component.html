@@ -1,30 +1,38 @@
 <!-- Overlay qui ferme le menu au clic -->
 <div *ngIf="isSidenavOpen" class="mobile-menu-backdrop" (click)="closeSidenav()"></div>
+
 <!-- Menu mobile overlay custom -->
 <div class="mobile-menu-overlay" *ngIf="isSidenavOpen">
+  <div class="mobile-menu-header">
+    <div class="mobile-logo">
+      <mat-icon>landscape</mat-icon>
+      <span>Terres Fertiles</span>
+    </div>
+    <button mat-icon-button class="close-menu-btn" (click)="closeSidenav()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
   <nav class="mobile-nav-links">
-    <a (click)="navigateAndClose('/gisements')"><mat-icon>layers</mat-icon> Gisements</a>
-    <a (click)="navigateAndClose('/chantiers')"><mat-icon>engineering</mat-icon> Chantiers</a>
+    <a (click)="navigateAndClose('/dashboard')"><mat-icon>dashboard</mat-icon> Tableau de bord</a>
+    <a (click)="navigateAndClose('/produits-vente')"><mat-icon>shopping_cart</mat-icon> Produits</a>
+    <a (click)="navigateAndClose('/chantiers')"><mat-icon>location_city</mat-icon> Chantiers</a>
+    <a (click)="navigateAndClose('/gisements')"><mat-icon>landscape</mat-icon> Gisements</a>
     <a (click)="navigateAndClose('/plateforme')"><mat-icon>home_work</mat-icon> Plateforme</a>
-    <a (click)="navigateAndClose('/produits-vente')"><mat-icon>category</mat-icon> Produits</a>
-    <a (click)="navigateAndClose('/dashboard')"><mat-icon>dashboard</mat-icon> Dashboard</a>
+    <div class="mobile-menu-divider"></div>
     <button *ngIf="isLoggedIn" (click)="logout()"><mat-icon>logout</mat-icon> Déconnexion</button>
     <button *ngIf="!isLoggedIn" (click)="login()"><mat-icon>login</mat-icon> Connexion</button>
     <button *ngIf="!isLoggedIn" (click)="register()"><mat-icon>person_add</mat-icon> Inscription</button>
   </nav>
 </div>
 
-<!-- Debug temporaire -->
-<div style="color: red; font-size: 0.9em; margin-left: 12px;">isLoggedIn: {{ isLoggedIn }}</div>
-
 <!-- Toolbar classique -->
-<mat-toolbar class="navbar-glass ">
-  <span class="logo mat-elevation-z4" routerLink="/">
+<mat-toolbar class="navbar-glass">
+  <span class="logo" routerLink="/">
     <mat-icon>landscape</mat-icon>
     Terres Fertiles
   </span>
   <span class="spacer"></span>
-  <nav class="nav-links x mx-3">
+  <nav class="nav-links">
     <a mat-button routerLink="/dashboard" routerLinkActive="active-link"><mat-icon>dashboard</mat-icon> Tableau de bord</a>
     <a mat-button routerLink="/produits-vente" routerLinkActive="active-link"><mat-icon>shopping_cart</mat-icon> Produits</a>
     <a mat-button routerLink="/chantiers" routerLinkActive="active-link"><mat-icon>location_city</mat-icon> Chantiers</a>

@@ -24,11 +24,12 @@ export class PlanningComponent implements OnInit {
   allMelanges: MelangeModel[] = [];
   allMelangesDisponibles: any[] = []; // Tous les mélanges disponibles (avec et sans planning)
   months: string[] = [
-    'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin',
-    'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'
+    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
   ];
 
-  weeksInMonth: { [month: string]: number[] } = {};
+  weeksInMonth: { [month: string]: number[] } = {}; //Nombre de semaines par mois
+  // Interventions pour chaque mélange, semaine et mois
   interventions: {
     responsable: string;
     melange: string;
@@ -36,9 +37,10 @@ export class PlanningComponent implements OnInit {
     month: string;
     note: string;
     date: string;
+    statut: string; // Ajoutons le statut
   }[] = [];
 
-  years: number[] = [];
+  years: number[] = []; // Années disponibles pour le planning
   hoveredNote: string | null = null;
   hoveredIntervention: any | null = null;
 
@@ -56,7 +58,7 @@ export class PlanningComponent implements OnInit {
       
       // Récupérer les plannings existants
       this.allMelanges = await this.planningService.getPlannings();
-      this.melanges = this.allMelanges.filter(m => new Date(m.date_debut).getUTCFullYear() === this.currentYear);
+      this.melanges = this.allMelanges.filter(m => new Date(m.date_debut).getUTCFullYear() === this.currentYear); // Filtrer par année actuelle    
       this.updateInterventions();
     } catch (err) {
       console.error(err);
@@ -111,26 +113,46 @@ export class PlanningComponent implements OnInit {
 
   updateInterventions() {
     this.interventions = this.melanges
-        .filter(m => {
-          const year = new Date(m.date_debut).getUTCFullYear();
-          return year === this.currentYear;
-        })
-        .map(m => {
-          const date = new Date(m.date_debut);
-          const [_, week] = this.getWeekNumber(date);
-          const month = this.months[date.getMonth()];
-          return {
-            melange: m.melange_nom,
-            responsable: m.responsable || 'N/A',
-            week,
-            month,
-            note: m.titre,
-            date: m.date_debut
-          };
-        });
+      .filter(m => {
+      const year = new Date(m.date_debut).getUTCFullYear();
+      return year === this.currentYear;
+      })
+      .map(m => {
+      const date = new Date(m.date_debut);
+      const [_, week] = this.getWeekNumber(date);
+      const month = this.months[date.getMonth()];
+      let note = m.titre;
+      // Ajout d'un emoji selon le statut
+      let emoji = '';
+      switch (m.statut) {
+        case 'planned':
+        emoji = '🗓️';
+        break;
+        case 'active':
+        emoji = '⏳';
+        break;
+        case 'done':
+        emoji = '✅';
+        break;
+        default:
+        emoji = '';
+        break;
+      }
+      note += emoji ? ` ${emoji}` : '';
+      return {
+        melange: m.melange_nom,
+        responsable: m.responsable || 'N/A',
+        week,
+        month,
+        note,
+        date: m.date_debut,
+        statut: m.statut // Ajoutons le statut directement dans les interventions
+      };
+      });
     // on met à jour les interventions
 
     console.log('Interventions mises à jour:', this.interventions.length);
+    console.log('Exemple d\'intervention:', this.interventions[0]); // Debug
   }
 
   getWeekNumber(date: Date): [number, number] {
@@ -165,13 +187,80 @@ export class PlanningComponent implements OnInit {
     return found ? found.note : null;
   }
 
+  // Nouvelle méthode pour obtenir le statut d'une intervention
+  getStatut(melange: string, week: number, month: string): string | null {
+    // Chercher dans les interventions qui ont déjà le statut
+    const found = this.interventions.find(i =>
+        i.melange === melange && i.week === week && i.month === month
+    );
+    
+    if (found) {
+      console.log(`getStatut found: melange=${found.melange}, statut=${found.statut}`);
+      return found.statut;
+    }
+    
+    console.log(`getStatut NOT found for: melange=${melange}, week=${week}, month=${month}`);
+    return null;
+  }
+
+  // Méthode pour obtenir la classe CSS selon le statut
+  getNoteClass(melange: string, week: number, month: string): string {
+    const statut = this.getStatut(melange, week, month);
+    console.log(`getNoteClass: melange=${melange}, week=${week}, month=${month}, statut=${statut}`);
+    
+    if (!statut) {
+      console.log('Aucun statut trouvé, utilisation de la classe par défaut');
+      return 'note';
+    }
+    
+    let cssClass = '';
+    switch (statut) {
+      case 'planned': 
+        cssClass = 'note note-planned';
+        break;
+      case 'active': 
+        cssClass = 'note note-active';
+        break;
+      case 'done': 
+        cssClass = 'note note-done';
+        break;
+      default: 
+        cssClass = 'note';
+        break;
+    }
+    
+    console.log(`CSS class appliquée: ${cssClass}`);
+    return cssClass;
+  }
+
+  // Méthode pour obtenir le libellé du statut en français
+  getStatutLabel(statut: string): string {
+    switch (statut) {
+      case 'planned': return 'Planifié';
+      case 'active': return 'En cours';
+      case 'done': return 'Terminé';
+      default: return statut;
+    }
+  }
+
   onCellHover(plateforme: string, week: number, month: string): void {
     const intervention = this.interventions.find(i =>
         i.melange === plateforme &&
         i.week === week &&
         i.month === month
     );
-    this.hoveredIntervention = intervention ?? null;
+    
+    if (intervention) {
+      // Ajouter le statut à l'objet intervention pour l'affichage
+      const statut = this.getStatut(plateforme, week, month);
+      this.hoveredIntervention = {
+        ...intervention,
+        statut: statut,
+        statutLabel: this.getStatutLabel(statut || '')
+      };
+    } else {
+      this.hoveredIntervention = null;
+    }
   }
 
   onCellLeave(): void {

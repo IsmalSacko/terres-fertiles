@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { GisementsMapComponent } from '../gisements-map/gisements-map.component';
 
 
@@ -20,6 +21,7 @@ import { GisementsMapComponent } from '../gisements-map/gisements-map.component'
     CommonModule,
     MatCardModule,
     MatMenuModule,
+    MatDividerModule,
     GisementsMapComponent
 ],
   templateUrl: './gisement-list.component.html',

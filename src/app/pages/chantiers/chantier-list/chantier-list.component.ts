@@ -103,9 +103,12 @@ export class ChantierListComponent implements OnInit, OnDestroy {
     this.router.navigate(['/chantiers/new']);
   }
 
-  ajouterGisementAuChantier() {
-    // Navigue vers la page d'ajout de gisement pour ce chantier
-    this.router.navigate(['/gisements/new']);
+  ajouterGisementAuChantier(chantierId: number) {
+    // Navigue vers la page d'ajout de gisement avec l'ID du chantier présélectionné
+    this.router.navigate(['/gisements/new'], { 
+      queryParams: { chantier: chantierId },
+      state: { selectedChantier: chantierId }
+    });
   }
   
   editChantier(id: number) {

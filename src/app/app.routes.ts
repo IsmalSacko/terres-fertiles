@@ -21,6 +21,7 @@ import { ActivateComponent } from './pages/compte/activate/activate.component';
 import { ResetPasswordComponent } from './pages/compte/reset-password/reset-password.component';
 import { ResetPasswordConfirmComponent } from './pages/compte/auth/reset-password-confirm/reset-password-confirm.component';
 import {PlanningComponent} from './pages/planning/planning.component';
+import { SaisieVenteComponent } from './pages/saisie-vente/saisie-vente.component';
 
 
 export const routes: Routes = [
@@ -41,8 +42,11 @@ export const routes: Routes = [
 
   { path: 'melanges', component: MelangeListComponent },
   { path: 'melanges/new', component: MelangeDetailComponent },
+  { path: 'melanges/:id', component: MelangeDetailComponent },
   { path: 'produits-vente', component: ProduitVenteListComponent },
-  { path: 'produits/:id', component: ProduitVenteDetailComponent },
+  { path: 'produits-vente/:id', component: ProduitVenteDetailComponent },
+
+  { path: 'saisies-vente', component: SaisieVenteComponent },
 
   { path: 'analyses-laboratoire', component: AnalyseLaboratoireListComponent },
   { path: 'analyses-laboratoire/:id', component: AnalyseLaboratoireDetailComponent },

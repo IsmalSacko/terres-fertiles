@@ -1,0 +1,478 @@
+<div class="saisie-vente-container">
+  <!-- En-tête de la page -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <mat-icon class="header-icon">receipt_long</mat-icon>
+        <div class="title-text">
+          <h1>Fiches de Saisie de Vente</h1>
+          <p>Gestion des ventes de produits et mélanges</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- État de chargement -->
+  @if (loading) {
+    <div class="loading-state">
+      <mat-spinner class="loading-spinner"></mat-spinner>
+      <p>Chargement des saisies de vente...</p>
+    </div>
+  }
+
+  <!-- Message d'erreur -->
+  @if (errorMsg) {
+    <div class="error-state">
+      <mat-icon>error</mat-icon>
+      <p class="error-message">{{ errorMsg }}</p>
+    </div>
+  }
+
+  <!-- État vide -->
+  @if (!loading && !errorMsg && saisietes.length === 0) {
+    <div class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>Aucune saisie de vente disponible</p>
+    </div>
+  }
+
+  <!-- Grille des fiches de vente -->
+  @if (!loading && !errorMsg && saisietes.length > 0) {
+    <div class="ventes-grid">
+      @for (s of saisietes; track s.id) {
+        <div class="vente-card">
+          <!-- En-tête de la carte -->
+          <div class="vente-header">
+            <div class="header-main">
+              <div class="client-info-header">
+                <mat-icon class="client-icon">person</mat-icon>
+                <div class="client-details">
+                  <h3 class="client-name">{{ s.nom_client }}</h3>
+                  @if(s.produit) {
+                    <span class="vente-product"></span>
+                    <span class="vente-id">Vente # {{ s.produit.melange.nom || s.produit.reference_produit }}</span>
+                }@else {
+                    <span class="vente-id">Vente #{{ s.id }}</span>
+                  }
+                </div>
+              </div>
+              <div class="validation-status">
+                @if (s.est_validee) {
+                  <span class="validation-badge validated">
+                    <mat-icon>verified</mat-icon>
+                    <span>Validée</span>
+                  </span>
+                } @else {
+                  <span class="validation-badge pending">
+                    <mat-icon>pending</mat-icon>
+                    <span>En attente</span>
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Corps de la carte -->
+          <div class="vente-body">
+            <!-- Section informations client -->
+            <div class="client-section">
+              <h4>
+                <mat-icon>account_circle</mat-icon>
+                Informations Client & Vente
+              </h4>
+              
+              <div class="client-info">
+                <div class="info-item">
+                  <div class="info-label">
+                    <mat-icon>person</mat-icon>
+                    Client
+                  </div>
+                  <div class="info-value">{{ s.nom_client }}</div>
+                </div>
+
+                <div class="info-item">
+                  <div class="info-label">
+                    <mat-icon>admin_panel_settings</mat-icon>
+                    Responsable
+                  </div>
+                  <div class="info-value">{{ s.responsable }}</div>
+                </div>
+
+                <div class="info-item">
+                  <div class="info-label">
+                    <mat-icon>scale</mat-icon>
+                    Volume
+                  </div>
+                  <div class="info-value">{{ formatVolumeWithConversion(+s.volume_tonne) }}</div>
+                </div>
+
+                <div class="info-item">
+                  <div class="info-label">
+                    <mat-icon>sell</mat-icon>
+                    Date de vente
+                  </div>
+                  <div class="info-value">{{ s.date_vente | date:'dd/MM/yyyy' }}</div>
+                </div>
+
+                <div class="info-item">
+                  <div class="info-label">
+                    <mat-icon>calendar_today</mat-icon>
+                    Date d'achat
+                  </div>
+                  <div class="info-value">{{ s.date_achat | date:'dd/MM/yyyy' }}</div>
+                </div>
+
+                <div class="info-item">
+                  <div class="info-label">
+                    <mat-icon>update</mat-icon>
+                    Dernière modification
+                  </div>
+                  <div class="info-value">{{ s.date_modification_vente | date:'dd/MM/yyyy à HH:mm' }}</div>
+                </div>
+
+                <div class="info-item">
+                  <div class="info-label">
+                    <mat-icon>location_on</mat-icon>
+                    Chantier récepteur
+                  </div>
+                  <div class="info-value">{{ s.nom_chantier_recepteur }}</div>
+                </div>
+
+                <div class="info-item">
+                  <div class="info-label">
+                    <mat-icon>home</mat-icon>
+                    Adresse chantier
+                  </div>
+                  <div class="info-value">{{ s.adresse_chantier }}</div>
+                </div>
+
+                <div class="info-item">
+                  <div class="info-label">
+                    <mat-icon>check_circle</mat-icon>
+                    Statut validation
+                  </div>
+                  <div class="info-value">
+                    @if (s.est_validee) {
+                      <span class="status-validated">✅ Validée</span>
+                    } @else {
+                      <span class="status-pending">⏳ En attente</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section produit et mélange -->
+            @if (s.produit) {
+              <div class="produit-section">
+                <h4>
+                  <mat-icon>inventory</mat-icon>
+                  Détails du Produit
+                </h4>
+
+                <div class="client-info">
+                  <div class="info-item">
+                    <div class="info-label">
+                      <mat-icon>person_outline</mat-icon>
+                      Utilisateur
+                    </div>
+                    <div class="info-value">{{ s.produit.utilisateur }}</div>
+                  </div>
+
+                  <div class="info-item">
+                    <div class="info-label">
+                      <mat-icon>tag</mat-icon>
+                      Référence
+                    </div>
+                    <div class="info-value">{{ s.produit.melange.nom || s.produit.reference_produit }}</div>
+                  </div>
+
+                  <div class="info-item">
+                    <div class="info-label">
+                      <mat-icon>business</mat-icon>
+                      Fournisseur
+                    </div>
+                    <div class="info-value">{{ s.produit.fournisseur }}</div>
+                  </div>
+
+                  <div class="info-item info-wide">
+                    <div class="info-label">
+                      <mat-icon>inventory</mat-icon>
+                      Évolution du Stock
+                    </div>
+                    <div class="stock-summary">
+                      <div class="stock-line">
+                        <span class="stock-label">Stock initial:</span>
+                        <span class="stock-value">{{ (+s.produit.volume_initial).toLocaleString() }} m³</span>
+                      </div>
+                      
+                      @if (s.produit.volume_vendu) {
+                        <div class="stock-line">
+                          <span class="stock-label">Déjà vendu:</span>
+                          <span class="stock-value sold">{{ (+s.produit.volume_vendu).toLocaleString() }} m³</span>
+                        </div>
+                      }
+                      
+                      <div class="stock-line before-sale">
+                        <span class="stock-label">Avant cette vente:</span>
+                        <span class="stock-value">{{ (+s.produit.volume_disponible).toLocaleString() }} m³</span>
+                      </div>
+                      
+                      <div class="stock-line current-sale">
+                        <span class="stock-label">Achat actuel:</span>
+                        <span class="stock-value purchase">
+                          <mat-icon>shopping_cart</mat-icon>
+                          {{ formatVolumeWithConversion(+s.volume_tonne) }}
+                        </span>
+                      </div>
+                      
+                      <div class="stock-line highlight after-sale">
+                        <span class="stock-label">Après cette vente:</span>
+                        @switch (getStockStatus(+(s.produit.volume_initial || 0), +(s.produit.volume_vendu || 0), +s.volume_tonne)) {
+                          @case ('critical') {
+                            <span class="stock-critical">
+                              <mat-icon>warning</mat-icon>
+                              {{ calculateStockAfterSale(+(s.produit.volume_initial || 0), +(s.produit.volume_vendu || 0), +s.volume_tonne).toLocaleString() }} m³
+                              <small>Survente!</small>
+                            </span>
+                          }
+                          @case ('low') {
+                            <span class="stock-low">
+                              <mat-icon>inventory_2</mat-icon>
+                              {{ calculateStockAfterSale(+(s.produit.volume_initial || 0), +(s.produit.volume_vendu || 0), +s.volume_tonne).toLocaleString() }} m³
+                              <small>Stock faible</small>
+                            </span>
+                          }
+                          @case ('medium') {
+                            <span class="stock-medium">
+                              <mat-icon>inventory_2</mat-icon>
+                              {{ calculateStockAfterSale(+(s.produit.volume_initial || 0), +(s.produit.volume_vendu || 0), +s.volume_tonne).toLocaleString() }} m³
+                              <small>Stock modéré</small>
+                            </span>
+                          }
+                          @default {
+                            <span class="stock-good">
+                              <mat-icon>check_circle</mat-icon>
+                              {{ calculateStockAfterSale(+(s.produit.volume_initial || 0), +(s.produit.volume_vendu || 0), +s.volume_tonne).toLocaleString() }} m³
+                              <small>Stock suffisant</small>
+                            </span>
+                          }
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="info-item">
+                    <div class="info-label">
+                      <mat-icon>event_available</mat-icon>
+                      Disponible le
+                    </div>
+                    <div class="info-value">{{ s.produit.date_disponibilite | date:'dd/MM/yyyy' }}</div>
+                  </div>
+
+                  @if (s.produit.chantier_info) {
+                    <div class="info-item">
+                      <div class="info-label">
+                        <mat-icon>construction</mat-icon>
+                        Chantier source
+                      </div>
+                      <div class="info-value">{{ s.produit.chantier_info.nom }} - {{ s.produit.chantier_info.localisation }}</div>
+                    </div>
+                  }
+
+                  @if (s.produit.plateforme) {
+                    <div class="info-item">
+                      <div class="info-label">
+                        <mat-icon>warehouse</mat-icon>
+                        Plateforme
+                      </div>
+                      <div class="info-value">{{ s.produit.plateforme.nom }} - {{ s.produit.plateforme.localisation }}</div>
+                    </div>
+                  }
+
+                  @if (s.produit.temps_sur_plateforme !== undefined) {
+                    <div class="info-item">
+                      <div class="info-label">
+                        <mat-icon>schedule</mat-icon>
+                        Temps sur plateforme
+                      </div>
+                      <div class="info-value">{{ s.produit.temps_sur_plateforme }} jours</div>
+                    </div>
+                  }
+
+                  @if (s.produit.delai_avant_disponibilite !== undefined) {
+                    <div class="info-item">
+                      <div class="info-label">
+                        <mat-icon>timer</mat-icon>
+                        Délai avant disponibilité
+                      </div>
+                      <div class="info-value">
+                        @if (s.produit.delai_avant_disponibilite > 0) {
+                          <span class="status-warning">{{ s.produit.delai_avant_disponibilite }} jours</span>
+                        } @else if (s.produit.delai_avant_disponibilite === 0) {
+                          <span class="status-validated">Disponible maintenant</span>
+                        } @else {
+                          <span class="status-validated">Disponible depuis {{ Math.abs(s.produit.delai_avant_disponibilite) }} jours</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <!-- Détails du mélange -->
+                @if (s.produit && s.produit.melange) {
+                  <div class="melange-details">
+                    <div class="melange-header">
+                      <div class="melange-title">
+                        <mat-icon>science</mat-icon>
+                        {{ s.produit.melange.nom }}
+                      </div>
+                      <div class="melange-status">
+                        {{ s.produit.melange.etat_display }}
+                      </div>
+                    </div>
+
+                    <div class="client-info">
+                      <div class="info-item">
+                        <div class="info-label">
+                          <mat-icon>person_outline</mat-icon>
+                          Créateur
+                        </div>
+                        <div class="info-value">{{ s.produit.melange.utilisateur }}</div>
+                      </div>
+
+                      @if (s.produit.melange.nom_complet) {
+                        <div class="info-item">
+                          <div class="info-label">
+                            <mat-icon>badge</mat-icon>
+                            Nom complet
+                          </div>
+                          <div class="info-value">{{ s.produit.melange.nom_complet }}</div>
+                        </div>
+                      }
+
+                      <div class="info-item">
+                        <div class="info-label">
+                          <mat-icon>business</mat-icon>
+                          Fournisseur
+                        </div>
+                        <div class="info-value">{{ s.produit.melange.fournisseur }}</div>
+                      </div>
+
+                      <div class="info-item">
+                        <div class="info-label">
+                          <mat-icon>calendar_today</mat-icon>
+                          Date création
+                        </div>
+                        <div class="info-value">{{ s.produit.melange.date_creation | date:'dd/MM/yyyy' }}</div>
+                      </div>
+
+                      <div class="info-item">
+                        <div class="info-label">
+                          <mat-icon>eco</mat-icon>
+                          Couverture végétale
+                        </div>
+                        <div class="info-value">{{ s.produit.melange.couverture_vegetale || 'Non spécifiée' }}</div>
+                      </div>
+
+                      <div class="info-item">
+                        <div class="info-label">
+                          <mat-icon>schedule</mat-icon>
+                          Période mélange
+                        </div>
+                        <div class="info-value">{{ s.produit.melange.periode_melange }}</div>
+                      </div>
+
+                      <div class="info-item">
+                        <div class="info-label">
+                          <mat-icon>grass</mat-icon>
+                          Date semis
+                        </div>
+                        <div class="info-value">{{ s.produit.melange.date_semis | date:'dd/MM/yyyy' }}</div>
+                      </div>
+
+                      <div class="info-item">
+                        <div class="info-label">
+                          <mat-icon>location_city</mat-icon>
+                          Plateforme
+                        </div>
+                        <div class="info-value">{{ s.produit.melange.plateforme_nom || 'Non spécifiée' }}</div>
+                      </div>
+
+                      @if (s.produit.melange.references_analyses) {
+                        <div class="info-item">
+                          <div class="info-label">
+                            <mat-icon>science</mat-icon>
+                            Références analyses
+                          </div>
+                          <div class="info-value">{{ s.produit.melange.references_analyses }}</div>
+                        </div>
+                      }
+                    </div>
+
+                    <!-- Composition du mélange -->
+                    <div class="composition-grid">
+                      <!-- Ingrédients -->
+                      <div class="composition-section">
+                        <div class="composition-title">
+                          <mat-icon>terrain</mat-icon>
+                          Ingrédients ({{ s.produit.melange.ingredients.length || 0 }})
+                        </div>
+                        
+                        @if (s.produit.melange.ingredients && s.produit.melange.ingredients.length > 0) {
+                          @for (ingredient of s.produit.melange.ingredients; track ingredient.id) {
+                            <div class="ingredient-item">
+                              <div class="ingredient-name">{{ ingredient.nom }}</div>
+                              <div class="ingredient-percentage">{{ ingredient.pourcentage }}%</div>
+                            </div>
+                          }
+                        } @else {
+                          <div class="empty-state">
+                            <mat-icon>terrain</mat-icon>
+                            <p>Aucun ingrédient</p>
+                          </div>
+                        }
+                      </div>
+
+                      <!-- Amendements -->
+                      <div class="composition-section">
+                        <div class="composition-title">
+                          <mat-icon>eco</mat-icon>
+                          Amendements ({{ s.produit.melange.amendements.length || 0 }})
+                        </div>
+                        
+                        @if (s.produit.melange.amendements && s.produit.melange.amendements.length > 0) {
+                          @for (amendement of s.produit.melange.amendements; track amendement.id) {
+                            <div class="amendement-item">
+                              <div class="amendement-name">{{ amendement.nom || 'Amendement sans nom' }}</div>
+                              <div class="amendement-percentage">{{ amendement.pourcentage }}%</div>
+                            </div>
+                          }
+                        } @else {
+                          <div class="empty-state">
+                            <mat-icon>eco</mat-icon>
+                            <p>Aucun amendement</p>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="empty-state">
+                    <mat-icon>science</mat-icon>
+                    <p>Mélange non disponible</p>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-state">
+                <mat-icon>inventory</mat-icon>
+                <p>Produit non disponible</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

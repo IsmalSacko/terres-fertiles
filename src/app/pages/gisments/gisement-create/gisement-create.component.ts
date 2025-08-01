@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { GisementService } from '../../../services/gisement.service';
 import { ChantierService, Chantier } from '../../../services/chantier.service';
 import { MatCardModule } from '@angular/material/card';
@@ -53,12 +53,30 @@ export class GisementCreateComponent implements OnInit {
   constructor(
     private gisementService: GisementService,
     private chantierService: ChantierService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
     try {
       this.chantiers = await this.chantierService.getAll();
+      
+      // Récupération du chantierId depuis les paramètres de l'URL
+      const chantierId = this.route.snapshot.queryParams['chantier']; // Correction: 'chantier' au lieu de 'chantierId'
+      console.log('chantierId reçu:', chantierId); // Debug
+      
+      if (chantierId) {
+        // Pré-sélection du chantier correspondant
+        const chantierFound = this.chantiers.find(chantier => chantier.id === parseInt(chantierId));
+        console.log('chantier trouvé:', chantierFound); // Debug
+        if (chantierFound) {
+          this.selectedChantier = chantierFound.id;
+          console.log('selectedChantier défini à:', this.selectedChantier); // Debug
+          // Force la détection des changements pour s'assurer que le template se met à jour
+          this.cdr.detectChanges();
+        }
+      }
     } catch (err) {
       this.errorMsg = 'Erreur lors du chargement des chantiers.';
     }

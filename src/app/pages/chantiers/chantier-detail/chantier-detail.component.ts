@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -31,7 +31,7 @@ import { GisementService, Gisement } from '../../../services/gisement.service';
   ],
   standalone: true
 })
-export class ChantierDetailComponent implements OnInit {
+export class ChantierDetailComponent implements OnInit, OnDestroy {
   chantier: Partial<Chantier> = {};
   loading = false;
   errorMsg = '';
@@ -43,13 +43,16 @@ export class ChantierDetailComponent implements OnInit {
   mapCenter: google.maps.LatLngLiteral = { lat: 48.8566, lng: 2.3522 };
   mapZoom = 16;
   markerOptions: google.maps.MarkerOptions = { draggable: true };
-  markerPosition?: google.maps.LatLngLiteral;
+  markerPosition: google.maps.LatLngLiteral = { lat: 48.8566, lng: 2.3522 };
 
   mapOptions: google.maps.MapOptions = {
     mapTypeControl: false,
     fullscreenControl: false,
     zoomControl: true,
-    streetViewControl: true
+    streetViewControl: true,
+    gestureHandling: 'cooperative', // Améliore la gestion des gestes
+    scrollwheel: true, // Active le scroll de la souris
+    disableDoubleClickZoom: false
   };
 
   mapTypeId: google.maps.MapTypeId = google.maps.MapTypeId.ROADMAP; // Default to 'Plan'
@@ -80,6 +83,11 @@ export class ChantierDetailComponent implements OnInit {
   @ViewChild('chantierInfoWindowSatellite') chantierInfoWindowSatellite!: MapInfoWindow;
   @ViewChild('gisementInfoWindow') gisementInfoWindow!: MapInfoWindow;
   @ViewChild('gisementInfoWindowSatellite') gisementInfoWindowSatellite!: MapInfoWindow;
+
+  // Variables pour gérer le survol des marqueurs
+  currentHoverInfoWindow: MapInfoWindow | null = null;
+  currentHoverMarker: MapMarker | null = null;
+  hoverTimeout: any = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -262,5 +270,104 @@ export class ChantierDetailComponent implements OnInit {
 
   openGisementInfoWindow(infoWindow: MapInfoWindow, marker: MapMarker, gisement: Gisement) {
     infoWindow.open(marker);
+  }
+
+  // Nouvelle méthode pour obtenir la position actuelle
+  getCurrentLocation(): void {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          this.chantier.latitude = lat;
+          this.chantier.longitude = lng;
+          this.mapCenter = { lat, lng };
+          this.markerPosition = { lat, lng };
+        },
+        (error) => {
+          console.error('Erreur de géolocalisation:', error);
+          this.errorMsg = 'Impossible d\'obtenir votre position actuelle.';
+        }
+      );
+    } else {
+      this.errorMsg = 'La géolocalisation n\'est pas supportée par votre navigateur.';
+    }
+  }
+
+  // Méthode utilitaire pour le tooltip de survol
+  getGisementTooltipInfo(gisement: Gisement): string {
+    const volume = gisement.volume_terrasse ? `${gisement.volume_terrasse} m³` : 'Non spécifié';
+    const materiau = gisement.materiau || 'Non spécifié';
+    const commune = gisement.commune || 'Non spécifiée';
+    const periode = gisement.periode_terrassement || 'Non spécifiée';
+    
+    return `${commune} | ${volume} | ${materiau} | Période: ${periode}`;
+  }
+
+  // Méthodes pour gérer le survol des marqueurs de gisements
+  onGisementMouseOver(marker: MapMarker, infoWindow: MapInfoWindow): void {
+    // Annuler le timeout de fermeture si il existe
+    if (this.hoverTimeout) {
+      clearTimeout(this.hoverTimeout);
+      this.hoverTimeout = null;
+    }
+
+    // Fermer l'infoWindow précédente si elle existe et est différente
+    if (this.currentHoverInfoWindow && this.currentHoverInfoWindow !== infoWindow) {
+      this.currentHoverInfoWindow.close();
+    }
+    
+    // Ouvrir la nouvelle infoWindow seulement si elle n'est pas déjà ouverte
+    if (this.currentHoverInfoWindow !== infoWindow) {
+      // Configurer les options pour un meilleur positionnement
+      const infoWindowOptions = {
+        disableAutoPan: false,
+        pixelOffset: new google.maps.Size(0, -5), // Décalage pour éviter le chevauchement
+        maxWidth: 250
+      };
+      
+      infoWindow.open(marker);
+      this.currentHoverInfoWindow = infoWindow;
+      this.currentHoverMarker = marker;
+    }
+  }
+
+  onGisementMouseOut(): void {
+    // Utiliser un délai optimisé pour éviter les fermetures accidentelles
+    this.hoverTimeout = setTimeout(() => {
+      if (this.currentHoverInfoWindow) {
+        this.currentHoverInfoWindow.close();
+        this.currentHoverInfoWindow = null;
+        this.currentHoverMarker = null;
+      }
+      this.hoverTimeout = null;
+    }, 300); // Délai réduit à 300ms pour une meilleure réactivité
+  }
+
+  // Méthode pour garder l'info-bulle ouverte quand on survole l'info-bulle elle-même
+  onInfoWindowMouseEnter(): void {
+    if (this.hoverTimeout) {
+      clearTimeout(this.hoverTimeout);
+      this.hoverTimeout = null;
+    }
+  }
+
+  onInfoWindowMouseLeave(): void {
+    this.onGisementMouseOut(); // Déclencher la fermeture avec délai
+  }
+
+  ngOnDestroy(): void {
+    // Nettoyer les timeouts pour éviter les fuites mémoire
+    if (this.hoverTimeout) {
+      clearTimeout(this.hoverTimeout);
+      this.hoverTimeout = null;
+    }
+    
+    // Fermer l'info-bulle si elle est ouverte
+    if (this.currentHoverInfoWindow) {
+      this.currentHoverInfoWindow.close();
+      this.currentHoverInfoWindow = null;
+      this.currentHoverMarker = null;
+    }
   }
 }
