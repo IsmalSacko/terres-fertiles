@@ -348,4 +348,9 @@ async addAmendement(amendement: MelangeAmendement): Promise<MelangeAmendement> {
     };
     return colors[etat] || 'light';
   }
+
+  async getMelangeCount(): Promise<number> {
+    const melanges = await this.getAll();
+    return melanges.length;
+  }
 }

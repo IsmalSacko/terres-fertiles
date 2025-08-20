@@ -197,6 +197,31 @@ export class GisementDetailComponent implements OnInit {
     }
   }
 
+  async deleteDocument(doc: DocumentGisement): Promise<void> {
+    if (!confirm(`Confirmer la suppression du document "${doc.nom_fichier}" ?`)) {
+      return;
+    }
+
+    this.loading = true;
+    this.errorMsg = '';
+    
+    try {
+      await this.documentGisementService.deleteDocument(doc.id);
+      
+      // Retirer le document de la liste locale
+      if (this.gisement.documents) {
+        this.gisement.documents = this.gisement.documents.filter(d => d.id !== doc.id);
+      }
+      
+      console.log('Document supprimé avec succès');
+    } catch (error: any) {
+      console.error('Erreur lors de la suppression:', error);
+      this.errorMsg = 'Erreur lors de la suppression du document';
+    } finally {
+      this.loading = false;
+    }
+  }
+
   goBack(): void {
     this.router.navigate(['/gisements']);
   }

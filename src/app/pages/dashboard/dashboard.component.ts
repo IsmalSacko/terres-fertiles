@@ -1,96 +1,100 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { RouterLink } from '@angular/router';
-
-interface DashboardItem {
-  title: string;
-  icon: string;
-  route: string;
-  category: 'chantiers' | 'gisements' | 'admin' | 'melanges' | 'analyses' | 'vente' | 'planning';
-  description?: string;
-}
-
-interface DashboardCategory {
-  name: string;
-  title: string;
-  description: string;
-  icon: string;
-  items: DashboardItem[];
-}
+import { ChantierListComponent } from '../chantiers/chantier-list/chantier-list.component';
+import { GisementListComponent } from '../gisments/gisement-list/gisement-list.component';
+import { ChantierService } from '../../services/chantier.service';
+import { GisementService } from '../../services/gisement.service';
+import { PlanningService } from '../../services/planning/planning.service';
+import { MelangeService } from '../../services/melange.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule, MatGridListModule, RouterLink],
+  imports: [CommonModule, MatIconModule, MatButtonModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
+export class DashboardComponent implements OnInit {
+  constructor(
+    private chantierService: ChantierService,
+    private gisementService: GisementService,
+    private planningService: PlanningService,
+    private melangeService: MelangeService
+  ) {}
 
-export class DashboardComponent {
-  dashboardItems: DashboardItem[] = [
-    { title: 'Chantiers', icon: 'location_city', route: '/chantiers', category: 'chantiers', description: 'Gestion des chantiers actifs' },
-    { title: 'Gisements', icon: 'landscape', route: '/gisements', category: 'gisements', description: 'Gestion des sites de collecte' },
-    { title: 'Plateforme', icon: 'home_work', route: '/plateforme', category: 'admin', description: 'Configuration des plateformes' },
-    { title: 'Mélanges', icon: 'tune', route: '/melanges', category: 'melanges', description: 'Composition et recettes' },
-    { title: 'Labo', icon: 'science', route: '/analyses-laboratoire', category: 'analyses', description: 'Analyses de laboratoire' },
-    { title: 'Produits', icon: 'shopping_cart', route: '/produits-vente', category: 'vente', description: 'Catalogue produits' },
-    { title: 'Chantier de destination', icon: 'flag', route: '/chantier-final', category: 'chantiers', description: 'Sites de livraison' },
-    { title: 'Planning', icon: 'calendar_month', route: '/planning', category: 'planning', description: 'Planification des interventions' },
-  ];
+chantierActifs: number = 0;
+gisements: number = 0;
+plannings: number = 0;
+melanges: number = 0;
+loading: boolean = true;
 
-  categories: DashboardCategory[] = [
-    {
-      name: 'chantiers',
-      title: 'Chantiers',
-      description: 'Gestion des sites et destinations',
-      icon: 'location_city',
-      items: this.dashboardItems.filter(item => item.category === 'chantiers')
-    },
-    {
-      name: 'gisements',
-      title: 'Gisements',
-      description: 'Sites de collecte et ressources',
-      icon: 'landscape',
-      items: this.dashboardItems.filter(item => item.category === 'gisements')
-    },
-    {
-      name: 'melanges',
-      title: 'Production',
-      description: 'Mélanges et compositions',
-      icon: 'tune',
-      items: this.dashboardItems.filter(item => item.category === 'melanges')
-    },
-    {
-      name: 'planning',
-      title: 'Planning',
-      description: 'Planification et interventions',
-      icon: 'calendar_month',
-      items: this.dashboardItems.filter(item => item.category === 'planning')
-    },
-    {
-      name: 'analyses',
-      title: 'Laboratoire',
-      description: 'Analyses et contrôles qualité',
-      icon: 'science',
-      items: this.dashboardItems.filter(item => item.category === 'analyses')
-    },
-    {
-      name: 'vente',
-      title: 'Commercial',
-      description: 'Produits et ventes',
-      icon: 'shopping_cart',
-      items: this.dashboardItems.filter(item => item.category === 'vente')
-    },
-    {
-      name: 'admin',
-      title: 'Administration',
-      description: 'Configuration et paramètres',
-      icon: 'settings',
-      items: this.dashboardItems.filter(item => item.category === 'admin')
+ngOnInit() {
+  this.loadAllData();
+}
+
+async loadAllData() {
+  this.loading = true;
+  try {
+    await Promise.all([
+      this.loadChantierActifs(),
+      this.loadGisementCount(),
+      this.loadPlanningCount(),
+      this.loadMelangeCount()
+    ]);
+  } catch (error) {
+    console.error('Erreur lors du chargement des données:', error);
+  } finally {
+    this.loading = false;
+  }
+}
+
+async loadChantierActifs() {
+  const result = await this.chantierService.getChantierActifs();
+  this.animateCounter('chantierActifs', result);
+}
+
+async loadGisementCount() {
+  const result = await this.gisementService.getGisementCount();
+  this.animateCounter('gisements', result);
+}
+
+async loadPlanningCount() {
+  const result = await this.planningService.getPlanningCount();
+  this.animateCounter('plannings', result);
+}
+
+async loadMelangeCount() {
+  const result = await this.melangeService.getMelangeCount();
+  this.animateCounter('melanges', result);
+}
+
+// Animation du compteur pour rendre les statistiques attractives
+private animateCounter(property: 'chantierActifs' | 'gisements' | 'plannings' | 'melanges', targetValue: number) {
+  const duration = 1500; // 1.5 secondes
+  const startTime = Date.now();
+  const startValue = 0;
+  
+  const animate = () => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Fonction d'easing pour une animation plus naturelle
+    const easeOut = 1 - Math.pow(1 - progress, 3);
+    
+    (this as any)[property] = Math.floor(startValue + (targetValue - startValue) * easeOut);
+    
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      (this as any)[property] = targetValue;
     }
-  ];
+  };
+  
+  requestAnimationFrame(animate);
+}
+
+
 }

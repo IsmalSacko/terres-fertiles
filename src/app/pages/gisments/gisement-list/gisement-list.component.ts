@@ -62,4 +62,8 @@ export class GisementListComponent implements OnInit {
       this.gisements = this.gisements.filter(g => g.id !== id);
     }
   }
+
+  getGisementCount(): number {
+    return this.gisements.length;
+  }
 }

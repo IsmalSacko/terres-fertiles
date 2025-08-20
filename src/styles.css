@@ -5,20 +5,16 @@
 html, body { height: 100%; }
 body { 
   margin: 0; 
+  padding-top: 45px !important;
   font-family: Roboto, 
   "Helvetica Neue", sans-serif;
   
  }
-.container{
-  margin-top: 30px;
 
-}
 .icon-view {
     color: #1976d2; /* ou primary si tu veux */
   }
 
-
-  /* You can add global styles to this file, and also import other style files */
 
 /* Variables globales - Charte graphique naturelle */
 :root {
@@ -64,8 +60,87 @@ html, body {
 
 body { 
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: var(--background-color);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1e3c1e 50%, #3a763a 100%) !important;
   color: var(--text-primary);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animations d'étoiles-plantes globales pour toutes les pages */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    /* Étoiles-plantes vertes qui poussent - Forme d'étoile */
+    radial-gradient(ellipse 6px 12px at 20% 30%, rgba(139, 195, 74, 0.6) 40%, transparent 60%),
+    radial-gradient(ellipse 12px 6px at 20% 30%, rgba(139, 195, 74, 0.5) 40%, transparent 60%),
+    radial-gradient(ellipse 8px 16px at 65% 15%, rgba(129, 199, 132, 0.7) 35%, transparent 65%),
+    radial-gradient(ellipse 16px 8px at 65% 15%, rgba(129, 199, 132, 0.6) 35%, transparent 65%),
+    radial-gradient(ellipse 10px 20px at 85% 70%, rgba(102, 187, 106, 0.8) 30%, transparent 70%),
+    radial-gradient(ellipse 20px 10px at 85% 70%, rgba(102, 187, 106, 0.7) 30%, transparent 70%),
+    radial-gradient(ellipse 7px 14px at 15% 80%, rgba(139, 195, 74, 0.7) 40%, transparent 60%),
+    radial-gradient(ellipse 14px 7px at 15% 80%, rgba(139, 195, 74, 0.6) 40%, transparent 60%),
+    radial-gradient(ellipse 9px 18px at 75% 50%, rgba(129, 199, 132, 0.8) 35%, transparent 65%),
+    radial-gradient(ellipse 18px 9px at 75% 50%, rgba(129, 199, 132, 0.7) 35%, transparent 65%),
+    /* Graines dorées qui scintillent */
+    radial-gradient(circle at 35% 25%, rgba(255, 215, 0, 0.7) 2px, transparent 4px),
+    radial-gradient(circle at 55% 65%, rgba(255, 215, 0, 0.8) 1.5px, transparent 3px),
+    radial-gradient(circle at 90% 45%, rgba(255, 215, 0, 0.6) 2.5px, transparent 5px),
+    /* Étoiles scintillantes blanches */
+    radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.5) 1px, transparent 2px),
+    radial-gradient(circle at 90% 20%, rgba(255, 255, 255, 0.4) 1px, transparent 2px),
+    /* Petites plantes supplémentaires qui poussent */
+    radial-gradient(ellipse 5px 10px at 40% 60%, rgba(76, 175, 80, 0.6) 30%, transparent 50%),
+    radial-gradient(ellipse 7px 14px at 60% 40%, rgba(76, 175, 80, 0.7) 35%, transparent 55%),
+    radial-gradient(ellipse 4px 8px at 80% 30%, rgba(76, 175, 80, 0.5) 25%, transparent 45%);
+  background-size: 
+    200px 200px, 200px 200px, 250px 250px, 250px 250px, 300px 300px, 300px 300px,
+    180px 180px, 180px 180px, 220px 220px, 220px 220px,
+    350px 350px, 400px 400px, 320px 320px,
+    500px 500px, 420px 420px,
+    180px 180px, 200px 200px, 160px 160px;
+  pointer-events: none;
+  z-index: -10;
+  animation: starPlantsGrowing 15s ease-in-out infinite;
+}
+
+/* Plantes et arbres qui poussent en bas pour toutes les pages */
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -30px;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background-image: 
+    /* Sol fertile sombre */
+    linear-gradient(to top, rgba(15, 15, 15, 0.7) 0%, transparent 50%),
+    /* Petites plantes stylisées qui poussent */
+    radial-gradient(ellipse at 5% 60%, rgba(58, 118, 58, 0.9) 22px, transparent 30px),
+    radial-gradient(ellipse at 15% 55%, rgba(58, 118, 58, 0.8) 18px, transparent 25px),
+    radial-gradient(ellipse at 28% 62%, rgba(46, 95, 46, 1.0) 25px, transparent 35px),
+    radial-gradient(ellipse at 42% 58%, rgba(58, 118, 58, 0.7) 20px, transparent 28px),
+    radial-gradient(ellipse at 58% 60%, rgba(46, 95, 46, 0.9) 24px, transparent 32px),
+    radial-gradient(ellipse at 72% 56%, rgba(58, 118, 58, 0.8) 21px, transparent 29px),
+    radial-gradient(ellipse at 85% 59%, rgba(46, 95, 46, 0.9) 23px, transparent 31px),
+    radial-gradient(ellipse at 95% 57%, rgba(58, 118, 58, 0.7) 17px, transparent 24px),
+    /* Arbres plus grands */
+    radial-gradient(ellipse at 10% 45%, rgba(34, 139, 34, 0.8) 30px, transparent 40px),
+    radial-gradient(ellipse at 35% 40%, rgba(34, 139, 34, 0.9) 35px, transparent 45px),
+    radial-gradient(ellipse at 65% 42%, rgba(34, 139, 34, 0.7) 28px, transparent 38px),
+    radial-gradient(ellipse at 90% 44%, rgba(34, 139, 34, 0.8) 32px, transparent 42px);
+  background-size: 100% 100%, 
+    180px 80px, 160px 75px, 200px 85px, 170px 78px, 190px 82px, 150px 72px, 180px 80px, 140px 68px,
+    220px 100px, 250px 110px, 210px 95px, 230px 105px;
+  background-repeat: repeat-x;
+  pointer-events: none;
+  z-index: -9;
+  animation: plantsGrowing 20s ease-in-out infinite;
 }
 
 /* Styles globaux pour la navbar fixe - Pour éviter que le contenu soit caché sous la navbar */
@@ -146,35 +221,84 @@ app-saisie-vente,
 .icon-error { color: var(--danger-color) !important; }
 .icon-view { color: var(--primary-color) !important; }
 
-/* Styles communs pour les cartes */
+/* Styles communs pour les cartes - Design moderne cohérent avec thème sombre */
 mat-card {
-  background: rgba(255,255,255,0.85) !important;
-  backdrop-filter: blur(2px);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
-  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(15px) !important;
+  border-radius: 16px !important;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.3),
+    0 6px 20px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  margin-bottom: 24px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+mat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, 
+    rgba(58, 118, 58, 0.04) 0%, 
+    rgba(30, 60, 30, 0.03) 50%, 
+    rgba(10, 10, 10, 0.02) 100%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 mat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--hover-shadow) !important;
+  transform: translateY(-8px) scale(1.02) !important;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.4),
+    0 10px 25px rgba(58, 118, 58, 0.2) !important;
+  border-color: rgba(58, 118, 58, 0.6) !important;
 }
 
-/* En-têtes de carte */
+/* En-têtes de carte avec gradient moderne */
 mat-card-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  color: white;
-  padding: 24px;
-  border-radius: 12px 12px 0 0;
+  background: linear-gradient(135deg, 
+    #2563eb 0%, 
+    #4f46e5 25%, 
+    #7c3aed 50%, 
+    #a855f7 75%, 
+    #c084fc 100%) !important;
+  color: white !important;
+  padding: 24px !important;
+  border-radius: 16px 16px 0 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  z-index: 1 !important;
+}
+
+mat-card-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent);
+  animation: headerShimmer 3s ease-in-out infinite;
 }
 
 mat-card-title {
-  font-size: 1.5em;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  position: relative !important;
+  z-index: 2 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Styles communs pour les icônes */
@@ -184,39 +308,141 @@ mat-icon {
   height: 24px;
 }
 
-/* Styles communs pour les boutons */
+/* Styles communs pour les boutons avec animations modernes */
 button[mat-raised-button] {
-  border-radius: 24px;
-  padding: 8px 24px;
-  transition: all var(--transition-speed);
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+button[mat-raised-button]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.3), 
+    transparent);
+  transition: left 0.5s ease;
+}
+
+button[mat-raised-button]:hover::before {
+  left: 100%;
+}
+
+button[mat-raised-button]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
 }
 
 button[mat-raised-button].primary {
-  background-color: var(--primary-color);
-  color: white;
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%) !important;
+  color: white !important;
 }
 
 button[mat-raised-button].accent {
-  background-color: var(--accent-color);
-  color: white;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  color: white !important;
 }
 
 button[mat-raised-button].warn {
-  background-color: var(--danger-color);
-  color: white;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: white !important;
 }
 
-/* Styles communs pour les formulaires */
+/* Styles communs pour les formulaires avec effets modernes */
 mat-form-field {
   width: 100%;
 }
 
-.mat-form-field-appearance-outline .mat-form-field-outline {
-  color: var(--primary-light);
+::ng-deep .mat-mdc-form-field {
+  margin-bottom: 1rem !important;
 }
 
-.mat-form-field-label {
-  color: var(--text-secondary);
+::ng-deep .mat-mdc-form-field .mat-mdc-floating-label {
+  color: #6b7280 !important;
+  font-weight: 500 !important;
+}
+
+::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+  color: #2563eb !important;
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-input-element {
+  color: #374151 !important;
+  font-weight: 400 !important;
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-outline {
+  border-color: #d1d5db !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-outline {
+  border-color: #2563eb !important;
+  border-width: 2px !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+}
+
+::ng-deep .mat-mdc-form-field:hover .mat-mdc-outline {
+  border-color: #6b7280 !important;
+}
+
+/* ========================================
+   RÈGLES CRITIQUES POUR TABLEAUX
+   Les tableaux doivent TOUJOURS rester visibles
+   ======================================== */
+
+/* Règle absolue : Tous les éléments de tableau restent visibles */
+table, 
+.table,
+mat-table,
+.mat-table,
+.mat-mdc-table,
+tr,
+td,
+th,
+.table-row,
+.table-cell,
+.mat-mdc-row,
+.mat-mdc-cell,
+.mat-mdc-header-row,
+.mat-mdc-header-cell,
+tbody,
+thead,
+.mat-table-container,
+.table-container {
+  opacity: 1 !important;
+  animation: none !important;
+  transform: none !important;
+  visibility: visible !important;
+  position: static !important;
+}
+
+/* Pour les conteneurs de tableaux - animation très douce sans masquer */
+.table-container,
+.mat-table-container,
+.planning-table {
+  animation: fadeInGently 0.8s ease-out forwards !important;
+}
+
+@keyframes fadeInGently {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Styles communs pour les tableaux */
@@ -259,26 +485,49 @@ mat-form-field {
   gap: 8px;
 }
 
-/* Styles communs pour les listes */
+/* Styles communs pour les listes avec animations modernes */
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  padding: 16px;
+  gap: 24px;
+  padding: 20px;
 }
 
 .info-item {
-  background: var(--surface-color);
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: var(--card-shadow);
-  transition: all var(--transition-speed);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.info-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(45deg, #2563eb, #7c3aed, #f59e0b);
+  transition: width 0.3s ease;
 }
 
 .info-item:hover {
-  transform: translateX(5px);
-  box-shadow: var(--hover-shadow);
-  border-color: var(--primary-light);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 
+    0 16px 32px rgba(0, 0, 0, 0.15),
+    0 8px 16px rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.info-item:hover::before {
+  width: 8px;
 }
 
 /* Styles communs pour les titres de section */
@@ -307,19 +556,34 @@ mat-form-field {
   font-weight: 500;
 }
 
-/* Styles communs pour les documents */
+/* Styles communs pour les documents avec design moderne */
 .document-card {
-  background: var(--surface-color);
-  border-radius: 8px;
-  padding: 16px;
-  border: 1px solid var(--background-color);
-  transition: all var(--transition-speed);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.document-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #2563eb, #7c3aed, #f59e0b);
 }
 
 .document-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--hover-shadow);
-  border-color: var(--primary-light);
+  transform: translateY(-4px);
+  box-shadow: 
+    0 12px 24px rgba(0, 0, 0, 0.12),
+    0 6px 12px rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.3);
 }
 
 /* Responsive design */
@@ -338,7 +602,7 @@ mat-form-field {
   }
 }
 
-/* Animations */
+/* Animations modernes et thème nature */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -355,13 +619,244 @@ mat-form-field {
   }
 }
 
+@keyframes twinkle {
+  0% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.8;
+  }
+}
+
+/* Animation de la nature qui pousse et scintille */
+/* Animation des étoiles-plantes qui poussent */
+@keyframes starPlantsGrowing {
+  0% {
+    transform: scale(0.2) rotate(0deg);
+    opacity: 0.1;
+    filter: brightness(0.8) hue-rotate(0deg);
+  }
+  15% {
+    transform: scale(0.6) rotate(15deg);
+    opacity: 0.4;
+    filter: brightness(1.2) hue-rotate(10deg);
+  }
+  35% {
+    transform: scale(1.2) rotate(45deg);
+    opacity: 0.8;
+    filter: brightness(1.6) hue-rotate(25deg);
+  }
+  55% {
+    transform: scale(1.0) rotate(90deg);
+    opacity: 0.9;
+    filter: brightness(1.8) hue-rotate(15deg);
+  }
+  75% {
+    transform: scale(1.3) rotate(135deg);
+    opacity: 0.7;
+    filter: brightness(1.4) hue-rotate(-10deg);
+  }
+  90% {
+    transform: scale(0.8) rotate(180deg);
+    opacity: 0.5;
+    filter: brightness(1.1) hue-rotate(-5deg);
+  }
+  100% {
+    transform: scale(0.3) rotate(0deg);
+    opacity: 0.2;
+    filter: brightness(0.9) hue-rotate(0deg);
+  }
+}
+
+/* Animation des plantes qui poussent en bas */
+@keyframes plantsGrowing {
+  0% {
+    transform: translateY(40px) scaleY(0.1) scaleX(0.8);
+    opacity: 0.1;
+  }
+  15% {
+    transform: translateY(30px) scaleY(0.3) scaleX(0.9);
+    opacity: 0.3;
+  }
+  35% {
+    transform: translateY(15px) scaleY(0.7) scaleX(1.0);
+    opacity: 0.7;
+  }
+  55% {
+    transform: translateY(5px) scaleY(1.0) scaleX(1.1);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translateY(-5px) scaleY(1.3) scaleX(1.0);
+    opacity: 1.0;
+  }
+  90% {
+    transform: translateY(-10px) scaleY(1.1) scaleX(0.9);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(20px) scaleY(0.4) scaleX(0.7);
+    opacity: 0.2;
+  }
+}
+
+/* Animation de graines qui étincellent */
+@keyframes seedSparkle {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.4;
+    filter: brightness(1);
+  }
+  25% {
+    transform: scale(1.3);
+    opacity: 0.8;
+    filter: brightness(1.5);
+  }
+  50% {
+    transform: scale(1.0);
+    opacity: 1;
+    filter: brightness(2);
+  }
+  75% {
+    transform: scale(1.2);
+    opacity: 0.9;
+    filter: brightness(1.8);
+  }
+}
+
+/* Animation de germination */
+@keyframes germination {
+  0% {
+    transform: scale(0.1) translateY(10px);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(0.8) translateY(5px);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1) translateY(0px);
+    opacity: 1;
+  }
+}
+
+@keyframes headerShimmer {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: -100%;
+  }
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes buttonPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+  50% {
+    border-color: rgba(37, 99, 235, 0.6);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  }
+}
+
 .fade-in {
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.6s ease-in-out;
 }
 
 .slide-in {
-  animation: slideIn 0.5s ease-out;
+  animation: slideIn 0.6s ease-out;
 }
+
+.card-entrance {
+  animation: cardEntrance 0.8s ease-out;
+}
+
+/* Classes utilitaires pour animations d'étoiles-plantes intensifiées */
+.page-with-intense-plants::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    /* Étoiles-plantes plus intenses pour pages spéciales */
+    radial-gradient(ellipse 8px 16px at 25% 35%, rgba(139, 195, 74, 1.0) 40%, transparent 60%),
+    radial-gradient(ellipse 16px 8px at 25% 35%, rgba(139, 195, 74, 0.9) 40%, transparent 60%),
+    radial-gradient(ellipse 10px 20px at 70% 20%, rgba(129, 199, 132, 0.9) 35%, transparent 65%),
+    radial-gradient(ellipse 20px 10px at 70% 20%, rgba(129, 199, 132, 0.8) 35%, transparent 65%),
+    radial-gradient(ellipse 12px 24px at 80% 75%, rgba(102, 187, 106, 1.0) 30%, transparent 70%),
+    radial-gradient(ellipse 24px 12px at 80% 75%, rgba(102, 187, 106, 0.9) 30%, transparent 70%),
+    radial-gradient(ellipse 9px 18px at 10% 85%, rgba(139, 195, 74, 0.9) 40%, transparent 60%),
+    radial-gradient(ellipse 18px 9px at 10% 85%, rgba(139, 195, 74, 0.8) 40%, transparent 60%),
+    radial-gradient(ellipse 11px 22px at 78% 55%, rgba(129, 199, 132, 1.0) 35%, transparent 65%),
+    radial-gradient(ellipse 22px 11px at 78% 55%, rgba(129, 199, 132, 0.9) 35%, transparent 65%),
+    /* Graines dorées plus visibles */
+    radial-gradient(circle at 40% 30%, rgba(255, 215, 0, 0.9) 3px, transparent 6px),
+    radial-gradient(circle at 60% 70%, rgba(255, 215, 0, 1.0) 2px, transparent 4px),
+    radial-gradient(circle at 15% 50%, rgba(255, 215, 0, 0.8) 2.5px, transparent 5px),
+    radial-gradient(circle at 85% 40%, rgba(255, 215, 0, 0.9) 2px, transparent 4px),
+    /* Étoiles scintillantes plus brillantes */
+    radial-gradient(circle at 5% 15%, rgba(255, 255, 255, 0.8) 1.5px, transparent 3px),
+    radial-gradient(circle at 95% 25%, rgba(255, 255, 255, 0.7) 1px, transparent 2px),
+    radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.6) 1.5px, transparent 3px);
+  background-size: 
+    180px 180px, 180px 180px, 220px 220px, 220px 220px, 260px 260px, 260px 260px,
+    160px 160px, 160px 160px, 200px 200px, 200px 200px,
+    300px 300px, 320px 320px, 280px 280px, 340px 340px,
+    450px 450px, 380px 380px, 500px 500px;
+  pointer-events: none;
+  z-index: -5;
+  animation: starPlantsGrowing 10s ease-in-out infinite;
+}
+
+/* Classes d'animation pour éléments naturels */
+.seed-sparkle {
+  animation: seedSparkle 3s ease-in-out infinite;
+}
+
+.germination {
+  animation: germination 2s ease-out;
+}
+
+.growing-element {
+  animation: growingNature 8s ease-in-out infinite;
+}
+
+/* Animation pour les éléments qui apparaissent en séquence */
+.staggered-animation {
+  animation: slideIn 0.6s ease-out both;
+}
+
+.staggered-animation:nth-child(1) { animation-delay: 0.1s; }
+.staggered-animation:nth-child(2) { animation-delay: 0.2s; }
+.staggered-animation:nth-child(3) { animation-delay: 0.3s; }
+.staggered-animation:nth-child(4) { animation-delay: 0.4s; }
+.staggered-animation:nth-child(5) { animation-delay: 0.5s; }
 
 .success-snackbar,
 .success-snackbar .mat-mdc-snack-bar-label,

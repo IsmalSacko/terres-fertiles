@@ -9,6 +9,12 @@
           <p>Gestion des ventes de produits et mélanges</p>
         </div>
       </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" [routerLink]="['/saisies-vente/new']">
+          <mat-icon>add</mat-icon>
+          Nouvelle saisie
+        </button>
+      </div>
     </div>
   </div>
 
@@ -68,6 +74,15 @@
                     <span>En attente</span>
                   </span>
                 }
+              </div>
+              <!-- Boutons d'action -->
+              <div class="action-buttons">
+                <a [routerLink]="['/saisies-vente/edit', s.id]" 
+                   matTooltip="Modifier cette saisie" 
+                   class="action-badge edit">
+                  <mat-icon>edit</mat-icon>
+                  <span>Modifier</span>
+                </a>
               </div>
             </div>
           </div>

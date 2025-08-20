@@ -1,8 +1,26 @@
 .container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 2rem auto;
-  padding: 0 1rem;
+  padding: 0.2rem 3rem;
 }
+/* En-têtes de carte avec gradient de la charte graphique officielle */
+mat-card-header {
+  background: linear-gradient(135deg, 
+    var(--secondary-dark) 0%,    /* #4E342E - Brun foncé terre */
+    var(--secondary-color) 20%,  /* #795548 - Brun terre */
+    var(--accent-dark) 40%,      /* #F57C00 - Orange foncé */
+    var(--accent-color) 60%,     /* #FFA000 - Orange ambre */
+    var(--primary-color) 80%,    /* #2E7D32 - Vert forêt */
+    var(--primary-dark) 100%     /* #1B5E20 - Vert foncé */
+  ) !important;
+  color: white !important;
+  padding: 24px !important;
+  border-radius: 16px 16px 0 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  z-index: 1 !important;
+}
+
 
 .product-card {
   margin-bottom: 2rem;
@@ -27,7 +45,7 @@
 .big-volume {
   font-size: 2.2rem;
   font-weight: bold;
-  color: #388e3c;
+  color: var(--primary-color); /* Vert forêt de la charte */
 }
 .trace-grid {
   display: flex;
@@ -35,30 +53,147 @@
   gap: 1.5rem;
   margin: 1rem 0;
 }
+
+.trace-grid > div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-light);
+  min-width: 280px;
+  transition: all var(--transition-speed) ease;
+}
+
+.trace-grid > div:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Couleurs spécifiques pour chaque type d'icône de traçabilité */
+.trace-grid > div:nth-child(1) mat-icon { /* Chantier d'origine */
+  color: var(--secondary-color) !important; /* Brun terre pour l'origine */
+}
+
+.trace-grid > div:nth-child(2) mat-icon { /* Plateforme */
+  color: var(--accent-color) !important; /* Orange ambre pour la plateforme */
+}
+
+.trace-grid > div:nth-child(3) mat-icon { /* Arrivée sur plateforme */
+  color: var(--primary-color) !important; /* Vert forêt pour l'arrivée */
+}
+
+.trace-grid > div:nth-child(4) mat-icon { /* Temps sur plateforme */
+  color: var(--accent-dark) !important; /* Orange foncé pour le temps */
+}
+
+.trace-grid > div:nth-child(5) mat-icon { /* Disponible dans */
+  color: var(--primary-dark) !important; /* Vert foncé pour la disponibilité */
+}
 section h3 mat-icon {
   vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+/* Couleurs spécifiques pour les icônes des titres de section */
+section h3 mat-icon[class*="track_changes"] { /* Traçabilité */
+  color: var(--primary-color) !important;
+}
+
+section h3 mat-icon[class*="science"] { /* Composition */
+  color: var(--secondary-color) !important;
+}
+
+section h3 mat-icon[class*="description"] { /* Documents */
+  color: var(--accent-color) !important;
+}
+
+section h3 mat-icon[class*="analytics"] { /* Analyses */
+  color: var(--primary-dark) !important;
+}
+
+section h3 mat-icon[class*="shopping_cart"] { /* Informations de vente */
+  color: var(--accent-dark) !important;
+}
+
+section h3 mat-icon[class*="comment"] { /* Commentaires */
+  color: var(--text-secondary) !important;
+}
+
+/* Icône principale du volume */
+.big-info mat-icon {
+  color: var(--primary-color) !important;
+}
+
+/* Icônes dans le header */
+mat-card-subtitle mat-icon {
+  color: rgba(255, 255, 255, 0.9) !important;
   margin-right: 0.5rem;
 }
 ul {
   margin: 0.5rem 0 1rem 1.5rem;
 }
+
+ul li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+ul li:last-child {
+  border-bottom: none;
+}
+
+/* Couleurs spécifiques pour les icônes de composition */
+ul li mat-icon[class*="landscape"] { /* Ingrédients naturels */
+  color: var(--secondary-color) !important; /* Brun terre */
+}
+
+ul li mat-icon[class*="eco"] { /* Amendements */
+  color: var(--primary-color) !important; /* Vert forêt */
+}
+
+/* Couleurs pour les icônes de documents */
+ul li mat-icon[class*="attach_file"] { /* Documents techniques */
+  color: var(--accent-color) !important; /* Orange ambre */
+}
+
+/* Couleurs pour les icônes d'analyses */
+ul li mat-icon[class*="science"] { /* Analyses de laboratoire */
+  color: var(--primary-dark) !important; /* Vert foncé */
+}
 mat-card {
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--card-shadow); /* Ombre de la charte */
   border-radius: 12px;
   padding-bottom: 1.5rem;
+  background: var(--surface-color); /* Blanc de la charte */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all var(--transition-speed) ease;
+}
+
+/* Effet hover pour les cartes */
+mat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--hover-shadow); /* Ombre de hover de la charte */
+  border-color: var(--primary-light);
 }
 mat-card-header {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--background-color); /* Gris très clair de la charte */
   margin-bottom: 0.5rem;
 }
 mat-card-title {
+  
   display: flex;
   align-items: center;
   gap: 1rem;
   font-size: 1.5rem;
 }
 mat-card-subtitle {
-  color: #666;
+  color: white;
   font-size: 1.1rem;
   margin-top: 0.5rem;
 }
@@ -67,7 +202,7 @@ section {
 }
 section h3 {
   font-size: 1.2rem;
-  color: #1976d2;
+  color: var(--primary-color); /* Vert forêt de la charte */
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
@@ -82,14 +217,26 @@ section h3 {
   flex-direction: column;
   gap: 0.25rem;
   min-width: 180px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border-left: 4px solid var(--accent-color);
+  transition: all var(--transition-speed) ease;
+}
+
+/* Effet hover pour les info-items */
+.info-item:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-left-color: var(--primary-color);
+  transform: translateX(4px);
 }
 .label {
   font-size: 0.95rem;
-  color: #666;
+  color: var(--text-secondary); /* Gris moyen de la charte */
 }
 .value {
   font-size: 1.1rem;
-  color: #333;
+  color: var(--text-primary); /* Gris foncé de la charte */
   font-weight: 500;
 }
 .location {
@@ -98,7 +245,7 @@ section h3 {
 
 .location h3 {
   margin-bottom: 1rem;
-  color: #333;
+  color: var(--primary-color); /* Vert forêt de la charte */
 }
 
 .map-container {
@@ -109,7 +256,7 @@ section h3 {
 }
 
 .location-text {
-  color: #666;
+  color: var(--text-secondary); /* Gris moyen de la charte */
   font-size: 0.9rem;
   margin: 0.5rem 0;
 }
@@ -122,7 +269,7 @@ section h3 {
 }
 
 .error-message {
-  color: #f44336;
+  color: var(--danger-color); /* Rouge erreur de la charte */
   text-align: center;
   margin: 1rem 0;
   padding: 1rem;
@@ -163,6 +310,12 @@ mat-card-actions {
   .trace-grid {
     flex-direction: column;
     gap: 0.7rem;
+  }
+  
+  .trace-grid > div {
+    min-width: unset;
+    flex-direction: row;
+    align-items: center;
   }
   section {
     margin: 1rem 0;

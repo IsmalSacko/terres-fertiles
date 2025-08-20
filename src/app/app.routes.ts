@@ -22,6 +22,8 @@ import { ResetPasswordComponent } from './pages/compte/reset-password/reset-pass
 import { ResetPasswordConfirmComponent } from './pages/compte/auth/reset-password-confirm/reset-password-confirm.component';
 import {PlanningComponent} from './pages/planning/planning.component';
 import { SaisieVenteComponent } from './pages/saisie-vente/saisie-vente.component';
+import { CreateSaisieVenteComponent } from './pages/create-saisie-vente/create-saisie-vente.component';
+import { EditSaisieVenteComponent } from './pages/edit-saisie-vente/edit-saisie-vente.component';
 
 
 export const routes: Routes = [
@@ -47,6 +49,8 @@ export const routes: Routes = [
   { path: 'produits-vente/:id', component: ProduitVenteDetailComponent },
 
   { path: 'saisies-vente', component: SaisieVenteComponent },
+  { path: 'saisies-vente/new', component: CreateSaisieVenteComponent },
+  { path: 'saisies-vente/edit/:id', component: EditSaisieVenteComponent },
 
   { path: 'analyses-laboratoire', component: AnalyseLaboratoireListComponent },
   { path: 'analyses-laboratoire/:id', component: AnalyseLaboratoireDetailComponent },

@@ -44,4 +44,9 @@ export class PlanningService {
     const response = await axios.put<MelangeModel>(`${this.apiUrl}${planning.id}/`, planning, this.getHeaders());
     return response.data;
   }
+
+  async getPlanningCount(): Promise<number> {
+    const plannings = await this.getPlannings();
+    return plannings.length;
+  }
 }

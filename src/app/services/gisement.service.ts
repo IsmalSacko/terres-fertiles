@@ -121,4 +121,9 @@ export class GisementService {
       this.getHeaders());
     return response.data;
   }
+
+  async getGisementCount(): Promise<number> {
+    const gisements = await this.getAll();
+    return gisements.filter(g => g.id).length;
+  }
 }

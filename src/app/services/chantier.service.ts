@@ -9,6 +9,7 @@ export interface Chantier {
   localisation: string;
   latitude: number;
   longitude: number;
+  is_active: boolean;
 }
 
 @Injectable({
@@ -56,5 +57,10 @@ export class ChantierService {
     
     const response = await axios.get<Chantier[]>(`${this.apiUrl}user/`, this.getHeaders());
     return response.data;
+  }
+
+  async getChantierActifs(): Promise<number> {
+    const chantier = await this.getAll();
+    return chantier.filter(c => c.is_active).length;
   }
 } 

@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SaisieVente } from '../../models/saisie-vente.model';
 import { SaisieventeService } from '../../services/saisievente.service';
 @Component({
@@ -10,10 +13,13 @@ import { SaisieventeService } from '../../services/saisievente.service';
   standalone: true,
   imports: [
     CommonModule, 
+    RouterLink,
     DatePipe, 
     MatCardModule, 
+    MatButtonModule,
     MatIconModule, 
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './saisie-vente.component.html',
   styleUrl: './saisie-vente.component.css'

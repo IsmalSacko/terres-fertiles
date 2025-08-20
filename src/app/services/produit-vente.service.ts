@@ -19,6 +19,7 @@ interface Melange {
 
 export interface ProduitVente {
   id: number;
+  utilisateur?: string; // Ajout du champ utilisateur
   chantier_info?: {
     id: number;
     nom: string;
